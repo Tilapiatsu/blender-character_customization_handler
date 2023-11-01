@@ -12,16 +12,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-from .properties import (CustoSlotProperties, CustoPartSlotsProperties, CustoPartSlotsKeepLowerLayerProperties, UL_CustoSlot, UL_CustoPartSlots)
-from .pannel import (PT_CustoSlotSetup, PT_CustoPartSetup)
-from .OP_UL_custo_slot import (UI_AddSlot, UI_EditSlot, UI_DuplicateSlot, UI_MoveSlot, UI_ClearSlots, UI_RemoveSlot)
-from .OP_UL_custo_part import (UI_RefreshPartSlots)
+from .properties import classes as properties_classes
+from .ui import classes as ui_classes
+from .operators import classes as operators_classes
+from .customization_node import classes as node_classes
+from .properties.properties import CustoSlotProperties, CustoPartSlotsProperties, CustoPartSlotsKeepLowerLayerProperties
 
 bl_info = {
     "name" : "Tila Customization Handler",
     "author" : "Tilapiatsu",
     "description" : "",
-    "blender" : (2, 80, 0),
+    "blender" : (4, 0, 0),
     "location" : "",
     "warning" : "",
     "category" : "Object"
@@ -30,26 +31,15 @@ bl_info = {
 def obj_selected_callback():
     bpy.ops.object.refresh_part_slots()
 
-classes = (
-            UI_AddSlot,
-            UI_EditSlot,
-            UI_DuplicateSlot,
-            UI_MoveSlot,
-            UI_ClearSlots,
-            UI_RemoveSlot,
-            UI_RefreshPartSlots,
-            CustoSlotProperties,
-            CustoPartSlotsProperties,
-            CustoPartSlotsKeepLowerLayerProperties,
-            UL_CustoSlot,
-            UL_CustoPartSlots,
-            PT_CustoSlotSetup,
-            PT_CustoPartSetup
-           )
+classes = operators_classes + properties_classes + ui_classes
 
 def register():
+    from bpy.utils import register_class
     for cls in classes:
-        bpy.utils.register_class(cls)
+        register_class(cls)
+
+    from .customization_node import register as register_node
+    register_node()
 
     bpy.types.Scene.custo_slots = bpy.props.CollectionProperty(type=CustoSlotProperties)
     bpy.types.Scene.custo_slots_idx = bpy.props.IntProperty(default=0)
@@ -65,7 +55,7 @@ def register():
     bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy.types.Scene.object_selection_updater, args=(), notify=obj_selected_callback) 
 
 def unregister():
-
+    from bpy.utils import unregister_class
     del bpy.types.Scene.object_selection_updater
 
     del bpy.types.Object.custo_part_slots
@@ -77,8 +67,12 @@ def unregister():
     del bpy.types.Scene.custo_slots
     del bpy.types.Scene.custo_slots_idx
 
+    from .customization_node import unregister as unregister_node
+    unregister_node()
+    
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        unregister_class(cls)
+
     
 if __name__ == "__main__":
     register()
