@@ -8,7 +8,7 @@ class PT_CharacterCustomizationHandler:
 
 
 class PT_CustoSlotSetup(PT_CharacterCustomizationHandler, bpy.types.Panel): 
-	bl_label = "Asset Slot Setup"
+	bl_label = "Customization Slot Setup"
 	bl_idname = 'SCENE_PT_Asset_Slot_Setup'
 
 	def draw(self, context):
