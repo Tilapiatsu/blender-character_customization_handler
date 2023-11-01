@@ -3,7 +3,7 @@ import bpy
 class PT_CustomizationHandler:          
 	bl_space_type = "VIEW_3D"
 	bl_region_type = "UI"
-	bl_category = 'Character Customization Handler'
+	bl_category = 'Customization Handler'
 	bl_options = {"DEFAULT_CLOSED"}
 
 
