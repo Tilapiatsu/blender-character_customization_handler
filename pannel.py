@@ -1,13 +1,13 @@
 import bpy
 
-class PT_CharacterCustomizationHandler:          
+class PT_CustomizationHandler:          
 	bl_space_type = "VIEW_3D"
 	bl_region_type = "UI"
 	bl_category = 'Character Customization Handler'
 	bl_options = {"DEFAULT_CLOSED"}
 
 
-class PT_CustoSlotSetup(PT_CharacterCustomizationHandler, bpy.types.Panel): 
+class PT_CustoSlotSetup(PT_CustomizationHandler, bpy.types.Panel): 
 	bl_label = "Customization Slot Setup"
 	bl_idname = 'SCENE_PT_Asset_Slot_Setup'
 

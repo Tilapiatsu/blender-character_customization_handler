@@ -18,7 +18,7 @@ from .OP_UL_custo_slot import (UI_AddSlot, UI_EditSlot, UI_DuplicateSlot, UI_Mov
 from .OP_UL_custo_part import (UI_RefreshPartSlots)
 
 bl_info = {
-    "name" : "Tila Character Customization Handler",
+    "name" : "Tila Customization Handler",
     "author" : "Tilapiatsu",
     "description" : "",
     "blender" : (2, 80, 0),
