@@ -12,7 +12,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # Label for nice name display
     bl_label = "Append Assets"
     # Icon identifier
-    bl_icon = 'SOUND'
+    bl_icon = 'NODETREE'
 
     # === Custom Properties ===
     # These work just like custom properties in ID data blocks

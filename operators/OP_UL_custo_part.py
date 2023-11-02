@@ -1,20 +1,10 @@
 import bpy
-
-def get_part(context):
-	idx = context.object.custo_part_slots_idx
-	parts = context.object.custo_part_slots
-
-	active = parts[idx] if len(parts) else None
-
-	return idx, parts, active
 	
 class UI_RefreshPartSlots(bpy.types.Operator):
 	bl_idname = "object.refresh_part_slots"
 	bl_label = "Refresh Part Slots"
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Refresh Part Slots From the Slots Definition"
-
-	name : bpy.props.StringProperty(name="Parts Name", default="")
 
 	def invoke(self, context, event):
 		return context.object

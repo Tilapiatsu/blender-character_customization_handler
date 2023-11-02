@@ -1,4 +1,41 @@
 from .OP_UL_custo_part import (UI_RefreshPartSlots)
-from .OP_UL_custo_slot import (UI_MoveSlot, UI_EditSlot, UI_ClearSlots, UI_AddSlot, UI_DuplicateSlot)
+from .OP_UL_custo_part_label import (UI_RefreshPartLabels)
+from .OP_UL_custo_slot import (UI_MoveSlot, 
+                               UI_EditSlot, 
+                               UI_ClearSlots, 
+                               UI_AddSlot,
+                               UI_RemoveSlot,
+                               UI_DuplicateSlot)
+from .OP_UL_custo_label import (UI_MoveLabel, 
+                                UI_EditLabel, 
+                                UI_ClearLabels, 
+                                UI_AddLabel,
+                                UI_RemoveLabel,
+                                UI_DuplicateLabel)
+from .OP_UL_custo_label_category import (UI_MoveLabelCategory, 
+                                        UI_EditLabelCategory, 
+                                        UI_ClearLabelCategories, 
+                                        UI_AddLabelCategory, 
+                                        UI_RemoveLabelCategory,
+                                        UI_DuplicateLabelCategory)
 
-classes = (UI_RefreshPartSlots, UI_MoveSlot, UI_EditSlot, UI_ClearSlots, UI_AddSlot, UI_DuplicateSlot)
+classes = (UI_RefreshPartSlots,
+           UI_RefreshPartLabels, 
+           UI_MoveSlot, 
+           UI_EditSlot, 
+           UI_ClearSlots, 
+           UI_AddSlot,
+           UI_RemoveSlot,
+           UI_DuplicateSlot,
+           UI_MoveLabel,
+           UI_EditLabel,
+           UI_ClearLabels,
+           UI_AddLabel,
+           UI_RemoveLabel,
+           UI_DuplicateLabel,
+           UI_MoveLabelCategory,
+           UI_EditLabelCategory,
+           UI_ClearLabelCategories,
+           UI_AddLabelCategory,
+           UI_RemoveLabelCategory,
+           UI_DuplicateLabelCategory)
