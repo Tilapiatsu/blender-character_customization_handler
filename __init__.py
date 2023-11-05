@@ -18,6 +18,7 @@ from .operators import classes as operators_classes
 from .customization_node import classes as node_classes
 from .properties.custo_slot_properties import (CustoSlotProperties, CustoPartSlotsProperties, CustoPartSlotsKeepLowerLayerProperties)
 from .properties.custo_label_properties import (CustoLabelProperties, CustoLabelCategoryProperties, CustoPartLabelProperties, CustoPartLabelCategoryProperties, update_label_category, update_part_label_category)
+from bpy.app.handlers import persistent
 
 bl_info = {
     "name" : "Tila Customization Handler",
@@ -30,8 +31,14 @@ bl_info = {
 }
 
 def obj_selected_callback():
-    bpy.ops.object.refresh_part_slots()
-    bpy.ops.object.refresh_part_labels()
+    bpy.ops.object.refresh_part_slots('INVOKE_DEFAULT')
+    bpy.ops.object.refresh_part_labels('INVOKE_DEFAULT')
+
+@persistent
+def register_object_selected_callback(dummy):
+    subscribe_to = bpy.types.LayerObjects, "active"
+    bpy.types.Scene.object_selection_updater = object()
+    bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy.types.Scene.object_selection_updater, args=(), notify=obj_selected_callback)
 
 classes = operators_classes + properties_classes + ui_classes
 
@@ -60,9 +67,8 @@ def register():
     bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
     bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
 
-    subscribe_to = bpy.types.LayerObjects, "active"
-    bpy.types.Scene.object_selection_updater = object()
-    bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy.types.Scene.object_selection_updater, args=(), notify=obj_selected_callback) 
+    
+    bpy.app.handlers.load_post.append(register_object_selected_callback)
 
 def unregister():
     from bpy.utils import unregister_class

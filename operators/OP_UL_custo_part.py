@@ -6,8 +6,9 @@ class UI_RefreshPartSlots(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Refresh Part Slots From the Slots Definition"
 
-	def invoke(self, context, event):
-		return context.object
+	@classmethod
+	def poll(cls, context):
+		return context.object is not None
 
 	def execute(self, context):
 		# print(f'refreshing {context.object.name} part slots')

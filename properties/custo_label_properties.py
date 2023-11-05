@@ -8,6 +8,24 @@ def update_label_category(self, context):
 	
 def update_part_label_category(self, context):
 	context.object.custo_part_labels.clear()
+	
+	if not len(context.object.custo_part_label_categories):
+		return
+	
+	label_to_remove=[]
+	category_name = context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].name
+
+	for i,l in enumerate(context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels):
+		for c in context.scene.custo_label_categories:
+			if c.name != category_name:
+				continue
+
+			if l.name not in c.labels:
+				label_to_remove.append(i)
+
+	for l in label_to_remove:
+		context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels.remove(l)
+
 	for l in context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels:
 		label = context.object.custo_part_labels.add()
 		label.name = l.name
