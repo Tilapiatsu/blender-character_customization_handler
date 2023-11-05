@@ -10,7 +10,7 @@ class AssetsSocket(NodeSocket):
     # Label for nice name display
     bl_label = "Assets Node Socket"
 
-    input_value: bpy.props.FloatProperty(
+    input_value: bpy.props.StringProperty(
         name="Value",
         description="Value when the socket is not connected",
     )
@@ -20,7 +20,7 @@ class AssetsSocket(NodeSocket):
         if self.is_output or self.is_linked:
             layout.label(text=text)
         else:
-            layout.prop(self, "Assets", text=text)
+            layout.prop(self, "input_value", text=text)
 
     # Socket color
     @classmethod
