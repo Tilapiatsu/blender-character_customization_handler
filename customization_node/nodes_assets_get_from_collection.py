@@ -3,14 +3,14 @@ from bpy.types import Node
 from .node_tree import CustomizationTreeNode
 
 # Derived from the Node base type.
-class AssetsAppendNode(CustomizationTreeNode, Node):
+class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
     # === Basics ===
     # Description string
-    '''Assets Append node'''
+    '''Assets Get From Collection node'''
     # Optional identifier string. If not explicitly defined, the python class name is used.
-    bl_idname = 'AssetsAppendNodeType'
+    bl_idname = 'AssetsGetFromCollectionNodeType'
     # Label for nice name display
-    bl_label = "Append Assets"
+    bl_label = "Get From Collection Assets"
     # Icon identifier
     bl_icon = 'NODETREE'
 
@@ -18,8 +18,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # These work just like custom properties in ID data blocks
     # Extensive information can be found under
     # https://docs.blender.org/api/current/bpy.props.html
-    my_string_prop: bpy.props.StringProperty()
-    my_float_prop: bpy.props.FloatProperty(default=3.1415926)
 
     # === Optional Functions ===
     # Initialization function, called when a new node is created.
@@ -27,13 +25,9 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # NOTE: this is not the same as the standard __init__ function in Python, which is
     #       a purely internal Python method and unknown to the node system!
     def init(self, context):
-        self.inputs.new('AssetsSocketType', "Hello")
-        self.inputs.new('NodeSocketFloat', "World")
-        self.inputs.new('NodeSocketVector', "!")
+        self.inputs.new('NodeSocketCollection', "Collection")
 
-        self.outputs.new('NodeSocketColor', "How")
-        self.outputs.new('NodeSocketColor', "are")
-        self.outputs.new('NodeSocketFloat', "you")
+        self.outputs.new('AssetsSocketType', "Assets")
 
     # Copy function to initialize a copied node from an existing one.
     def copy(self, node):
@@ -44,9 +38,9 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
         print("Removing node ", self, ", Goodbye!")
 
     # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        layout.label(text="Node settings")
-        layout.prop(self, "my_float_prop")
+    # def draw_buttons(self, context, layout):
+    #     layout.label(text="Node settings")
+    #     layout.prop(self, "my_float_prop")
 
     # Detail buttons in the sidebar.
     # If this function is not defined, the draw_buttons function is used instead
@@ -58,7 +52,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # Optional: custom label
     # Explicit user label overrides this, but here we can define a label dynamically
     def draw_label(self):
-        return "I am a custom node"
+        return "Get Assets From Collection"
 
 
 

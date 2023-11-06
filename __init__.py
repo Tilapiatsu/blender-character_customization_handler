@@ -15,7 +15,6 @@ import bpy
 from .properties import classes as properties_classes
 from .ui import classes as ui_classes
 from .operators import classes as operators_classes
-from .customization_node import classes as node_classes
 from .properties.custo_slot_properties import (CustoSlotProperties, CustoPartSlotsProperties, CustoPartSlotsKeepLowerLayerProperties)
 from .properties.custo_label_properties import (CustoLabelProperties, CustoLabelCategoryProperties, CustoPartLabelProperties, CustoPartLabelCategoryProperties, update_label_category, update_part_label_category)
 from bpy.app.handlers import persistent

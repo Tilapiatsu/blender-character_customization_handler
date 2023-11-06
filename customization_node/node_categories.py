@@ -14,6 +14,10 @@ class CustomizationCategory(NodeCategory):
     
 # all categories in a list
 node_categories = [
+    CustomizationCategory('INPUTS', "Input", items=[
+        # our basic node
+        NodeItem("AssetsGetFromCollectionNodeType"),
+    ]),
     # identifier, label, items list
     CustomizationCategory('SOMENODES', "Some Nodes", items=[
         # our basic node

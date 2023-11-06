@@ -1,6 +1,7 @@
 from .node_tree import (CustomizationTree,)
 from .node_sockets import (AssetsSocket, AssetsInterfaceSocket )
-from .nodes import (AssetsAppendNode,)
+from .nodes_asset_append import (AssetsAppendNode,)
+from .nodes_assets_get_from_collection import (AssetsGetFromCollectionNode,)
 from .node_categories import node_categories
 import nodeitems_utils
 
@@ -9,6 +10,7 @@ classes = (
     AssetsSocket,
     AssetsInterfaceSocket,
     AssetsAppendNode,
+    AssetsGetFromCollectionNode,
 )
 
 

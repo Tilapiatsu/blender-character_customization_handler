@@ -17,10 +17,10 @@ class AssetsSocket(NodeSocket):
 
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
-        if self.is_output or self.is_linked:
-            layout.label(text=text)
-        else:
-            layout.prop(self, "input_value", text=text)
+        # if self.is_output or self.is_linked:
+        layout.label(text=text)
+        # else:
+        #     layout.prop(self, "input_value", text=text)
 
     # Socket color
     @classmethod
