@@ -1,5 +1,6 @@
 from nodeitems_utils import NodeCategory, NodeItem
 
+
 ### Node Categories ###
 # Node categories are a python system for automatically
 # extending the Add menu, toolbar panels and search operator.
@@ -38,3 +39,26 @@ node_categories = [
         }),
     ]),
 ]
+
+classes = (  
+            )
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+    import nodeitems_utils
+    nodeitems_utils.register_node_categories('CUSTOMIZATION_NODES', node_categories)
+
+
+def unregister():
+    import nodeitems_utils
+    nodeitems_utils.unregister_node_categories('CUSTOMIZATION_NODES')
+    
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

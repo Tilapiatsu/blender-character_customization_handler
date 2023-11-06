@@ -12,11 +12,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-from .properties import classes as properties_classes
-from .ui import classes as ui_classes
-from .operators import classes as operators_classes
-from .properties.custo_slot_properties import (CustoSlotProperties, CustoPartSlotsProperties, CustoPartSlotsKeepLowerLayerProperties)
-from .properties.custo_label_properties import (CustoLabelProperties, CustoLabelCategoryProperties, CustoPartLabelProperties, CustoPartLabelCategoryProperties, update_label_category, update_part_label_category)
+from . import operators, ui, customization_node
+
 from bpy.app.handlers import persistent
 
 bl_info = {
@@ -39,62 +36,20 @@ def register_object_selected_callback(dummy):
     bpy.types.Scene.object_selection_updater = object()
     bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy.types.Scene.object_selection_updater, args=(), notify=obj_selected_callback)
 
-classes = operators_classes + properties_classes + ui_classes
 
 def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
-
-    from .customization_node import register as register_node
-    register_node()
-
-    bpy.types.Scene.custo_slots = bpy.props.CollectionProperty(type=CustoSlotProperties)
-    bpy.types.Scene.custo_slots_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Scene.custo_labels = bpy.props.CollectionProperty(type=CustoLabelProperties)
-    bpy.types.Scene.custo_labels_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Scene.custo_label_categories = bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
-    bpy.types.Scene.custo_label_categories_idx = bpy.props.IntProperty(default=0, update=update_label_category)
-
-    bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
-    bpy.types.Object.custo_part_slots = bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
-    bpy.types.Object.custo_part_slots_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Object.custo_part_keep_lower_slots = bpy.props.CollectionProperty(type=CustoPartSlotsKeepLowerLayerProperties)
-    bpy.types.Object.custo_part_keep_lower_slots_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Object.custo_part_labels = bpy.props.CollectionProperty(type=CustoPartLabelProperties)
-    bpy.types.Object.custo_part_labels_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
-    bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
-
+    operators.register()
+    ui.register()
+    customization_node.register()
     
     bpy.app.handlers.load_post.append(register_object_selected_callback)
 
 def unregister():
-    from bpy.utils import unregister_class
     del bpy.types.Scene.object_selection_updater
 
-    del bpy.types.Object.custo_part_slots
-    del bpy.types.Object.custo_part_slots_idx
-    del bpy.types.Object.custo_part_layer
-    del bpy.types.Object.custo_part_keep_lower_slots
-    del bpy.types.Object.custo_part_keep_lower_slots_idx
-    del bpy.types.Object.custo_part_labels
-    del bpy.types.Object.custo_part_labels_idx
-    del bpy.types.Object.custo_part_label_categories
-    del bpy.types.Object.custo_part_label_categories_idx
-
-    del bpy.types.Scene.custo_label_categories_idx
-    del bpy.types.Scene.custo_label_categories
-    del bpy.types.Scene.custo_labels_idx
-    del bpy.types.Scene.custo_labels
-    del bpy.types.Scene.custo_slots_idx
-    del bpy.types.Scene.custo_slots
-
-    from .customization_node import unregister as unregister_node
-    unregister_node()
-    
-    for cls in reversed(classes):
-        unregister_class(cls)
+    customization_node.unregister()
+    ui.unregister()
+    operators.unregister()
 
     
 if __name__ == "__main__":

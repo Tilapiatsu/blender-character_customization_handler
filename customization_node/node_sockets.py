@@ -47,3 +47,21 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
     def from_socket(self, node, socket):
         # Current value of the socket becomes the default
         self.default_value = socket.input_value
+
+
+classes = ( AssetsSocket, 
+            AssetsInterfaceSocket)
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

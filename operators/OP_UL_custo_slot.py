@@ -154,3 +154,24 @@ class UI_AddSlot(bpy.types.Operator):
 		s.name = self.name
 		bpy.ops.object.refresh_part_slots()
 		return {'FINISHED'}
+
+classes = ( UI_MoveSlot, 
+            UI_EditSlot, 
+            UI_ClearSlots, 
+            UI_AddSlot,
+            UI_RemoveSlot,
+            UI_DuplicateSlot)
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

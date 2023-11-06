@@ -1,3 +1,7 @@
-from .pannel import (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoPartSetup)
+from . import pannel
 
-classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoPartSetup)
+def register():
+    pannel.register()
+
+def unregister():
+    pannel.unregister()

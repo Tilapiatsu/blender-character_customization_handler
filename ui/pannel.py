@@ -117,3 +117,23 @@ class PT_CustoPartSetup(bpy.types.Panel):
 
 		rows = 20 if len(ob.custo_part_labels) > 20 else len(ob.custo_part_labels) + 1
 		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
+
+
+classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoPartSetup)
+
+def register():
+    bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
+
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+    
+    del bpy.types.Object.custo_part_layer
+
+if __name__ == "__main__":
+    register()

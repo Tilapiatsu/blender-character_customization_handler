@@ -24,3 +24,20 @@ class UI_RefreshPartSlots(bpy.types.Operator):
 				context.object.custo_part_slots.remove(i)
 			i += 1
 		return {'FINISHED'}
+	
+classes = ( UI_RefreshPartSlots, 
+            )
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

@@ -159,3 +159,24 @@ class UI_AddLabelCategory(bpy.types.Operator):
 		s.name = self.name
 		bpy.ops.object.refresh_part_labels()
 		return {'FINISHED'}
+	
+classes = ( UI_MoveLabelCategory, 
+            UI_EditLabelCategory, 
+            UI_ClearLabelCategories, 
+            UI_AddLabelCategory, 
+            UI_RemoveLabelCategory,
+            UI_DuplicateLabelCategory)
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

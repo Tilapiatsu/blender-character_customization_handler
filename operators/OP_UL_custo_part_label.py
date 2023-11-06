@@ -1,5 +1,5 @@
 import bpy
-from ..properties.custo_label_properties import update_part_label_category
+from .properties.custo_label_properties import update_part_label_category
 
 
 class UI_RefreshPartLabels(bpy.types.Operator):
@@ -39,3 +39,20 @@ class UI_RefreshPartLabels(bpy.types.Operator):
 		
 		update_part_label_category(self, context)
 		return {'FINISHED'}
+	
+classes = ( UI_RefreshPartLabels, 
+            )
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+
+
+def unregister():
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+
+if __name__ == "__main__":
+    register()

@@ -1,41 +1,18 @@
-from .OP_UL_custo_part import (UI_RefreshPartSlots)
-from .OP_UL_custo_part_label import (UI_RefreshPartLabels)
-from .OP_UL_custo_slot import (UI_MoveSlot, 
-                               UI_EditSlot, 
-                               UI_ClearSlots, 
-                               UI_AddSlot,
-                               UI_RemoveSlot,
-                               UI_DuplicateSlot)
-from .OP_UL_custo_label import (UI_MoveLabel, 
-                                UI_EditLabel, 
-                                UI_ClearLabels, 
-                                UI_AddLabel,
-                                UI_RemoveLabel,
-                                UI_DuplicateLabel)
-from .OP_UL_custo_label_category import (UI_MoveLabelCategory, 
-                                        UI_EditLabelCategory, 
-                                        UI_ClearLabelCategories, 
-                                        UI_AddLabelCategory, 
-                                        UI_RemoveLabelCategory,
-                                        UI_DuplicateLabelCategory)
+from . import properties
+from . import OP_UL_custo_part, OP_UL_custo_label, OP_UL_custo_label_category, OP_UL_custo_part_label, OP_UL_custo_slot
 
-classes = (UI_RefreshPartSlots,
-           UI_RefreshPartLabels, 
-           UI_MoveSlot, 
-           UI_EditSlot, 
-           UI_ClearSlots, 
-           UI_AddSlot,
-           UI_RemoveSlot,
-           UI_DuplicateSlot,
-           UI_MoveLabel,
-           UI_EditLabel,
-           UI_ClearLabels,
-           UI_AddLabel,
-           UI_RemoveLabel,
-           UI_DuplicateLabel,
-           UI_MoveLabelCategory,
-           UI_EditLabelCategory,
-           UI_ClearLabelCategories,
-           UI_AddLabelCategory,
-           UI_RemoveLabelCategory,
-           UI_DuplicateLabelCategory)
+def register():
+    properties.register()
+    OP_UL_custo_part.register()
+    OP_UL_custo_label.register()
+    OP_UL_custo_label_category.register()
+    OP_UL_custo_part_label.register()
+    OP_UL_custo_slot.register()
+
+def unregister():
+    OP_UL_custo_part.unregister()
+    OP_UL_custo_label.unregister()
+    OP_UL_custo_label_category.unregister()
+    OP_UL_custo_part_label.unregister()
+    OP_UL_custo_slot.unregister()
+    properties.unregister()
