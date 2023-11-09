@@ -30,7 +30,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # These work just like custom properties in ID data blocks
     # Extensive information can be found under
     # https://docs.blender.org/api/current/bpy.props.html
-    input_number: bpy.props.IntProperty(name='Inputs', default=2, min=2, update=reinit_inputs)
+    # input_number: bpy.props.IntProperty(name='Inputs', default=2, min=2, update=reinit_inputs)
 
     # === Optional Functions ===
     # Initialization function, called when a new node is created.
@@ -39,9 +39,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     #       a purely internal Python method and unknown to the node system!
     def init(self, context):
         self.inputs.new('AssetsSocketType', "Assets")
-        self.inputs.new('AssetsSocketType', "Assets")
-
-
         self.outputs.new('AssetsSocketType', "Assets")
 
 
@@ -55,7 +52,8 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
-        layout.prop(self, "input_number")
+        # layout.prop(self, "input_number")
+        pass
 
     # # Detail buttons in the sidebar.
     # # If this function is not defined, the draw_buttons function is used instead
@@ -68,6 +66,10 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
     # Explicit user label overrides this, but here we can define a label dynamically
     def draw_label(self):
         return "Append Assets"
+    
+    # Makes sure there is always one empty input socket at the bottom by adding and removing sockets
+    def update_inputs(self):
+        CustomizationTreeNode.update_inputs(self, 'AssetSocket', "AssetsSocketType")
 
 class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
     # === Basics ===
@@ -102,6 +104,10 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
     # Free function to clean up on removal.
     def free(self):
         print("Removing node ", self, ", Goodbye!")
+    
+    # Inputs are static (none)
+    def update_inputs(self):
+        pass
 
     # Additional buttons displayed on the node.
     # def draw_buttons(self, context, layout):
