@@ -2,6 +2,7 @@ import bpy
 from bpy.types import NodeSocket, NodeTreeInterfaceSocket
 
 class CustomizationSocket:
+	valid: bpy.props.BoolProperty()
 	def socket_label(self, text):
 		if self.is_output or (self.is_linked and self.valid) or (not self.is_output and not self.is_linked):
 			return text
@@ -42,10 +43,7 @@ class AssetsSocket(CustomizationSocket, NodeSocket):
 	# Label for nice name display
 	bl_label = "Assets Node Socket"
 
-	input_value: bpy.props.StringProperty(
-		name="Value",
-		description="Value when the socket is not connected",
-	)
+	input_value = []
 
 	# Optional function for drawing the socket input value
 	def draw(self, context, layout, node, text):
@@ -65,7 +63,8 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
 	# The type of socket that is generated.
 	bl_socket_idname = 'AssetsSocketType'
 
-	default_value: bpy.props.FloatProperty(default=1.0, description="Default input value for new sockets",)
+	default_value = []
+	
 
 	def draw(self, context, layout):
 		# Display properties of the interface.
@@ -82,7 +81,7 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
 
 
 classes = ( AssetsSocket, 
-			AssetsInterfaceSocket)
+			AssetsInterfaceSocket )
 
 def register():
 	from bpy.utils import register_class

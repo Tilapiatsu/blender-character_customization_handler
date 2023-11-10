@@ -2,13 +2,13 @@ from bpy.types import NodeTree
 
 # Follow an input link through any reroutes
 def follow_input_link(link):
-    if link.from_node.type == 'REROUTE':
-        if link.from_node.inputs[0].is_linked:
-            try: # During link insertion this can have weird states
-                return follow_input_link(link.from_node.inputs[0].links[0])
-            except:
-                pass
-    return link
+	if link.from_node.type == 'REROUTE':
+		if link.from_node.inputs[0].is_linked:
+			try: # During link insertion this can have weird states
+				return follow_input_link(link.from_node.inputs[0].links[0])
+			except:
+				pass
+	return link
 
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
 class CustomizationTree(NodeTree):
@@ -20,8 +20,6 @@ class CustomizationTree(NodeTree):
 	bl_label = "Customization Tree"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-
-
 
 
 # Mix-in class for all custom nodes in this tree type.
@@ -75,6 +73,19 @@ class CustomizationTreeNode:
 				link.to_socket.valid = True
 			else:
 				link.to_socket.valid = False
+				
+	def get_assets(self):
+		input_assets = []
+		for i,input in enumerate(self.inputs):
+			if not input.is_linked:
+				continue
+			
+			input_node = input.links[0].from_node
+			input_assets += input_node.get_assets()
+		
+			print(f'inputed assets {i} =', input_assets)
+			
+		return input_assets
 
 classes = ( CustomizationTree, 
 			)
