@@ -1,4 +1,5 @@
 from bpy.types import NodeTree
+from . import node_sockets
 
 # Follow an input link through any reroutes
 def follow_input_link(link):
@@ -77,15 +78,40 @@ class CustomizationTreeNode:
 	def get_assets(self):
 		input_assets = []
 		for i,input in enumerate(self.inputs):
-			if not input.is_linked:
+			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+				continue
+			
+			if not input.is_linked or not len(input.links):
 				continue
 			
 			input_node = input.links[0].from_node
-			input_assets += input_node.get_assets()
+			current_input_assets = input_node.get_assets()
+			input_assets += current_input_assets
 		
-			print(f'inputed assets {i} =', input_assets)
-			
 		return input_assets
+	
+	def print_assets(self):
+		assets = self.get_assets()
+		print(f'{len(assets)} asset(s) found')
+		print('---------------------------------------')
+		for a in assets:
+			print(a.name)
+		print('---------------------------------------')
+
+	# Follows through reroutes
+	def islinked(self):
+		if self.is_linked and not self.is_output:
+			try: # During link removal this can be in a weird state
+				node = self.links[0].from_node
+				while node.type == "REROUTE":
+					if node.inputs[0].is_linked and node.inputs[0].links[0].is_valid:
+						node = node.inputs[0].links[0].from_node
+					else:
+						return False
+				return True
+			except:
+				pass
+		return False
 
 classes = ( CustomizationTree, 
 			)

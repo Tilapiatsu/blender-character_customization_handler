@@ -15,7 +15,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	bl_icon = 'NODETREE'
 
 	object_types = ['MESH', 'CURVE', 'SURFACE', 'META']
-	assets = []
 	# === Custom Properties ===
 	# These work just like custom properties in ID data blocks
 	# Extensive information can be found under
@@ -34,6 +33,10 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 		# Outputs
 		self.outputs.new('AssetsSocketType', "Assets")
 
+	@property
+	def assets(self):
+		return self.get_assets()
+	
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
 		print("Copying from node ", node)
@@ -45,22 +48,23 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	def get_assets(self):
 		all_assets = []
 		collection = self.inputs[0].default_value
+		if collection is None:
+			return
 		all_assets += [o for o in collection.all_objects if o.type in self.object_types]
 		children_collections = collection.children_recursive
 		for c in children_collections:
 			all_assets += [o for o in c.all_objects if o.type in self.object_types]
 
-		print("all assets =", all_assets)
-		self.assets = all_assets
+		# print("all assets =", all_assets)
 		return all_assets
 
 	def update_inputs(self):
 		pass
 
 	# Additional buttons displayed on the node.
-	# def draw_buttons(self, context, layout):
-	#     layout.label(text="Node settings")
-	#     layout.prop(self, "my_float_prop")
+	def draw_buttons(self, context, layout):
+		layout.label(text=f'{len(self.assets)} asset(s) found')
+		pass
 
 	# Detail buttons in the sidebar.
 	# If this function is not defined, the draw_buttons function is used instead
@@ -86,8 +90,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	bl_label = "Append Assets"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-
-	assets = []
 			
 	# === Custom Properties ===
 	# These work just like custom properties in ID data blocks
@@ -104,6 +106,11 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 
+	
+	@property
+	def assets(self):
+		return self.get_assets()
+
 
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -115,8 +122,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		pass
-		# layout.label(text=f'{len(self.assets)} asset(s) found')
+		layout.label(text=f'{len(self.assets)} asset(s) found')
 
 	# # Detail buttons in the sidebar.
 	# # If this function is not defined, the draw_buttons function is used instead
@@ -134,8 +140,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	def update_inputs(self):
 		CustomizationTreeNode.update_inputs(self, 'AssetsSocketType', "Assets")
 
-		self.assets = self.get_assets()
-
 
 class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	# === Basics ===
@@ -147,8 +151,6 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	bl_label = "Filter Assets By Label"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-
-	assets = []
 			
 	# === Custom Properties ===
 	# These work just like custom properties in ID data blocks
@@ -161,9 +163,12 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	# This is the most common place to create the sockets for a node, as shown below.
 	# NOTE: this is not the same as the standard __init__ function in Python, which is
 	#       a purely internal Python method and unknown to the node system!
-
 	label: bpy.props.StringProperty(name="Label", description="Label", default="")
+	invert: bpy.props.BoolProperty(name="Not", description="Invert rule", default=False)
 
+	@property
+	def assets(self):
+		return self.get_assets()
 
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")
@@ -180,7 +185,8 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		# layout.label(text=f'{len(self.assets)} asset(s) found')
+		layout.label(text=f'{len(self.assets)} asset(s) found')
+		layout.prop(self, "invert")
 		layout.prop(self, "label")
 
 	# # Detail buttons in the sidebar.
@@ -197,26 +203,30 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
-		self.get_assets()
+		pass
 	
 	def get_assets(self):		
-		self.assets = super().get_assets()
 		# filtering by label
 		filtered = []
+		assets = super().get_assets()
 
-		for o in self.assets:
+		if not len(self.label):
+			if self.invert:
+				return assets
+			else:
+				return []
+		
+		for o in assets:
 			for lc in o.custo_part_label_categories:
 				for l in lc.labels:
-					if l.name != self.label:
+					if self.label not in l.name:
 						continue
-					if l.checked:
+					if l.checked and not self.invert or not l.checked and self.invert:
 						filtered.append(o)
 
-		self.assets = filtered
+		# print(f'filtered input =', filtered)
 
-		print(f'filtered input =', self.assets)
-
-		return self.assets
+		return filtered
 
 
 classes = ( AssetsAppendNode, 
