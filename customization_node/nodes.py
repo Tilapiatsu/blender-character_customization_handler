@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Node
 from .node_tree import CustomizationTreeNode
+from .const_node_color import SPAWN_COLOR, INVALID_COLOR
 
 
 class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
@@ -44,12 +45,16 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	# Free function to clean up on removal.
 	def free(self):
 		print("Removing node ", self, ", Goodbye!")
+		
+	def islinked(self):
+		return False
 	
 	def get_assets(self):
-		all_assets = []
 		collection = self.inputs[0].default_value
 		if collection is None:
-			return
+			return []
+		
+		all_assets = []
 		all_assets += [o for o in collection.all_objects if o.type in self.object_types]
 		children_collections = collection.children_recursive
 		for c in children_collections:
@@ -63,8 +68,8 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
+		layout.prop(self, 'spawn')
 		layout.label(text=f'{len(self.assets)} asset(s) found')
-		pass
 
 	# Detail buttons in the sidebar.
 	# If this function is not defined, the draw_buttons function is used instead
@@ -78,6 +83,14 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
 		return "Get Assets From Collection"
+	
+	def update_color(self):
+		if self.spawn:
+			self.use_custom_color = True
+			self.color = SPAWN_COLOR
+		else:
+			self.use_custom_color = False
+
 
 
 class AssetsAppendNode(CustomizationTreeNode, Node):
@@ -122,16 +135,9 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
+		layout.prop(self, 'spawn')
 		layout.label(text=f'{len(self.assets)} asset(s) found')
 
-	# # Detail buttons in the sidebar.
-	# # If this function is not defined, the draw_buttons function is used instead
-	# def draw_buttons_ext(self, context, layout):
-	#     layout.prop(self, "my_float_prop")
-	#     # my_string_prop button will only be visible in the sidebar
-	#     layout.prop(self, "my_string_prop")
-
-	# Optional: custom label
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
 		return "Append Assets"
@@ -151,18 +157,7 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	bl_label = "Filter Assets By Label"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-			
-	# === Custom Properties ===
-	# These work just like custom properties in ID data blocks
-	# Extensive information can be found under
-	# https://docs.blender.org/api/current/bpy.props.html
-	# input_number: bpy.props.IntProperty(name='Inputs', default=2, min=2, update=reinit_inputs)
-
-	# === Optional Functions ===
-	# Initialization function, called when a new node is created.
-	# This is the most common place to create the sockets for a node, as shown below.
-	# NOTE: this is not the same as the standard __init__ function in Python, which is
-	#       a purely internal Python method and unknown to the node system!
+	
 	label: bpy.props.StringProperty(name="Label", description="Label", default="")
 	invert: bpy.props.BoolProperty(name="Not", description="Invert rule", default=False)
 
@@ -174,7 +169,6 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 
-
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
 		print("Copying from node ", node)
@@ -185,18 +179,11 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
+		layout.prop(self, 'spawn')
 		layout.label(text=f'{len(self.assets)} asset(s) found')
 		layout.prop(self, "invert")
 		layout.prop(self, "label")
-
-	# # Detail buttons in the sidebar.
-	# # If this function is not defined, the draw_buttons function is used instead
-	# def draw_buttons_ext(self, context, layout):
-	#     layout.prop(self, "my_float_prop")
-	#     # my_string_prop button will only be visible in the sidebar
-	#     layout.prop(self, "my_string_prop")
-
-	# Optional: custom label
+		
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
 		return "Filter Assets By Label"

@@ -1,5 +1,7 @@
+import bpy
 from bpy.types import NodeTree
 from . import node_sockets
+from .const_node_color import SPAWN_COLOR, INVALID_COLOR
 
 # Follow an input link through any reroutes
 def follow_input_link(link):
@@ -11,6 +13,13 @@ def follow_input_link(link):
 				pass
 	return link
 
+
+def update_values(self, context):
+	# self._assets = self.get_assets()
+	self.update_color()
+	print('update')
+
+
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
 class CustomizationTree(NodeTree):
 	# Description string
@@ -21,11 +30,14 @@ class CustomizationTree(NodeTree):
 	bl_label = "Customization Tree"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	
 
 
 # Mix-in class for all custom nodes in this tree type.
 # Defines a poll function to enable instantiation.
 class CustomizationTreeNode:
+	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
+
 	@classmethod
 	def poll(cls, ntree):
 		return ntree.bl_idname == 'CustomizationTree'
@@ -61,6 +73,7 @@ class CustomizationTreeNode:
 
 	# Update inputs and links on updates
 	def update(self):
+		self.update_color()
 		self.update_inputs()
 		# Links can get inserted without calling insert_link, but update is called.
 		for socket in self.inputs:
@@ -100,11 +113,11 @@ class CustomizationTreeNode:
 
 	# Follows through reroutes
 	def islinked(self):
-		if self.is_linked and not self.is_output:
+		if self.is_input_linked and not self.is_output:
 			try: # During link removal this can be in a weird state
 				node = self.links[0].from_node
 				while node.type == "REROUTE":
-					if node.inputs[0].is_linked and node.inputs[0].links[0].is_valid:
+					if node.inputs[0].is_input_linked and node.inputs[0].links[0].is_valid:
 						node = node.inputs[0].links[0].from_node
 					else:
 						return False
@@ -112,8 +125,33 @@ class CustomizationTreeNode:
 			except:
 				pass
 		return False
+	
+	def is_input_linked(self):
+		linked = False
 
-classes = ( CustomizationTree, 
+		for input in self.inputs:
+			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+				continue
+
+			if not input.is_linked or not len(input.links):
+				continue
+
+			linked = True
+			break
+
+		return linked
+	
+	def update_color(self):
+		if self.spawn and self.is_input_linked():
+			self.use_custom_color = True
+			self.color = SPAWN_COLOR
+		elif not self.is_input_linked():
+			self.use_custom_color = True
+			self.color = INVALID_COLOR
+		else:
+			self.use_custom_color = False
+
+classes = ( CustomizationTree,
 			)
 
 def register():
