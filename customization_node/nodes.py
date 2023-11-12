@@ -1,7 +1,155 @@
 import bpy
 from bpy.types import Node
-from .node_tree import CustomizationTreeNode
-from .const_node_color import SPAWN_COLOR, INVALID_COLOR
+from . import node_sockets
+from .const_node import SPAWN_COLOR, INVALID_COLOR, TREE_NAME
+
+# Follow an input link through any reroutes
+def follow_input_link(link):
+	if link.from_node.type == 'REROUTE':
+		if link.from_node.inputs[0].is_linked:
+			try: # During link insertion this can have weird states
+				return follow_input_link(link.from_node.inputs[0].links[0])
+			except:
+				pass
+	return link
+
+
+def update_values(self, context):
+	# self._assets = self.get_assets()
+	self.update_color()
+
+
+class CustomizationTreeNode:
+	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
+	
+	@property
+	def spawned_assets(self):
+		return [a for a in self.assets if a.spawn]
+	
+	def node_tree(self, context):
+		space = context.space_data
+		node_tree = space.node_tree
+		return node_tree
+
+	@classmethod
+	def poll(cls, ntree):
+		return ntree.bl_idname == TREE_NAME
+	
+	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
+	def update_inputs(self, socket_type=None, socket_name=None, sub_socket_dict=None):
+		if socket_type is None:
+			return
+		idx = 0
+		sub = 0
+		if sub_socket_dict:
+			sub = len(sub_socket_dict.keys())
+		for socket in self.inputs:
+			if socket.bl_idname != socket_type:
+				idx = idx + 1
+				continue
+			if socket.is_linked or (hasattr(socket, 'value') and socket.value):
+				if len(self.inputs) == idx + 1 + sub:
+					self.inputs.new(socket_type, socket_name)
+					if sub_socket_dict:
+						for key in sub_socket_dict.keys():
+							self.inputs.new(sub_socket_dict[key], key)
+			else:
+				if len(self.inputs) > idx + 1 + sub:
+					self.inputs.remove(socket)
+					rem = idx
+					idx = idx - 1
+					if sub_socket_dict:
+						for key in sub_socket_dict.keys():
+							self.inputs.remove(self.inputs[rem])
+							idx = idx - 1
+			idx = idx + 1
+
+	# Update inputs and links on updates
+	def update(self):
+		self.update_color()
+		self.update_inputs()
+		# Links can get inserted without calling insert_link, but update is called.
+		for socket in self.inputs:
+			if socket.is_linked:
+				self.insert_link(socket.links[0])
+
+	# Validate incoming links
+	def insert_link(self, link):
+		if link.to_node == self:
+			if follow_input_link(link).from_socket.bl_idname in link.to_socket.valid_inputs() and link.is_valid:
+				link.to_socket.valid = True
+			else:
+				link.to_socket.valid = False
+				
+	def get_assets(self):
+		input_assets = []
+		for i,input in enumerate(self.inputs):
+			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+				continue
+			
+			if not input.is_linked or not len(input.links):
+				continue
+			
+			input_node = input.links[0].from_node
+			current_input_assets = input_node.get_assets()
+			input_assets += current_input_assets
+		
+		return input_assets
+	
+	def print_assets(self):
+		assets = self.get_assets()
+		print(f'{len(assets)} asset(s) found')
+		print('---------------------------------------')
+		for a in assets:
+			print(a.name)
+		print('---------------------------------------')
+
+	# Follows through reroutes
+	def islinked(self):
+		if self.is_input_linked and not self.is_output:
+			try: # During link removal this can be in a weird state
+				node = self.links[0].from_node
+				while node.type == "REROUTE":
+					if node.inputs[0].is_input_linked and node.inputs[0].links[0].is_valid:
+						node = node.inputs[0].links[0].from_node
+					else:
+						return False
+				return True
+			except:
+				pass
+		return False
+	
+	def is_input_linked(self):
+		linked = False
+
+		for input in self.inputs:
+			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+				continue
+
+			if not input.is_linked or not len(input.links):
+				continue
+
+			linked = True
+			break
+
+		return linked
+	
+	def update_color(self):
+		if self.spawn and self.is_input_linked():
+			self.use_custom_color = True
+			self.color = SPAWN_COLOR
+		elif not self.is_input_linked():
+			self.use_custom_color = True
+			self.color = INVALID_COLOR
+		else:
+			self.use_custom_color = False
+	
+	def layout_asset_count(self, layout, context):
+		row = layout.row(align = True)
+		row.label(text=f'{len(self.assets)} asset(s) found')
+		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
+		# op.tree = self.node_tree(context)
+		op.node_name = self.name
 
 
 class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
@@ -16,16 +164,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	bl_icon = 'NODETREE'
 
 	object_types = ['MESH', 'CURVE', 'SURFACE', 'META']
-	# === Custom Properties ===
-	# These work just like custom properties in ID data blocks
-	# Extensive information can be found under
-	# https://docs.blender.org/api/current/bpy.props.html
-
-	# === Optional Functions ===
-	# Initialization function, called when a new node is created.
-	# This is the most common place to create the sockets for a node, as shown below.
-	# NOTE: this is not the same as the standard __init__ function in Python, which is
-	#       a purely internal Python method and unknown to the node system!
 
 	def init(self, context):
 		# Inputs
@@ -60,7 +198,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 		for c in children_collections:
 			all_assets += [o for o in c.all_objects if o.type in self.object_types]
 
-		# print("all assets =", all_assets)
 		return all_assets
 
 	def update_inputs(self):
@@ -69,7 +206,7 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		layout.prop(self, 'spawn')
-		layout.label(text=f'{len(self.assets)} asset(s) found')
+		self.layout_asset_count(layout, context)
 
 	# Detail buttons in the sidebar.
 	# If this function is not defined, the draw_buttons function is used instead
@@ -79,7 +216,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 		# my_string_prop button will only be visible in the sidebar
 		# layout.prop(self, "my_string_prop")
 
-	# Optional: custom label
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
 		return "Get Assets From Collection"
@@ -103,18 +239,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	bl_label = "Append Assets"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-			
-	# === Custom Properties ===
-	# These work just like custom properties in ID data blocks
-	# Extensive information can be found under
-	# https://docs.blender.org/api/current/bpy.props.html
-	# input_number: bpy.props.IntProperty(name='Inputs', default=2, min=2, update=reinit_inputs)
 
-	# === Optional Functions ===
-	# Initialization function, called when a new node is created.
-	# This is the most common place to create the sockets for a node, as shown below.
-	# NOTE: this is not the same as the standard __init__ function in Python, which is
-	#       a purely internal Python method and unknown to the node system!
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
@@ -136,7 +261,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		layout.prop(self, 'spawn')
-		layout.label(text=f'{len(self.assets)} asset(s) found')
+		self.layout_asset_count(layout, context)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
@@ -180,7 +305,7 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		layout.prop(self, 'spawn')
-		layout.label(text=f'{len(self.assets)} asset(s) found')
+		self.layout_asset_count(layout, context)
 		layout.prop(self, "invert")
 		layout.prop(self, "label")
 		
@@ -210,8 +335,6 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 						continue
 					if l.checked and not self.invert or not l.checked and self.invert:
 						filtered.append(o)
-
-		# print(f'filtered input =', filtered)
 
 		return filtered
 

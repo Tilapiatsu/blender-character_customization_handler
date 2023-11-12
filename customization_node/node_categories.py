@@ -1,4 +1,5 @@
 from nodeitems_utils import NodeCategory, NodeItem
+from .const_node import TREE_NAME
 
 
 ### Node Categories ###
@@ -11,7 +12,7 @@ from nodeitems_utils import NodeCategory, NodeItem
 class CustomizationCategory(NodeCategory):
     @classmethod
     def poll(cls, context):
-        return context.space_data.tree_type == 'CustomizationTree'
+        return context.space_data.tree_type == TREE_NAME
     
 # all categories in a list
 node_categories = [
@@ -39,8 +40,10 @@ node_categories = [
     ]),
 ]
 
+
 classes = (  
             )
+
 
 def register():
     from bpy.utils import register_class

@@ -9,7 +9,7 @@ class PT_CustomizationHandler:
 
 class PT_CustoSlotSetup(PT_CustomizationHandler, bpy.types.Panel): 
 	bl_label = "Customization Slot Setup"
-	bl_idname = 'SCENE_PT_Asset_Slot_Setup'
+	bl_idname = 'SCENE_PT_Customization_Slot_Setup'
 
 	def draw(self, context):
 		layout = self.layout
@@ -34,7 +34,7 @@ class PT_CustoSlotSetup(PT_CustomizationHandler, bpy.types.Panel):
 
 class PT_CustoLabelSetup(PT_CustomizationHandler, bpy.types.Panel): 
 	bl_label = "Customization Label Setup"
-	bl_idname = 'SCENE_PT_Asset_Label_Setup'
+	bl_idname = 'SCENE_PT_Customization_Label_Setup'
 
 	def draw(self, context):
 		layout = self.layout
@@ -73,6 +73,24 @@ class PT_CustoLabelSetup(PT_CustomizationHandler, bpy.types.Panel):
 
 		col.separator()
 		col.operator("scene.clear_customization_labels", text="", icon='TRASH')
+
+
+class PT_CustoSpawnSetup(PT_CustomizationHandler, bpy.types.Panel): 
+	bl_label = "Customization Spawn Setup"
+	bl_idname = 'SCENE_PT_Customization_Spawn_Setup'
+
+	def draw(self, context):
+		layout = self.layout
+		scn = context.scene
+		ob = context.object
+		b = layout.box()
+		
+		b.label(text='Customization Spawning')
+		b.prop(scn, 'custo_spawn_tree')
+		b.prop(scn, 'custo_spawn_root')
+		b.prop(scn, 'custo_spawn_count')
+		b.operator('scene.customization_spawn', text='Spawn')
+
 
 class PT_CustoPartSetup(bpy.types.Panel): 
 	bl_space_type = 'PROPERTIES'
@@ -119,10 +137,9 @@ class PT_CustoPartSetup(bpy.types.Panel):
 		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
 
 
-classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoPartSetup)
+classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoSpawnSetup, PT_CustoPartSetup)
 
 def register():
-    bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
 
     from bpy.utils import register_class
     for cls in classes:
@@ -132,8 +149,6 @@ def unregister():
     from bpy.utils import unregister_class
     for cls in reversed(classes):
         unregister_class(cls)
-    
-    del bpy.types.Object.custo_part_layer
 
 if __name__ == "__main__":
     register()

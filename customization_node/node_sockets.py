@@ -34,6 +34,7 @@ class CustomizationSocket:
 				pass
 		return False
 
+
 # Custom socket type
 class AssetsSocket(CustomizationSocket, NodeSocket):
 	# Description string
@@ -64,7 +65,6 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
 	bl_socket_idname = 'AssetsSocketType'
 
 	default_value = []
-	
 
 	def draw(self, context, layout):
 		# Display properties of the interface.
@@ -82,6 +82,7 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
 
 classes = ( AssetsSocket, 
 			AssetsInterfaceSocket )
+
 
 def register():
 	from bpy.utils import register_class
