@@ -80,12 +80,15 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			if assets is None:
 				available.append(slot)
 			else:
+				is_available = True
 				for a in assets:
-					for keep in a.custo_part_keep_lower_slots:
-						if keep.checked and keep.name == slot:
-							available.append(slot)
+					if a.custo_part_slots[slot].checked and not a.custo_part_keep_lower_slots[slot].checked:
+						is_available = False
+						break
+				if is_available:
+					available.append(slot)
 
-		return [s[0] for s in self.spawned_assets_per_slot.items() if s[1] is None]
+		return available
 
 	def print_assets_per_layer(self):
 		print('---------------------------------------')
@@ -97,7 +100,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		return context.scene.custo_spawn_root is not None and context.scene.custo_spawn_tree is not None and context.scene.custo_spawn_count
-    
+	
 	def init_assets_per_slot(self, context):
 		self._assets_per_slot = {}
 		for asset in self.assets:
