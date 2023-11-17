@@ -14,7 +14,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 
 	@property
-	def assets(self):
+	def assets(self) -> list:
+		'''
+		Returns a list of all assets that can be spawned
+		'''
 		if self._assets is None:
 			self._assets = []
 			for node in self.spawn_tree.nodes:
@@ -23,14 +26,21 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return self._assets
 	
 	@property
-	def nodes(self):
+	def nodes(self) -> list:
+		'''
+		Returns a list of all nodes that can be spawned
+		'''
 		if self._nodes is None:
 			self._nodes = [node for node in self.spawn_tree.nodes if node.spawn]
 		
 		return self._nodes
 
 	@property
-	def assets_per_layer(self):
+	def assets_per_layer(self) -> list:
+		'''
+		Returns a list containing assets ordered by layers:
+		assets_per_layer[layer] -> [asset1, asset2, asset3]
+		'''
 		if self._assets_per_layer is None:
 			assets = self.assets.copy()
 			self._assets_per_layer = []
@@ -48,7 +58,11 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return self._assets_per_layer
 	
 	@property
-	def assets_per_slot(self):
+	def assets_per_slot(self) -> dict:
+		'''
+		Returns a dict containing all assets identified per slots:
+		assets_per_slot["slot_name"] -> [asset1, asset2, asset3]
+		'''
 		return self._assets_per_slot
 
 	@assets_per_slot.setter
@@ -56,7 +70,11 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self._assets_per_slot[key] = value
 	
 	@property
-	def spawned_assets_per_slot(self):
+	def spawned_assets_per_slot(self) -> dict:
+		'''
+		Returns a dict containing all spanwed assets identified per slots:
+		spawned_assets_per_slot["slot_name"] = [asset1, asset2, asset3]
+		'''
 		return self._spawned_assets_per_slot
 
 	@spawned_assets_per_slot.setter
@@ -64,7 +82,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self._spawned_assets_per_slot[key] = value
 
 	@property
-	def is_all_slots_spawned(self):
+	def is_all_slots_spawned(self) -> bool:
+		'''
+		Returns True if no slots is available
+		'''
 		entirely_spawned = True
 
 		for s in self.assets_per_slot.values():
@@ -74,7 +95,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return entirely_spawned
 
 	@property
-	def available_slots(self):
+	def available_slots(self) -> list:
+		'''
+		The list of slots which have no assets plug into
+		'''
 		available = []
 		for slot, assets in self.spawned_assets_per_slot.items():
 			if assets is None:
@@ -89,8 +113,15 @@ class SpawnCustomizationTree(bpy.types.Operator):
 					available.append(slot)
 
 		return available
+	
+	@property
+	def available_asset_slots(self) -> list:
+		'''
+		The list of slots that can be covered by the availabe assets
+		'''
+		return list(self.assets_per_slot.keys())
 
-	def print_assets_per_layer(self):
+	def print_assets_per_layer(self) -> None:
 		print('---------------------------------------')
 		for i,l in enumerate(self.assets_per_layer):
 			print('layer =', i)
@@ -101,7 +132,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def poll(cls, context):
 		return context.scene.custo_spawn_root is not None and context.scene.custo_spawn_tree is not None and context.scene.custo_spawn_count
 	
-	def init_assets_per_slot(self, context):
+	def init_assets_per_slot(self, context) -> None:
+		'''
+		Init value for assets_per_slots
+		'''
 		self._assets_per_slot = {}
 		for asset in self.assets:
 			slots = asset.custo_part_slots
@@ -113,12 +147,18 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				else:
 					self._assets_per_slot[slot.name].append(asset)
 
-	def init_spawned_assets_per_slot(self, context):
+	def init_spawned_assets_per_slot(self, context) -> None:
+		'''
+		Init value for spawned_assets_per_slots
+		'''
 		self._spawned_assets_per_slot = {}
 		for slot in context.scene.custo_slots:
 			self._spawned_assets_per_slot[slot.name] = None
 
 	def init(self, context):
+		'''
+		Init all values to be able to start spawning process correctly. 
+		'''
 		self.spawn_root = context.scene.custo_spawn_root
 		self.spawn_tree = context.scene.custo_spawn_tree
 		self.spawn_count = context.scene.custo_spawn_count
@@ -143,6 +183,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def create_spawn_collection(self):
+		'''
+		Creates a new collection to instance assets into. Reuse existing one if found
+		'''
 		if SPAWN_COLLECTION not in bpy.data.collections:
 			collection = bpy.data.collections.new(name=SPAWN_COLLECTION)
 			bpy.context.scene.collection.children.link(collection)
@@ -157,6 +200,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return collection
 
 	def spawn_assets(self, collection):
+		'''
+		Spawn one complete model, ensureing the model is complete and without overlapping
+		'''
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			random.shuffle(available_slots)
