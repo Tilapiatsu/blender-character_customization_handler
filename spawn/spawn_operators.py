@@ -152,8 +152,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		Init value for spawned_assets_per_slots
 		'''
 		self._spawned_assets_per_slot = {}
-		for slot in context.scene.custo_slots:
-			self._spawned_assets_per_slot[slot.name] = None
+		for slot in self.available_asset_slots:
+			self._spawned_assets_per_slot[slot] = None
 
 	def init(self, context):
 		'''
@@ -201,26 +201,31 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 	def spawn_assets(self, collection):
 		'''
-		Spawn one complete model, ensureing the model is complete and without overlapping
+		Spawn one model, ensuring the model is complete and is without overlapping
 		'''
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
+			
+            # Randomly pick one slot
 			random.shuffle(available_slots)
 			slot = available_slots.pop()
 
-			if slot not in self.assets_per_slot.keys():
-				print(f'No Asset(s) available for {slot} slot')
-				return {'CANCELLED'}
+            # # prevent to spawn if not assets available for current slot
+			# if slot not in self.assets_per_slot.keys():
+			# 	print(f'No Asset(s) available for {slot} slot')
+			# 	return {'CANCELLED'}
 			
+            # Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
 			self.assets_per_slot[slot].remove(asset)
 
 			if self.spawned_assets_per_slot[slot] is None:
 				self.spawned_assets_per_slot[slot] = []
-
+            
+            # Add object to Spawned slot Dict
 			self.spawned_assets_per_slot[slot].append(asset)
 
-			# add Object to Collection
+			# add Object to Collection : Spawning !
 			collection.objects.link(asset)
 			
 
