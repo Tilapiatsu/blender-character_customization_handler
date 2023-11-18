@@ -169,6 +169,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self._spawned_assets_per_slot = None
 		self.init_spawned_assets_per_slot(context)
 		self._nodes = None
+		self.layer_collection_root = context.view_layer.layer_collection
 
 	def execute(self, context):
 		self.init(context)
@@ -193,6 +194,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			collection = bpy.data.collections[SPAWN_COLLECTION]
 			for o in collection.objects:
 				collection.objects.unlink(o)
+		
+		layer_collection = self.get_layer_collection_per_name(SPAWN_COLLECTION, self.layer_collection_root)
+		layer_collection.hide_viewport = True
 
 		self.spawn_root.instance_type = 'COLLECTION'
 		self.spawn_root.instance_collection = collection
@@ -206,23 +210,31 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
-            # Randomly pick one slot
+			# Randomly pick one slot
 			random.shuffle(available_slots)
 			slot = available_slots.pop()
 			
-            # Pick one asset for selected slot
+			# Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
 			self.assets_per_slot[slot].remove(asset)
 
 			if self.spawned_assets_per_slot[slot] is None:
 				self.spawned_assets_per_slot[slot] = []
-            
-            # Add object to Spawned slot Dict
+			
+			# Add object to Spawned slot Dict
 			self.spawned_assets_per_slot[slot].append(asset)
 
 			# add Object to Collection : Spawning !
 			collection.objects.link(asset)
 			
+	def get_layer_collection_per_name(self, collection_name, layer_collection):
+		found = None
+		if (layer_collection.name == collection_name):
+			return layer_collection
+		for layer in layer_collection.children:
+			found = self.get_layer_collection_per_name(collection_name, layer)
+			if found:
+				return found
 
 classes = ( SpawnCustomizationTree,
 			)

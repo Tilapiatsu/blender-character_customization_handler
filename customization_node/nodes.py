@@ -145,6 +145,7 @@ class CustomizationTreeNode:
 			self.use_custom_color = False
 	
 	def layout_asset_count(self, layout, context):
+		layout.prop(self, 'spawn')
 		row = layout.row(align = True)
 		row.label(text=f'{len(self.assets)} asset(s) found')
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
@@ -205,7 +206,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		layout.prop(self, 'spawn')
 		self.layout_asset_count(layout, context)
 
 	# Detail buttons in the sidebar.
@@ -260,7 +260,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		layout.prop(self, 'spawn')
 		self.layout_asset_count(layout, context)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
@@ -304,7 +303,6 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		layout.prop(self, 'spawn')
 		self.layout_asset_count(layout, context)
 		layout.prop(self, "invert")
 		layout.prop(self, "label")
