@@ -209,11 +209,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
             # Randomly pick one slot
 			random.shuffle(available_slots)
 			slot = available_slots.pop()
-
-            # # prevent to spawn if not assets available for current slot
-			# if slot not in self.assets_per_slot.keys():
-			# 	print(f'No Asset(s) available for {slot} slot')
-			# 	return {'CANCELLED'}
 			
             # Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
