@@ -1,21 +1,20 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .operators.properties.node_label_properties import NodeAssetLabelProperties
 
-class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
+
+class AssetsSelectorNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Labels node'''
+	'''Assets Selector node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByLabelsNodeType'
+	bl_idname = 'AssetsSelectorNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Labels"
+	bl_label = "Asset Selector"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-	
-	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
-	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+
+	subsockets = {'Spawn Rate': 'PercentageSocketType'}
 
 	@property
 	def assets(self):
@@ -27,9 +26,9 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")
+		for name,socket in self.subsockets.items():
+			self.inputs.new(socket, name)
 		self.outputs.new('AssetsSocketType', "Assets")
-		self.labels.add()
-		
 
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -42,13 +41,12 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_asset_count(layout, context)
-		self.draw_labels(layout)
+		# self.draw_labels(layout)
 	
 	def draw_labels(self, layout):
 		row = layout.row(align=True)
 		rows = 20 if len(self.labels) > 20 else len(self.labels) + 3
 		row.template_list('NODE_UL_AssetLabelNode', '', self, 'labels', self, 'labels_idx', rows=rows)
-		row.separator()
 		col = row.column(align=True)
 		col.operator('node.add_asset_label', text="", icon='ADD').node_name = self.name
 
@@ -67,40 +65,39 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Labels"
+		return "Asset Selector"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
-		pass
+		CustomizationTreeNode.update_inputs(self, 'AssetsSocketType', "Assets", self.subsockets)
 	
-	def get_assets(self):		
+	def get_assets(self):
 		# filtering by label
 		filtered = []
 		assets = super().get_assets()
 
-		for o in assets:
-			valid_labels = []
-			for i, label in enumerate(self.labels):
-				for lc in o.custo_part_label_categories:
-					for l in lc.labels:
-						if label.name.lower() not in l.name.lower():
-							continue
-						if l.checked and not label.invert or not l.checked and label.invert:
-							valid_labels.append(label.name)
+		filtered = assets
+		# for o in assets:
+		# 	valid_labels = []
+		# 	for i, label in enumerate(self.labels):
+		# 		for lc in o.custo_part_label_categories:
+		# 			for l in lc.labels:
+		# 				if label.name.lower() not in l.name.lower():
+		# 					continue
+		# 				if l.checked and not label.invert or not l.checked and label.invert:
+		# 					valid_labels.append(label.name)
 			
-			valid_object = True
-			for l in self.label_names:
-				if l not in valid_labels:
-					valid_object = False
-					break
-			if valid_object:
-				filtered.append(o)
+		# 	valid_object = True
+		# 	for l in self.label_names:
+		# 		if l not in valid_labels:
+		# 			valid_object = False
+		# 			break
+		# 	if valid_object:
+		# 		filtered.append(o)
 
 		return filtered
 
-
-
-classes = (AssetsFilterByLabelsNode,)
+classes = ( AssetsSelectorNode,)
 
 def register():
 	from bpy.utils import register_class
@@ -115,5 +112,3 @@ def unregister():
 
 if __name__ == "__main__":
 	register()
-
-

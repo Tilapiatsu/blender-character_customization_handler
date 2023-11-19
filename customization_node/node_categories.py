@@ -23,6 +23,7 @@ node_categories = [
     CustomizationCategory('ASSETS', "Assets", items=[
         NodeItem("AssetsAppendNodeType"),
         NodeItem("AssetsFilterByLabelsNodeType"),
+        NodeItem("AssetsSelectorNodeType")
     ]),
     CustomizationCategory('OTHERNODES', "Other Nodes", items=[
         # the node item can have additional settings,

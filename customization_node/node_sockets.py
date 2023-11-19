@@ -35,7 +35,7 @@ class CustomizationSocket:
 		return False
 
 
-# Custom socket type
+# Asset socket type
 class AssetsSocket(CustomizationSocket, NodeSocket):
 	# Description string
 	"""Assets socket type"""
@@ -58,6 +58,28 @@ class AssetsSocket(CustomizationSocket, NodeSocket):
 	def draw_color_simple(cls):
 		return (1.0, 0.4, 0.216, 0.5)
 
+# Custom socket type
+class PercentageSocket(CustomizationSocket, NodeSocket):
+	# Description string
+	"""Percentage socket type"""
+	# Optional identifier string. If not explicitly defined, the python class name is used.
+	bl_idname = 'PercentageSocketType'
+	# Label for nice name display
+	bl_label = "Percentage Node Socket"
+
+	input_value: bpy.props.IntProperty(name='Percentage', default=100, min=0, max=100)
+
+	# Optional function for drawing the socket input value
+	def draw(self, context, layout, node, text):
+		if self.is_output or self.is_linked:
+			layout.label(text=text)
+		else:
+			layout.prop(self, "input_value", text=text)
+
+	# Socket color
+	@classmethod
+	def draw_color_simple(cls):
+		return (0.5, 0.5, 0.5, 0.5)
 
 # Customizable interface properties to generate a socket from.
 class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
@@ -80,7 +102,8 @@ class AssetsInterfaceSocket(NodeTreeInterfaceSocket):
 		self.default_value = socket.input_value
 
 
-classes = ( AssetsSocket, 
+classes = ( AssetsSocket,
+			PercentageSocket,
 			AssetsInterfaceSocket )
 
 

@@ -12,6 +12,7 @@ class UL_AssetLabelNode(bpy.types.UIList):
 		row.alignment = 'LEFT'
 		row.label(text=f'Not')
 		row.prop(item, 'invert', text='')
+		row.separator()
 		row.alignment = 'EXPAND'
 		row.prop(item, 'name', text='')
 		row = layout.row(align=True)

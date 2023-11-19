@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .node_const import SPAWN_COLOR
 
 class AssetsAppendNode(CustomizationTreeNode, Node):
 	# === Basics ===
