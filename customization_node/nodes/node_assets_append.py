@@ -45,7 +45,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 		CustomizationTreeNode.update_inputs(self, 'AssetsSocketType', "Assets")
 
 
-
 classes = (	AssetsAppendNode,)
 
 def register():

@@ -150,3 +150,4 @@ class CustomizationTreeNode:
 		row.label(text=f'{len(self.assets)} asset(s) found')
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
 		op.node_name = self.name
+		layout.separator()

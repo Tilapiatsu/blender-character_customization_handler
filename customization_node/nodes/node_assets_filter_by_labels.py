@@ -20,6 +20,10 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	@property
 	def assets(self):
 		return self.get_assets()
+	
+	@property
+	def label_names(self):
+		return [l.name for l in self.labels]
 
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")
@@ -42,7 +46,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	
 	def draw_labels(self, layout):
 		row = layout.row(align=True)
-		rows = 20 if len(self.labels) > 20 else len(self.labels) + 1
+		rows = 20 if len(self.labels) > 20 else len(self.labels) + 3
 		row.template_list('NODE_UL_AssetLabelNode', '', self, 'labels', self, 'labels_idx', rows=rows)
 		col = row.column(align=True)
 		col.operator('node.add_asset_label', text="", icon='ADD').node_name = self.name
@@ -73,19 +77,23 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		filtered = []
 		assets = super().get_assets()
 
-		# if not len(self.labels):
-		# 	if self.invert:
-		# 		return assets
-		# 	else:
-		# 		return []
-		
-		# for o in assets:
-		# 	for lc in o.custo_part_label_categories:
-		# 		for l in lc.labels:
-		# 			if self.label not in l.name:
-		# 				continue
-		# 			if l.checked and not self.invert or not l.checked and self.invert:
-		# 				filtered.append(o)
+		for o in assets:
+			valid_labels = []
+			for i, label in enumerate(self.labels):
+				for lc in o.custo_part_label_categories:
+					for l in lc.labels:
+						if label.name.lower() not in l.name.lower():
+							continue
+						if l.checked and not label.invert or not l.checked and label.invert:
+							valid_labels.append(label.name)
+			
+			valid_object = True
+			for l in self.label_names:
+				if l not in valid_labels:
+					valid_object = False
+					break
+			if valid_object:
+				filtered.append(o)
 
 		return filtered
 
