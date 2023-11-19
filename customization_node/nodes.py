@@ -149,7 +149,6 @@ class CustomizationTreeNode:
 		row = layout.row(align = True)
 		row.label(text=f'{len(self.assets)} asset(s) found')
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
-		# op.tree = self.node_tree(context)
 		op.node_name = self.name
 
 
@@ -228,7 +227,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 			self.use_custom_color = False
 
 
-
 class AssetsAppendNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
@@ -284,6 +282,7 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	
 	label: bpy.props.StringProperty(name="Label", description="Label", default="")
 	invert: bpy.props.BoolProperty(name="Not", description="Invert rule", default=False)
+	label_count: bpy.props.IntProperty(name="Label Count", description="Number of label to input", default=1, min=1)
 
 	@property
 	def assets(self):
@@ -304,8 +303,12 @@ class AssetsFilterByLabelNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_asset_count(layout, context)
-		layout.prop(self, "invert")
-		layout.prop(self, "label")
+		layout.prop(self, 'label_count')
+		row = layout.row(align=True)
+		row.alignment = 'LEFT'
+		row.prop(self, "invert")
+		row.alignment = 'EXPAND'
+		row.prop(self, "label", text='')
 		
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):

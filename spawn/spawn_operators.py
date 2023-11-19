@@ -228,6 +228,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			collection.objects.link(asset)
 			
 	def get_layer_collection_per_name(self, collection_name, layer_collection):
+		'''
+		Recursivelly search through "layer_collection" the collection with the given "collection_name" and returns it. Returns None if not found
+		'''
 		found = None
 		if (layer_collection.name == collection_name):
 			return layer_collection

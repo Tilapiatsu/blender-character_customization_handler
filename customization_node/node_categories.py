@@ -1,5 +1,5 @@
 from nodeitems_utils import NodeCategory, NodeItem
-from .const_node import TREE_NAME
+from .node_const import TREE_NAME
 
 
 ### Node Categories ###

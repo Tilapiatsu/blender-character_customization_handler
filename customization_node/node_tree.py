@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import NodeTree
-from .const_node import TREE_NAME
+from .node_const import TREE_NAME
 
 
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.

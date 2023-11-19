@@ -1,4 +1,5 @@
-from . import node_tree, node_sockets, node_categories, node_operators, nodes
+from . import node_tree, node_sockets, node_categories, node_operators
+from . import nodes
 
 def register():
     node_tree.register()
