@@ -22,7 +22,7 @@ node_categories = [
     # identifier, label, items list
     CustomizationCategory('ASSETS', "Assets", items=[
         NodeItem("AssetsAppendNodeType"),
-        NodeItem("AssetsFilterByLabelNodeType"),
+        NodeItem("AssetsFilterByLabelsNodeType"),
     ]),
     CustomizationCategory('OTHERNODES', "Other Nodes", items=[
         # the node item can have additional settings,
