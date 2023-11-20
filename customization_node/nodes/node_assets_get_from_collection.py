@@ -22,10 +22,6 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 
 		# Outputs
 		self.outputs.new('AssetsSocketType', "Assets")
-
-	@property
-	def assets(self):
-		return self.get_assets()
 	
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -56,7 +52,7 @@ class AssetsGetFromCollectionNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		self.layout_asset_count(layout, context)
+		self.layout_header(layout, context)
 
 	# Detail buttons in the sidebar.
 	# If this function is not defined, the draw_buttons function is used instead

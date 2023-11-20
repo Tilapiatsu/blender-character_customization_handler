@@ -26,6 +26,10 @@ class CustomizationTreeNode:
 	def spawned_assets(self):
 		return [a for a in self.assets if a.spawn]
 	
+	@property
+	def assets(self):
+		return self.get_assets()
+	
 	def node_tree(self, context):
 		space = context.space_data
 		node_tree = space.node_tree
@@ -36,7 +40,7 @@ class CustomizationTreeNode:
 		return ntree.bl_idname == TREE_NAME
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
-	def update_inputs(self, socket_type=None, socket_name=None, sub_socket_dict=None):
+	def update_inputs(self, socket_type=None, socket_name=None, sub_socket_dict=None, ui_list_callback=None):
 		if socket_type is None:
 			return
 		idx = 0
@@ -52,7 +56,10 @@ class CustomizationTreeNode:
 					self.inputs.new(socket_type, socket_name)
 					if sub_socket_dict:
 						for key in sub_socket_dict.keys():
-							self.inputs.new(sub_socket_dict[key], key)
+							self.inputs.new(sub_socket_dict[key][0], key)
+							self.inputs[len(self.inputs)-1].hide = sub_socket_dict[key][1]
+					if ui_list_callback:
+						ui_list_callback['add'](node_name=self.name)
 			else:
 				if len(self.inputs) > idx + 1 + sub:
 					self.inputs.remove(socket)
@@ -62,6 +69,8 @@ class CustomizationTreeNode:
 						for key in sub_socket_dict.keys():
 							self.inputs.remove(self.inputs[rem])
 							idx = idx - 1
+					if ui_list_callback:
+						ui_list_callback['remove'](node_name=self.name, index=idx + 1)
 			idx = idx + 1
 
 	# Update inputs and links on updates
@@ -144,10 +153,13 @@ class CustomizationTreeNode:
 		else:
 			self.use_custom_color = False
 	
-	def layout_asset_count(self, layout, context):
+	def layout_header(self, layout, context, asset_count=True):
 		layout.prop(self, 'spawn')
 		row = layout.row(align = True)
-		row.label(text=f'{len(self.assets)} asset(s) found')
+		if asset_count:
+			row.label(text=f'{len(self.assets)} asset(s) found')
+		else:
+			row.label(text='')
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
 		op.node_name = self.name
 		layout.separator()

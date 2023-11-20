@@ -17,11 +17,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 
-	
-	@property
-	def assets(self):
-		return self.get_assets()
-
 
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -33,7 +28,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		self.layout_asset_count(layout, context)
+		self.layout_header(layout, context)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):

@@ -16,10 +16,6 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
-
-	@property
-	def assets(self):
-		return self.get_assets()
 	
 	@property
 	def label_names(self):
@@ -41,7 +37,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
-		self.layout_asset_count(layout, context)
+		self.layout_header(layout, context)
 		self.draw_labels(layout)
 	
 	def draw_labels(self, layout):

@@ -21,7 +21,7 @@ class CustomizationSocket:
 
 	# Follows through reroutes
 	def islinked(self):
-		if self.islinked() and not self.is_output:
+		if self.is_linked() and not self.is_output:
 			try: # During link removal this can be in a weird state
 				node = self.links[0].from_node
 				while node.type == "REROUTE":
