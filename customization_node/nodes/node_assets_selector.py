@@ -2,9 +2,6 @@ import bpy
 import numpy as np
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .operators.properties.node_percentage_properties import NodeAssetPercentageProperties
-from .operators.OP_UL_node_asset_filter_by_label import UI_AddLabel, UI_RemoveLabel
-from .. import node_sockets
 
 class AssetsSelectorNode(CustomizationTreeNode, Node):
 	# === Basics ===
@@ -18,9 +15,6 @@ class AssetsSelectorNode(CustomizationTreeNode, Node):
 	bl_icon = 'NODETREE'
 
 	subsockets = {'Spawn Rate': ['PercentageSocketType', False]}
-	# ui_list_callback = {'add': eval('bpy.ops.' + UI_AddLabel.bl_idname), 'remove':eval('bpy.ops.' + UI_RemoveLabel.bl_idname)}
-	# labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetPercentageProperties)
-	# labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
 	@property
 	def label_names(self):
@@ -44,27 +38,12 @@ class AssetsSelectorNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context, asset_count=False)
-		# self.draw_labels(layout)
 	
 	def draw_labels(self, layout):
 		row = layout.row(align=True)
 		rows = 20 if len(self.labels) > 20 else len(self.labels) + 3
 		row.template_list('NODE_UL_AssetPercentageNode', '', self, 'labels', self, 'labels_idx', rows=rows)
-		# col = row.column(align=True)
-		# col.operator('node.add_asset_label', text="", icon='ADD').node_name = self.name
 
-		# col.separator()
-		# d = col.operator("node.move_asset_label", text="", icon='TRIA_UP')
-		# d.node_name = self.name
-		# d.direction = "UP"
-
-		# d = col.operator("node.move_asset_label", text="", icon='TRIA_DOWN')
-		# d.node_name = self.name
-		# d.direction = "DOWN"
-
-		# col.separator()
-		# d = col.operator("node.clear_asset_labels", text="", icon='TRASH')
-		# d.node_name = self.name
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
