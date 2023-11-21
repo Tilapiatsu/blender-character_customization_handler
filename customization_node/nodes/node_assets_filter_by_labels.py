@@ -77,6 +77,8 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		for o in assets:
 			valid_labels = []
 			for i, label in enumerate(self.labels):
+				if not len(label.name):
+					continue
 				for lc in o.custo_part_label_categories:
 					for l in lc.labels:
 						if label.name.lower() not in l.name.lower():
@@ -86,6 +88,8 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 			
 			valid_object = True
 			for l in self.label_names:
+				if not len(l):
+					continue
 				if l not in valid_labels:
 					valid_object = False
 					break

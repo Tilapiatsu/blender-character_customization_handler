@@ -23,10 +23,9 @@ class UI_MoveLabel(bpy.types.Operator, NodeOperator):
 		elif self.direction == "DOWN":
 			nextidx = min(idx + 1, len(label) - 1)
 
-		label.move(idx, nextidx)
+		self.node.labels.move(idx, nextidx)
 		self.node.labels_idx = nextidx
 
-		self.node.labels.move(idx, nextidx)
 		return {'FINISHED'}
 
 
