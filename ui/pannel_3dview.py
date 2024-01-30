@@ -137,7 +137,7 @@ class PT_CustoPartSetup(bpy.types.Panel):
 		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
 
 
-classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoSpawnSetup, PT_CustoPartSetup)
+classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoSpawnSetup)
 
 def register():
 
