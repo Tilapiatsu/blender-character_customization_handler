@@ -13,6 +13,8 @@ class UI_RefreshPartLabels(bpy.types.Operator):
 		return context.object is not None
 
 	def execute(self, context):
+		if context.object is None:
+			return {'FINISHED'}
 		# print(f'refreshing {context.object.name} part slots')
 		for lc in context.scene.custo_label_categories:
 			# print(s.name)

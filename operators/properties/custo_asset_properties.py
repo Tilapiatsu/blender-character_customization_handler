@@ -5,8 +5,8 @@ from .custo_slot_properties import CustoPartSlotsProperties
 
 class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
-	asset_label_categroies : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
-	mesh_variation_label_categroies : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
+	asset_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
+	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	material_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryProperties)
 	material_variation_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryProperties)
 	
@@ -23,6 +23,11 @@ class UL_CustoAssetType(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
+		row = layout.row(align=True)
+		row.alignment = 'RIGHT'
+		row.operator('scene.edit_customization_asset_type', text='', icon='GREASEPENCIL').index = index
+		row.operator('scene.duplicate_customization_asset_type', text='', icon='COPYDOWN').index = index
+		row.operator('scene.remove_customization_asset_type', text='', icon='X').index = index
 
 class UL_CustoAsset(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssets"
