@@ -1,13 +1,19 @@
 import bpy
-from .custo_label_properties import CustoLabelCategoryProperties
 from .custo_slot_properties import CustoPartSlotsProperties
+
+class CustoAssetCategoryPointer(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Category Name', default='')
+	
+	@property
+	def label_category(self):
+		return bpy.context.scene.custo_label_categories[self.name]
 
 class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
-	asset_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
-	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
-	material_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryProperties)
-	material_variation_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryProperties)
+	asset_label_categories : bpy.props.CollectionProperty(type=CustoAssetCategoryPointer)
+	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoAssetCategoryPointer)
+	material_label_category : bpy.props.PointerProperty(type=CustoAssetCategoryPointer)
+	material_variation_label_category : bpy.props.PointerProperty(type=CustoAssetCategoryPointer)
 	
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Name', default='')
@@ -35,12 +41,12 @@ class UL_CustoAsset(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
-        
 
-classes = ( CustoAssetTypeProperties,
+classes = ( CustoAssetCategoryPointer,
+			CustoAssetTypeProperties,
 			CustoAssetProperties,
-		    UL_CustoAssetType,
-		    UL_CustoAsset)
+			UL_CustoAssetType,
+			UL_CustoAsset)
 
 def register():
 	from bpy.utils import register_class
