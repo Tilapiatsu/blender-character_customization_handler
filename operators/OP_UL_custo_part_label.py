@@ -8,10 +8,6 @@ class UI_RefreshPartLabels(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Refresh Part Labels From the Label Definition"
 
-	@classmethod
-	def poll(cls, context):
-		return context.object is not None
-
 	def execute(self, context):
 		if context.object is None:
 			return {'FINISHED'}

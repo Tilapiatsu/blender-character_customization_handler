@@ -39,6 +39,15 @@ def update_part_labels(self, context):
 		l.checked = context.object.custo_part_labels[i].checked
 		i+=1
 
+def label_categories_enum(self, context):
+	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories]
+	return items
+
+class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
+	label_categories : bpy.props.EnumProperty(name="Label Categories", items=label_categories_enum)
+
+class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
+	label_category_enums : bpy.props.CollectionProperty(name="Label Category Enums", type=CustoLabelCategoryEnumProperties)
 
 class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
@@ -99,49 +108,50 @@ class UL_CustoPartLabelCategory(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
-		
 
 classes = ( CustoLabelProperties, 
-            CustoLabelCategoryProperties,
-            CustoPartLabelProperties,
-            CustoPartLabelCategoryProperties,
-            UL_CustoLabel, 
-            UL_CustoLabelCategory,
-            UL_CustoPartLabel,
-            UL_CustoPartLabelCategory)
+			CustoLabelCategoryProperties,
+			CustoPartLabelProperties,
+			CustoPartLabelCategoryProperties,
+			CustoLabelCategoryEnumProperties,
+			CustoLabelCategoryEnumCollectionProperties,
+			UL_CustoLabel, 
+			UL_CustoLabelCategory,
+			UL_CustoPartLabel,
+			UL_CustoPartLabelCategory,)
 
 def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
 		
-    bpy.types.Scene.custo_labels = bpy.props.CollectionProperty(type=CustoLabelProperties)
-    bpy.types.Scene.custo_labels_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Scene.custo_label_categories = bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
-    bpy.types.Scene.custo_label_categories_idx = bpy.props.IntProperty(default=0, update=update_label_category)
+	bpy.types.Scene.custo_labels = bpy.props.CollectionProperty(type=CustoLabelProperties)
+	bpy.types.Scene.custo_labels_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Scene.custo_label_categories = bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
+	bpy.types.Scene.custo_label_categories_idx = bpy.props.IntProperty(default=0, update=update_label_category)
 
-    bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
-    bpy.types.Object.custo_part_labels = bpy.props.CollectionProperty(type=CustoPartLabelProperties)
-    bpy.types.Object.custo_part_labels_idx = bpy.props.IntProperty(default=0)
-    bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
-    bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
+	bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
+	bpy.types.Object.custo_part_labels = bpy.props.CollectionProperty(type=CustoPartLabelProperties)
+	bpy.types.Object.custo_part_labels_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
+	bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
 
 def unregister():
-    del bpy.types.Scene.custo_labels
-    del bpy.types.Scene.custo_labels_idx
-    del bpy.types.Scene.custo_label_categories
-    del bpy.types.Scene.custo_label_categories_idx
+	del bpy.types.Scene.custo_labels
+	del bpy.types.Scene.custo_labels_idx
+	del bpy.types.Scene.custo_label_categories
+	del bpy.types.Scene.custo_label_categories_idx
 
-    del bpy.types.Object.custo_part_layer
-    del bpy.types.Object.custo_part_labels
-    del bpy.types.Object.custo_part_labels_idx
-    del bpy.types.Object.custo_part_label_categories
-    del bpy.types.Object.custo_part_label_categories_idx
+	del bpy.types.Object.custo_part_layer
+	del bpy.types.Object.custo_part_labels
+	del bpy.types.Object.custo_part_labels_idx
+	del bpy.types.Object.custo_part_label_categories
+	del bpy.types.Object.custo_part_label_categories_idx
 	
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
 	
 
 if __name__ == "__main__":
-    register()
+	register()

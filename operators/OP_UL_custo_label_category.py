@@ -51,7 +51,7 @@ class UI_ClearLabelCategories(bpy.types.Operator):
 
 	def execute(self, context):
 		context.scene.custo_label_categories.clear()
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 
@@ -77,7 +77,7 @@ class UI_RemoveLabelCategory(bpy.types.Operator):
 		label_categories.remove(self.index)
 
 		context.scene.custo_label_categories_idx = min(self.index, len(context.scene.custo_label_categories) - 1)
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 
@@ -100,7 +100,7 @@ class UI_DuplicateLabelCategory(bpy.types.Operator):
 		s.name = label_category[self.index].name+'_dup'
 		self.duplicate_labels(label_category[self.index].labels, s.labels)
 		label_category.move(len(label_category) - 1, self.index + 1)
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 	def duplicate_labels(self, source, destination):
@@ -132,7 +132,7 @@ class UI_EditLabelCategory(bpy.types.Operator):
 	def execute(self, context):
 		s = context.scene.custo_label_categories[self.index]
 		s.name = self.name
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 
@@ -157,7 +157,7 @@ class UI_AddLabelCategory(bpy.types.Operator):
 	def execute(self, context):
 		s = context.scene.custo_label_categories.add()
 		s.name = self.name
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
 	
 classes = ( UI_MoveLabelCategory, 

@@ -2,7 +2,6 @@ import bpy
 from .custo_label_properties import CustoLabelCategoryProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
-
 class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
 	asset_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)

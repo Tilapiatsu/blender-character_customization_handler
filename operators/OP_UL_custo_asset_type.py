@@ -1,4 +1,5 @@
 import bpy
+from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
 
 def get_asset_type(context):
 	idx = context.scene.custo_asset_types_idx
@@ -8,6 +9,26 @@ def get_asset_type(context):
 
 	return idx, asset_types, active
 
+def draw_label_categories(layout, category_name, category_count, category_count_name, category_property):
+	category_count_value = getattr(category_count, category_count_name)
+	
+	# Add or remove Label Category
+	label_category_count = len(category_property.label_category_enums)
+	if label_category_count > category_count_value:
+		category_property.label_category_enums.remove(label_category_count-1)
+	elif label_category_count < category_count_value:
+		category_property.label_category_enums.add()
+	
+	# Draw Category
+	row = layout.row()
+	row.label(text=category_name)
+	row.prop(category_count, category_count_name, text='')
+	for i in range(category_count_value):
+		row = layout.row()
+		row.separator()
+		row.prop(category_property.label_category_enums[i], 'label_categories', text='')
+
+	layout.separator()
 
 class UI_MoveAssetType(bpy.types.Operator):
 	bl_idname = "scene.move_customization_asset_type"
@@ -129,20 +150,27 @@ class UI_EditAssetType(bpy.types.Operator):
 
 class UI_AddAssetType(bpy.types.Operator):
 	bl_idname = "scene.add_customization_asset_type"
-	bl_label = "Add Asset_type"
+	bl_label = "Add Asset Type"
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Add a customization asset type"
 
-	name : bpy.props.StringProperty(name="Asset_type Name", default="")
-
+	name : bpy.props.StringProperty(name="Asset Type Name", default="")
+	asset_label_category_count : bpy.props.IntProperty(name="Asset Label Category Count", default=1, min=1)
+	asset_label_categories : bpy.props.PointerProperty(name="Asset Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
+	mesh_variation_label_category_count : bpy.props.IntProperty(name="Mesh Variation Label Category Count", default=1, min=1)
+	mesh_variation_label_categories : bpy.props.PointerProperty(name="Mesh Variation Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
+	material_label_category : bpy.props.PointerProperty(name="Material Label Category", type=CustoLabelCategoryEnumProperties)
+	material_variation_label_category : bpy.props.PointerProperty(name="Material Variation Label Category", type=CustoLabelCategoryEnumProperties)
+	
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
-		col.prop(self, 'name', text='name')
-		col.prop(self, 'asset_label_categories')
-		col.prop(self, 'mesh_variation_label_categories')
-		col.prop(self, 'material_label_category')
-		col.prop(self, 'material_variation_label_category')
+		col.prop(self, 'name', text='Name')
+
+		draw_label_categories(col, 'Asset:', self, 'asset_label_category_count', self.asset_label_categories)
+		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', self.mesh_variation_label_categories)
+		col.prop(self.material_label_category, 'label_categories', text='Material')
+		col.prop(self.material_variation_label_category, 'label_categories', text='Material Variation')
 
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -155,22 +183,22 @@ class UI_AddAssetType(bpy.types.Operator):
 		return {'FINISHED'}
 
 classes = ( UI_MoveAssetType, 
-            UI_EditAssetType, 
-            UI_ClearAssetTypes, 
-            UI_AddAssetType,
-            UI_RemoveAssetType,
-            UI_DuplicateAssetType)
+			UI_EditAssetType, 
+			UI_ClearAssetTypes, 
+			UI_AddAssetType,
+			UI_RemoveAssetType,
+			UI_DuplicateAssetType)
 
 def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
 
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
 
 if __name__ == "__main__":
-    register()
+	register()
