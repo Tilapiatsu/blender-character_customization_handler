@@ -29,7 +29,6 @@ def draw_label_categories(layout, label, data, property_count, property_name, so
 		row = layout.row()
 		row.separator()
 		row.prop(property_data[i], 'label_category_name', text='')
-		# row.prop_search(property_data[i], 'label_category_pointer', source_data, source_name, text='')
 
 	layout.separator()
 
@@ -127,28 +126,73 @@ class UI_DuplicateAssetType(bpy.types.Operator):
 
 class UI_EditAssetType(bpy.types.Operator):
 	bl_idname = "scene.edit_customization_asset_type"
-	bl_label = "Edit Asset_type"
+	bl_label = "Edit Asset Type"
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Edit current customization asset type"
 
 	index : bpy.props.IntProperty(name="Asset_type Index", default=0)
 	name : bpy.props.StringProperty(name="Asset_type Name", default="")
+	asset_label_category_count : bpy.props.IntProperty(name="Asset Label Category Count", default=1, min=1)
+	asset_label_categories : bpy.props.PointerProperty(name="Asset Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
+	mesh_variation_label_category_count : bpy.props.IntProperty(name="Mesh Variation Label Category Count", default=1, min=1)
+	mesh_variation_label_categories : bpy.props.PointerProperty(name="Mesh Variation Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
+	material_label_category : bpy.props.PointerProperty(name="Material Label Category", type=CustoLabelCategoryEnumProperties)
+	material_variation_label_category : bpy.props.PointerProperty(name="Material Variation Label Category", type=CustoLabelCategoryEnumProperties)
 
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
-		col.prop(self, 'name', text='Asset_type Name')
+		col.prop(self, 'name', text='Name')
+
+		draw_label_categories(col, 'Asset:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
+		col.prop(self.material_label_category, 'label_category_name', text='Material')
+		col.prop(self.material_variation_label_category, 'label_category_name', text='Material Variation')
 	
 	def invoke(self, context, event):
-		current_asset_type = context.scene.custo_asset_types[self.index]
-		self.name = current_asset_type.name
+		self.current_asset_type = context.scene.custo_asset_types[self.index]
+		self.name = self.current_asset_type.name
+
+		self.asset_label_category_count = len(self.current_asset_type.asset_label_categories)
+
+		for lc in self.current_asset_type.asset_label_categories:
+			label_category = self.asset_label_categories.label_category_enums.add()
+			label_category.label_category_name = lc.name
+
+		self.mesh_variation_label_category_count = len(self.current_asset_type.mesh_variation_label_categories)
+
+		for lc in self.current_asset_type.mesh_variation_label_categories:
+			label_category = self.mesh_variation_label_categories.label_category_enums.add()
+			label_category.label_category_name = lc.name
+
+		self.material_label_category.label_category_name = self.current_asset_type.material_label_category.name
+		self.material_variation_label_category.label_category_name = self.current_asset_type.material_variation_label_category.name
+	
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=500)
 	
 	def execute(self, context):
-		s = context.scene.custo_asset_types[self.index]
-		s.name = self.name
+		
+		self.current_asset_type.name = self.name
+		self.current_asset_type.asset_label_categories.clear()
+		for l in self.asset_label_categories.label_category_enums:
+			asset_label = self.current_asset_type.asset_label_categories.add()
+			asset_label.name = l.label_category_name
+		
+		self.current_asset_type.mesh_variation_label_categories.clear()
+		for l in self.mesh_variation_label_categories.label_category_enums:
+			asset_label = self.current_asset_type.mesh_variation_label_categories.add()
+			asset_label.name = l.label_category_name
+
+		self.current_asset_type.material_label_category.name = self.material_label_category.label_category_name
+		self.current_asset_type.material_variation_label_category.name = self.material_variation_label_category.label_category_name
+
+		self.revert_parameters()
 		return {'FINISHED'}
+	
+	def revert_parameters(self):
+		self.asset_label_categories.label_category_enums.clear()
+		self.mesh_variation_label_categories.label_category_enums.clear()
 
 
 class UI_AddAssetType(bpy.types.Operator):

@@ -51,7 +51,6 @@ class UL_CustoPartSlots(bpy.types.UIList):
 		row.prop(item, 'checked', text='')
 		row.separator()
 		row.label(text=f'{item.name}')
-		# row.operator('scene.lm_remove_texture_channel', text='', icon='X').index = index
 
 
 classes = ( CustoSlotProperties,
@@ -68,9 +67,7 @@ def register():
 	
     bpy.types.Scene.custo_slots = bpy.props.CollectionProperty(type=CustoSlotProperties)
     bpy.types.Scene.custo_slots_idx = bpy.props.IntProperty(default=0)
-    
-    # TODO : Need to find the proper place to store Layers and slots for Asset. This info should stored per Assets,
-	# but Assets are dynamically composed using Label Categories which can't be stored properly
+
     bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
     bpy.types.Object.custo_part_slots = bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
     bpy.types.Object.custo_part_slots_idx = bpy.props.IntProperty(default=0)
