@@ -123,7 +123,6 @@ class UI_DuplicateAssetType(bpy.types.Operator):
 		asset_type.move(len(asset_type) - 1, self.index + 1)
 		return {'FINISHED'}
 
-
 class UI_EditAssetType(bpy.types.Operator):
 	bl_idname = "scene.edit_customization_asset_type"
 	bl_label = "Edit Asset Type"
@@ -172,7 +171,6 @@ class UI_EditAssetType(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 	
 	def execute(self, context):
-		
 		self.current_asset_type.name = self.name
 		self.current_asset_type.asset_label_categories.clear()
 		for l in self.asset_label_categories.label_category_enums:

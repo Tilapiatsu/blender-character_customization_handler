@@ -126,14 +126,33 @@ class UI_EditLabelCategory(bpy.types.Operator):
 	def invoke(self, context, event):
 		current_label_category = context.scene.custo_label_categories[self.index]
 		self.name = current_label_category.name
+		self.old_name = current_label_category.name
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=500)
 	
 	def execute(self, context):
 		s = context.scene.custo_label_categories[self.index]
 		s.name = self.name
+		self.refresh_asset_type_label_categories(context)
 		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
 		return {'FINISHED'}
+	
+	def refresh_asset_type_label_categories(self, context):
+		for asset_type in context.scene.custo_asset_types:
+			for lc in asset_type.asset_label_categories:
+				if lc.name == self.old_name:
+					lc.name = self.name
+
+			for lc in asset_type.mesh_variation_label_categories:
+				if lc.name == self.old_name:
+					lc.name = self.name
+
+			if asset_type.material_label_category.name == self.old_name:
+				asset_type.material_label_category.name = self.name
+
+			if asset_type.material_variation_label_category.name == self.old_name:
+				asset_type.material_variation_label_category.name = self.name
+
 
 
 class UI_AddLabelCategory(bpy.types.Operator):
@@ -161,22 +180,22 @@ class UI_AddLabelCategory(bpy.types.Operator):
 		return {'FINISHED'}
 	
 classes = ( UI_MoveLabelCategory, 
-            UI_EditLabelCategory, 
-            UI_ClearLabelCategories, 
-            UI_AddLabelCategory, 
-            UI_RemoveLabelCategory,
-            UI_DuplicateLabelCategory)
+			UI_EditLabelCategory, 
+			UI_ClearLabelCategories, 
+			UI_AddLabelCategory, 
+			UI_RemoveLabelCategory,
+			UI_DuplicateLabelCategory)
 
 def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
 
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
 
 if __name__ == "__main__":
-    register()
+	register()
