@@ -44,7 +44,7 @@ def label_categories_enum(self, context):
 	return items
 
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
-	label_category_name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
+	name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
 
 class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 	label_category_enums : bpy.props.CollectionProperty(name="Label Category Enums", type=CustoLabelCategoryEnumProperties)

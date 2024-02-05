@@ -11,6 +11,7 @@ class CustoAssetCategoryPointer(bpy.types.PropertyGroup):
 class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
 	asset_label_categories : bpy.props.CollectionProperty(type=CustoAssetCategoryPointer)
+	slot_label_category : bpy.props.PointerProperty(type=CustoAssetCategoryPointer)
 	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoAssetCategoryPointer)
 	material_label_category : bpy.props.PointerProperty(type=CustoAssetCategoryPointer)
 	material_variation_label_category : bpy.props.PointerProperty(type=CustoAssetCategoryPointer)
