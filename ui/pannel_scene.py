@@ -36,6 +36,16 @@ class PT_CustoAssetSetup(bpy.types.Panel):
 		rows = 20 if len(scn.custo_assets) > 20 else len(scn.custo_assets) + 1
 		row.template_list('SCENE_UL_CustoAssets', '', scn, 'custo_assets', scn, 'custo_assets_idx', rows=rows)
 		
+		col = row.column(align=True)
+		col.operator('scene.add_customization_asset', text="", icon='ADD')
+
+		col.separator()
+		col.operator("scene.move_customization_asset", text="", icon='TRIA_UP').direction = "UP"
+		col.operator("scene.move_customization_asset", text="", icon='TRIA_DOWN').direction = "DOWN"
+
+		col.separator()
+		col.operator("scene.clear_customization_assets", text="", icon='TRASH')
+		
 
 classes = (PT_CustoAssetSetup,)
 

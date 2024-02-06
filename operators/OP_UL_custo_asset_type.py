@@ -40,9 +40,9 @@ def revert_asset_types_parameters(self):
 
 class UI_MoveAssetType(bpy.types.Operator):
 	bl_idname = "scene.move_customization_asset_type"
-	bl_label = "Move Asset type"
+	bl_label = "Move Asset Type"
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = "Move Asset_type up or down.\nThis controls the position in the List."
+	bl_description = "Move Asset type up or down.\nThis controls the position in the List."
 
 	direction: bpy.props.EnumProperty(items=[("UP", "Up", ""), ("DOWN", "Down", "")])
 
@@ -66,9 +66,9 @@ class UI_MoveAssetType(bpy.types.Operator):
 
 class UI_ClearAssetTypes(bpy.types.Operator):
 	bl_idname = "scene.clear_customization_asset_types"
-	bl_label = "Clear All Asset_types"
+	bl_label = "Clear All Asset types"
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = "Clear All Asset types"
+	bl_description = "Clear All Asset Types"
 
 	@classmethod
 	def poll(cls, context):
@@ -85,11 +85,11 @@ class UI_ClearAssetTypes(bpy.types.Operator):
 
 class UI_RemoveAssetType(bpy.types.Operator):
 	bl_idname = "scene.remove_customization_asset_type"
-	bl_label = "Remove Selected Asset_type"
+	bl_label = "Remove Selected Asset type"
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Remove selected asset type"
 	
-	index : bpy.props.IntProperty(name="asset_type index", default=0)
+	index : bpy.props.IntProperty(name="asset type index", default=0)
 
 	@classmethod
 	def poll(cls, context):
@@ -111,9 +111,9 @@ class UI_RemoveAssetType(bpy.types.Operator):
 
 class UI_DuplicateAssetType(bpy.types.Operator):
 	bl_idname = "scene.duplicate_customization_asset_type"
-	bl_label = "Duplicate Selected Asset_type"
+	bl_label = "Duplicate Selected Asset Type"
 	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = "Duplicate selected Asset type"
+	bl_description = "Duplicate selected Asset Type"
 	
 	index : bpy.props.IntProperty(name="Operator ID", default=0)
 
@@ -135,8 +135,8 @@ class UI_EditAssetType(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Edit current customization asset type"
 
-	index : bpy.props.IntProperty(name="Asset_type Index", default=0)
-	name : bpy.props.StringProperty(name="Asset_type Name", default="")
+	index : bpy.props.IntProperty(name="Asset Type Index", default=0)
+	name : bpy.props.StringProperty(name="Asset Type Name", default="")
 	asset_label_category_count : bpy.props.IntProperty(name="Asset Label Category Count", default=1, min=1)
 	asset_label_categories : bpy.props.PointerProperty(name="Asset Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
 	slot_label_category : bpy.props.PointerProperty(name="Slot Label Category", type=CustoLabelCategoryEnumProperties)
@@ -159,6 +159,7 @@ class UI_EditAssetType(bpy.types.Operator):
 	def invoke(self, context, event):
 		self.current_asset_type = context.scene.custo_asset_types[self.index]
 		self.name = self.current_asset_type.name
+		self.old_name = self.current_asset_type.name
 
 		self.asset_label_category_count = len(self.current_asset_type.asset_label_categories)
 
@@ -182,6 +183,7 @@ class UI_EditAssetType(bpy.types.Operator):
 	
 	def execute(self, context):
 		self.current_asset_type.name = self.name
+		self.refresh_assets_asset_types(context)
 		self.current_asset_type.asset_label_categories.clear()
 		for l in self.asset_label_categories.label_category_enums:
 			asset_label = self.current_asset_type.asset_label_categories.add()
@@ -200,8 +202,11 @@ class UI_EditAssetType(bpy.types.Operator):
 		revert_asset_types_parameters(self)
 		return {'FINISHED'}
 	
+	def refresh_assets_asset_types(self, context):
+		for asset in context.scene.custo_assets:
+			if asset.asset_type.name == self.old_name:
+				asset.asset_type.name = self.name	
 	
-
 
 class UI_AddAssetType(bpy.types.Operator):
 	bl_idname = "scene.add_customization_asset_type"
