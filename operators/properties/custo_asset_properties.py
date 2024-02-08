@@ -1,4 +1,5 @@
 import bpy
+from .custo_label_properties import CustoLabelProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
 class CustoAssetTypePointer(bpy.types.PropertyGroup):
@@ -40,6 +41,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Name', default='')
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
+	asset_id : bpy.props.CollectionProperty(type=CustoLabelProperties)
 	layer : bpy.props.IntProperty(name='Layer', default=0)
 	slots : bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
 

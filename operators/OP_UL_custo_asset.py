@@ -1,5 +1,5 @@
 import bpy
-from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
+from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties, CustoLabelEnumProperties
 from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_custo_slots
 from .properties.custo_slot_properties import CustoPartSlotsProperties
 
@@ -211,6 +211,7 @@ class UI_AddAsset(bpy.types.Operator):
 
 	name : bpy.props.StringProperty(name="Asset Type Name", default="")
 	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
+	asset_id : bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
 	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
 
 	def draw(self, context):

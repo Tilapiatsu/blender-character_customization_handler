@@ -43,8 +43,16 @@ def label_categories_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories]
 	return items
 
+def label_enum(self, context):
+	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories[self.label_category_name].labels]
+	return items
+
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
 	name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
+
+class CustoLabelEnumProperties(bpy.types.PropertyGroup):
+	label_category_name : bpy.props.StringProperty(name='Label Category Name')
+	name : bpy.props.EnumProperty(name="Label Category Name", items=label_enum)
 
 class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 	label_category_enums : bpy.props.CollectionProperty(name="Label Category Enums", type=CustoLabelCategoryEnumProperties)
