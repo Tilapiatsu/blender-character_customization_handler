@@ -63,10 +63,11 @@ class CustoLabelProperties(bpy.types.PropertyGroup):
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
+	label_name : bpy.props.StringProperty(name='Label Category Name', default='')
 	
 	@property
 	def label(self):
-		return bpy.context.scene.custo_label_categories[self.label_category_name]
+		return bpy.context.scene.custo_label_categories[self.label_category_name].labels[self.label_name]
 	
 class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')

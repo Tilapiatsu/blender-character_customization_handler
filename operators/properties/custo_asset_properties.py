@@ -46,11 +46,24 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	material_variation_label_category : bpy.props.PointerProperty(type=CustoAssetLabelCategoryPointer)
 	
 class CustoAssetProperties(bpy.types.PropertyGroup):
-	name : bpy.props.StringProperty(name='Asset Name', default='')
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
 	asset_id : bpy.props.CollectionProperty(type=CustoLabelPropertiesPointer)
 	layer : bpy.props.IntProperty(name='Layer', default=0)
 	slots : bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
+	
+	@property
+	def asset_name(self):
+		def joined(strings):
+			result = ''
+			i = 0
+			for s in strings:
+				if i < len(strings)-1:
+					s += '_'
+				result += s
+				i += 1
+			return result
+		labels = [l.label.name for l in self.asset_id]
+		return joined(labels)
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"
@@ -71,7 +84,7 @@ class UL_CustoAsset(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
-		row.label(text=f'{item.name}')
+		row.label(text=f'{item.asset_name}')
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
 		row.operator('scene.edit_customization_asset', text='', icon='GREASEPENCIL').index = index

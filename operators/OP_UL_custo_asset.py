@@ -39,7 +39,6 @@ def draw_label_categories(layout, label, data, property_count, property_name, so
 
 def revert_assets_parameters(self):
 	self.layer = 0
-	self.name = ''
 
 class UI_MoveAsset(bpy.types.Operator):
 	bl_idname = "scene.move_customization_asset"
@@ -139,77 +138,6 @@ class UI_EditAsset(bpy.types.Operator):
 	bl_description = "Edit current customization asset type"
 
 	index : bpy.props.IntProperty(name="Asset Index", default=0)
-	name : bpy.props.StringProperty(name="Asset Name", default="")
-	asset_label_category_count : bpy.props.IntProperty(name="Asset Label Category Count", default=1, min=1)
-	asset_label_categories : bpy.props.PointerProperty(name="Asset Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
-	slot_label_category : bpy.props.PointerProperty(name="Slot Label Category", type=CustoLabelCategoryEnumProperties)
-	mesh_variation_label_category_count : bpy.props.IntProperty(name="Mesh Variation Label Category Count", default=1, min=1)
-	mesh_variation_label_categories : bpy.props.PointerProperty(name="Mesh Variation Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
-	material_label_category : bpy.props.PointerProperty(name="Material Label Category", type=CustoLabelCategoryEnumProperties)
-	material_variation_label_category : bpy.props.PointerProperty(name="Material Variation Label Category", type=CustoLabelCategoryEnumProperties)
-
-	def draw(self, context):
-		layout = self.layout
-		col = layout.column()
-		col.prop(self, 'name', text='Name')
-
-		draw_label_categories(col, 'Asset:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
-		col.prop(self.slot_label_category, 'name', text='Slot')
-		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
-		col.prop(self.material_label_category, 'name', text='Material')
-		col.prop(self.material_variation_label_category, 'name', text='Material Variation')
-	
-	def invoke(self, context, event):
-		self.current_asset = context.scene.custo_assets[self.index]
-		self.name = self.current_asset.name
-
-		self.asset_label_category_count = len(self.current_asset.asset_label_categories)
-
-		for lc in self.current_asset.asset_label_categories:
-			label_category = self.asset_label_categories.label_category_enums.add()
-			label_category.name = lc.name
-
-		self.slot_label_category.name = self.current_asset.slot_label_category.name
-
-		self.mesh_variation_label_category_count = len(self.current_asset.mesh_variation_label_categories)
-
-		for lc in self.current_asset.mesh_variation_label_categories:
-			label_category = self.mesh_variation_label_categories.label_category_enums.add()
-			label_category.name = lc.name
-
-		self.material_label_category.name = self.current_asset.material_label_category.name
-		self.material_variation_label_category.name = self.current_asset.material_variation_label_category.name
-	
-		wm = context.window_manager
-		return wm.invoke_props_dialog(self, width=500)
-	
-	def execute(self, context):
-		self.current_asset.name = self.name
-		self.current_asset.asset_label_categories.clear()
-		for l in self.asset_label_categories.label_category_enums:
-			asset_label = self.current_asset.asset_label_categories.add()
-			asset_label.name = l.name
-		
-		self.current_asset.slot_label_category.name = self.slot_label_category.name
-
-		self.current_asset.mesh_variation_label_categories.clear()
-		for l in self.mesh_variation_label_categories.label_category_enums:
-			asset_label = self.current_asset.mesh_variation_label_categories.add()
-			asset_label.name = l.name
-
-		self.current_asset.material_label_category.name = self.material_label_category.name
-		self.current_asset.material_variation_label_category.name = self.material_variation_label_category.name
-
-		revert_assets_parameters(self)
-		return {'FINISHED'}
-
-class UI_AddAsset(bpy.types.Operator):
-	bl_idname = "scene.add_customization_asset"
-	bl_label = "Add Asset"
-	bl_options = {'REGISTER', 'UNDO'}
-	bl_description = "Add a customization asset type"
-
-	name : bpy.props.StringProperty(name="Asset Type Name", default="")
 	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
 	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
 
@@ -220,8 +148,71 @@ class UI_AddAsset(bpy.types.Operator):
 	def draw(self, context):
 		layout = self.layout
 		col = layout.column()
-		col.prop(self, 'name', text='Name')
+		col.prop(self.asset_type, 'name', text='Asset Type')
+		
+		col.label(text='Asset ID:')
+		if len(context.scene.current_asset_id):
+			row = col.row(align=True)
+			self.separator(row, 10)
+			col1 = row.column(align=True)
+			for asset_id in context.scene.current_asset_id:
+				col1.prop(asset_id, 'name', text='')
 
+		col.separator()
+		col.prop(self, 'layer', text='Layer')
+		col.separator()
+		b = col.box()
+		b.label(text='Slots')
+		row = b.row()
+
+		rows = 20 if len(context.scene.current_edited_asset_slots) > 20 else len(context.scene.current_edited_asset_slots) + 1
+		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene, 'current_edited_asset_slots', context.scene, 'current_edited_asset_slots_idx', rows=rows)
+
+	def invoke(self, context, event):
+		wm = context.window_manager
+		self.init_parameters(context)
+		return wm.invoke_props_dialog(self, width=500)
+
+	def execute(self, context):
+		s = context.scene.custo_assets[self.index]
+			
+		s.asset_type.name = self.asset_type.name
+		s.layer = self.layer
+
+		for label in context.scene.current_asset_id:
+			current_label = s.asset_id.add()
+			current_label.label_category_name = label.label_category_name
+			current_label.label_name = label.name
+		
+		for slot in context.scene.current_edited_asset_slots:
+			current_slot = s.slots.add()
+			current_slot.name = slot.name
+			current_slot.checked = slot.checked
+			current_slot.keep_lower_layer_slot = slot.keep_lower_layer_slot
+
+		revert_assets_parameters(self)
+		return {'FINISHED'}
+	
+	def init_parameters(self, context):
+		self.layer = context.scene.custo_assets[self.index].layer
+		update_current_asset_properties(self.asset_type, context)
+
+class UI_AddAsset(bpy.types.Operator):
+	bl_idname = "scene.add_customization_asset"
+	bl_label = "Add Asset"
+	bl_options = {'REGISTER', 'UNDO'}
+	bl_description = "Add a customization asset type"
+
+	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
+	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
+
+	def separator(self, layout, iter):
+		for i in range(iter):
+			layout.separator()
+
+	def draw(self, context):
+		layout = self.layout
+		col = layout.column()
 		col.prop(self.asset_type, 'name', text='Asset Type')
 		
 		col.label(text='Asset ID:')
@@ -249,10 +240,14 @@ class UI_AddAsset(bpy.types.Operator):
 
 	def execute(self, context):
 		s = context.scene.custo_assets.add()
-		s.name = self.name
 			
 		s.asset_type.name = self.asset_type.name
 		s.layer = self.layer
+
+		for label in context.scene.current_asset_id:
+			current_label = s.asset_id.add()
+			current_label.label_category_name = label.label_category_name
+			current_label.label_name = label.name
 		
 		for slot in context.scene.current_edited_asset_slots:
 			current_slot = s.slots.add()
@@ -264,7 +259,6 @@ class UI_AddAsset(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
-		self.name = ''
 		self.layer = 0
 		update_current_asset_properties(self.asset_type, context)
 
