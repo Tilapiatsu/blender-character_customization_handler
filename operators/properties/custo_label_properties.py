@@ -52,7 +52,7 @@ class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
 
 class CustoLabelEnumProperties(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name')
-	name : bpy.props.EnumProperty(name="Label Category Name", items=label_enum)
+	name : bpy.props.EnumProperty(name="Label Name", items=label_enum)
 
 class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 	label_category_enums : bpy.props.CollectionProperty(name="Label Category Enums", type=CustoLabelCategoryEnumProperties)
@@ -60,6 +60,13 @@ class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
 	checked : bpy.props.BoolProperty(default=False)
+
+class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
+	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
+	
+	@property
+	def label(self):
+		return bpy.context.scene.custo_label_categories[self.label_category_name]
 	
 class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
@@ -119,7 +126,9 @@ class UL_CustoPartLabelCategory(bpy.types.UIList):
 
 classes = ( CustoLabelProperties, 
 			CustoLabelCategoryProperties,
+			CustoLabelEnumProperties,
 			CustoPartLabelProperties,
+			CustoLabelPropertiesPointer,
 			CustoPartLabelCategoryProperties,
 			CustoLabelCategoryEnumProperties,
 			CustoLabelCategoryEnumCollectionProperties,
@@ -143,6 +152,7 @@ def register():
 	bpy.types.Object.custo_part_labels_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
 	bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
+	
 
 def unregister():
 	del bpy.types.Scene.custo_labels

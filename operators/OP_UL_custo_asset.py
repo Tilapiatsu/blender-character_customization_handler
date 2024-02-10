@@ -1,6 +1,6 @@
 import bpy
 from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties, CustoLabelEnumProperties
-from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_custo_slots
+from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties
 from .properties.custo_slot_properties import CustoPartSlotsProperties
 
 def update_custo_slot(self, context):
@@ -211,8 +211,11 @@ class UI_AddAsset(bpy.types.Operator):
 
 	name : bpy.props.StringProperty(name="Asset Type Name", default="")
 	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
-	asset_id : bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
 	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
+
+	def separator(self, layout, iter):
+		for i in range(iter):
+			layout.separator()
 
 	def draw(self, context):
 		layout = self.layout
@@ -220,7 +223,18 @@ class UI_AddAsset(bpy.types.Operator):
 		col.prop(self, 'name', text='Name')
 
 		col.prop(self.asset_type, 'name', text='Asset Type')
+		
+		col.label(text='Asset ID:')
+		if len(context.scene.current_asset_id):
+			row = col.row(align=True)
+			self.separator(row, 10)
+			col1 = row.column(align=True)
+			for asset_id in context.scene.current_asset_id:
+				col1.prop(asset_id, 'name', text='')
+
+		col.separator()
 		col.prop(self, 'layer', text='Layer')
+		col.separator()
 		b = col.box()
 		b.label(text='Slots')
 		row = b.row()
@@ -252,7 +266,7 @@ class UI_AddAsset(bpy.types.Operator):
 	def init_parameters(self, context):
 		self.name = ''
 		self.layer = 0
-		update_current_asset_custo_slots(self.asset_type, context)
+		update_current_asset_properties(self.asset_type, context)
 
 
 classes = ( UI_MoveAsset, 

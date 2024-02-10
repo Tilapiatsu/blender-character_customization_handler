@@ -1,5 +1,5 @@
 import bpy
-from .custo_label_properties import CustoLabelProperties
+from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
 class CustoAssetTypePointer(bpy.types.PropertyGroup):
@@ -13,7 +13,14 @@ def asset_type_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_asset_types]
 	return items
 
-def update_current_asset_custo_slots(self, context):
+def update_current_asset_properties(self, context):
+	# update Asset ID
+	context.scene.current_asset_id.clear()
+	for lc in context.scene.custo_asset_types[self.name].asset_label_categories:
+		id_enum = context.scene.current_asset_id.add()
+		id_enum.label_category_name = lc.name
+
+	# Update Slots
 	context.scene.current_edited_asset_slots.clear()
 	for s in context.scene.custo_label_categories[context.scene.custo_asset_types[self.name].slot_label_category.name].labels:
 		slot = context.scene.current_edited_asset_slots.add()
@@ -21,7 +28,7 @@ def update_current_asset_custo_slots(self, context):
 		slot.checked = s.checked
 
 class CustoAssetTypeEnumProperties(bpy.types.PropertyGroup):
-	name : bpy.props.EnumProperty(name="Asset Type", items=asset_type_enum, update=update_current_asset_custo_slots)
+	name : bpy.props.EnumProperty(name="Asset Type", items=asset_type_enum, update=update_current_asset_properties)
 
 class CustoAssetLabelCategoryPointer(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Category Name', default='')
@@ -41,7 +48,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Name', default='')
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
-	asset_id : bpy.props.CollectionProperty(type=CustoLabelProperties)
+	asset_id : bpy.props.CollectionProperty(type=CustoLabelPropertiesPointer)
 	layer : bpy.props.IntProperty(name='Layer', default=0)
 	slots : bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
 
@@ -84,13 +91,16 @@ def register():
 	for cls in classes:
 		register_class(cls)
 	
-	
 	bpy.types.Scene.custo_asset_types = bpy.props.CollectionProperty(type=CustoAssetTypeProperties)
 	bpy.types.Scene.custo_asset_types_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Scene.custo_assets = bpy.props.CollectionProperty(type=CustoAssetProperties)
-	bpy.types.Scene.custo_assets_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Scene.custo_assets_idx = bpy.props.IntProperty(default=0, min=0)
+	bpy.types.Scene.current_asset_id = bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
+	bpy.types.Scene.current_asset_id_idx = bpy.props.IntProperty(default=0, min=0)
 
 def unregister():
+	del bpy.types.Scene.current_asset_id
+	del bpy.types.Scene.current_asset_id_idx
 	del bpy.types.Scene.custo_assets
 	del bpy.types.Scene.custo_assets_idx
 	del bpy.types.Scene.custo_asset_types
