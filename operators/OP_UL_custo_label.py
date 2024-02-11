@@ -1,4 +1,5 @@
 import bpy
+from .properties.custo_asset_properties import get_asset_name
 
 def get_label(context):
 	idx = context.scene.custo_labels_idx
@@ -129,6 +130,7 @@ class UI_EditLabel(bpy.types.Operator):
 	def invoke(self, context, event):
 		current_label = context.scene.custo_labels[self.index]
 		self.name = current_label.name
+		self.old_name = current_label.name
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=500)
 	
@@ -137,9 +139,46 @@ class UI_EditLabel(bpy.types.Operator):
 		s.name = self.name
 		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels[self.index]
 		s.name = self.name
+		self.label_category_name = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].name
 		bpy.ops.object.refresh_part_labels()
+		self.refresh_asset_label_categories(context)
 		return {'FINISHED'}
 
+	def refresh_asset_label_categories(self, context):
+		for asset_type in context.scene.custo_asset_types:
+			for lc in asset_type.asset_label_categories:
+				for l in lc.label_category.labels:
+					if l.name == self.old_name:
+						l.name = self.name
+
+			for lc in asset_type.mesh_variation_label_categories:
+				for l in lc.label_category.labels:
+					if l.name == self.old_name:
+						l.name = self.name
+			
+			for l in asset_type.slot_label_category.label_category.labels:
+				if l.name == self.old_name:
+					l.name = self.name
+
+			for l in asset_type.material_label_category.label_category.labels:
+				if l.name == self.old_name:
+					l.name = self.name
+			
+			for l in asset_type.material_variation_label_category.label_category.labels:
+				if l.name == self.old_name:
+					l.name = self.name
+
+		for asset in context.scene.custo_assets:
+			for asset_id in asset.asset_id:
+				if asset_id.name == self.old_name:
+					asset_id.name = self.name
+					asset_id.label_category_name = self.label_category_name
+
+			for slot in asset.slots:
+				if slot.name == self.old_name:
+					slot.name = self.name
+			
+			asset.name = get_asset_name(asset.asset_id)
 
 class UI_AddLabel(bpy.types.Operator):
 	bl_idname = "scene.add_customization_label"
@@ -168,22 +207,22 @@ class UI_AddLabel(bpy.types.Operator):
 		return {'FINISHED'}
 	
 classes = ( UI_MoveLabel, 
-            UI_EditLabel, 
-            UI_ClearLabels, 
-            UI_AddLabel,
-            UI_RemoveLabel,
-            UI_DuplicateLabel)
+			UI_EditLabel, 
+			UI_ClearLabels, 
+			UI_AddLabel,
+			UI_RemoveLabel,
+			UI_DuplicateLabel)
 
 def register():
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
 
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
 
 if __name__ == "__main__":
-    register()
+	register()

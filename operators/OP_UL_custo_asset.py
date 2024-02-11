@@ -37,6 +37,27 @@ def draw_label_categories(layout, label, data, property_count, property_name, so
 
 def revert_assets_parameters(self):
 	self.layer = 0
+	
+def set_current_label_category(self, context):
+	context.scene.current_label_category.clear()
+
+	category = context.scene.current_label_category.add()
+	category.name = context.scene.custo_asset_types[self.asset_type.name].slot_label_category.name
+	for l in context.scene.custo_assets[self.index].slots:
+		label = category.labels.add()
+		label.name = l.name
+		label.checked = l.checked
+		label.keep_lower_layer_slot = l.keep_lower_layer_slot
+	
+	for l in context.scene.custo_label_categories[category.name].labels:
+		if l.name in context.scene.custo_assets[self.index].slots:
+			continue
+
+		label = category.labels.add()
+		label.name = l.name
+		label.checked = l.checked
+		label.keep_lower_layer_slot = l.keep_lower_layer_slot
+	
 
 class UI_MoveAsset(bpy.types.Operator):
 	bl_idname = "scene.move_customization_asset"
@@ -125,9 +146,14 @@ class UI_DuplicateAsset(bpy.types.Operator):
 		_, asset, _ = get_asset(context)
 
 		s = asset.add()
-		s.name = asset[self.index].name+'_dup'
+		s.name = asset[self.index].asset_name
+		s.layer = context.scene.custo_assets[self.index].layer
+		self.asset_type = asset[self.index].asset_type
+		set_current_label_category(self, context)
+		update_current_asset_properties(self.asset_type, context)
 		asset.move(len(asset) - 1, self.index + 1)
 		return {'FINISHED'}
+	
 
 class UI_EditAsset(bpy.types.Operator):
 	bl_idname = "scene.edit_customization_asset"
@@ -198,19 +224,8 @@ class UI_EditAsset(bpy.types.Operator):
 	def init_parameters(self, context):
 		self.layer = context.scene.custo_assets[self.index].layer
 		context.scene.current_asset_name = get_asset_name(context.scene.custo_assets[self.index].asset_id)
-		self.set_current_label_category(context)
+		set_current_label_category(self, context)
 		update_current_asset_properties(self.asset_type, context)
-
-	def set_current_label_category(self, context):
-		context.scene.current_label_category.clear()
-
-		category = context.scene.current_label_category.add()
-		category.name = context.scene.custo_asset_types[self.asset_type.name].slot_label_category.name
-		for l in context.scene.custo_assets[self.index].slots:
-			label = category.labels.add()
-			label.name = l.name
-			label.checked = l.checked
-			label.keep_lower_layer_slot = l.keep_lower_layer_slot
 
 class UI_AddAsset(bpy.types.Operator):
 	bl_idname = "scene.add_customization_asset"
@@ -296,8 +311,7 @@ classes = ( UI_MoveAsset,
 			UI_EditAsset, 
 			UI_ClearAssets, 
 			UI_AddAsset,
-			UI_RemoveAsset,
-			UI_DuplicateAsset)
+			UI_RemoveAsset)
 
 def register():
 	from bpy.utils import register_class

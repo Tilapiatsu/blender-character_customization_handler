@@ -83,7 +83,7 @@ class UL_CustoAssetType(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
 		row.operator('scene.edit_customization_asset_type', text='', icon='GREASEPENCIL').index = index
-		row.operator('scene.duplicate_customization_asset_type', text='', icon='COPYDOWN').index = index
+		# row.operator('scene.duplicate_customization_asset_type', text='', icon='COPYDOWN').index = index
 		row.operator('scene.remove_customization_asset_type', text='', icon='X').index = index
 
 class UL_CustoAsset(bpy.types.UIList):
@@ -96,7 +96,7 @@ class UL_CustoAsset(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
 		row.operator('scene.edit_customization_asset', text='', icon='GREASEPENCIL').index = index
-		row.operator('scene.duplicate_customization_asset', text='', icon='COPYDOWN').index = index
+		# row.operator('scene.duplicate_customization_asset', text='', icon='COPYDOWN').index = index
 		row.operator('scene.remove_customization_asset', text='', icon='X').index = index
 
 classes = ( CustoAssetLabelCategoryPointer,

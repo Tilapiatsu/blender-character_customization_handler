@@ -262,8 +262,7 @@ classes = ( UI_MoveAssetType,
 			UI_EditAssetType, 
 			UI_ClearAssetTypes, 
 			UI_AddAssetType,
-			UI_RemoveAssetType,
-			UI_DuplicateAssetType)
+			UI_RemoveAssetType)
 
 def register():
 	from bpy.utils import register_class

@@ -146,6 +146,9 @@ class UI_EditLabelCategory(bpy.types.Operator):
 			for lc in asset_type.mesh_variation_label_categories:
 				if lc.name == self.old_name:
 					lc.name = self.name
+			
+			if asset_type.slot_label_category.name == self.old_name:
+				asset_type.slot_label_category.name = self.name
 
 			if asset_type.material_label_category.name == self.old_name:
 				asset_type.material_label_category.name = self.name
