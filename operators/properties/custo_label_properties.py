@@ -60,14 +60,15 @@ class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
 	checked : bpy.props.BoolProperty(default=False)
+	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
-	label_name : bpy.props.StringProperty(name='Label Category Name', default='')
+	name : bpy.props.StringProperty(name='Label Category Name', default='')
 	
 	@property
 	def label(self):
-		return bpy.context.scene.custo_label_categories[self.label_category_name].labels[self.label_name]
+		return bpy.context.scene.custo_label_categories[self.label_category_name].labels[self.name]
 	
 class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')

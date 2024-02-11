@@ -1,5 +1,5 @@
 import bpy
-from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties
+from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoPartLabelCategoryProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
 class CustoAssetTypePointer(bpy.types.PropertyGroup):
@@ -13,19 +13,37 @@ def asset_type_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_asset_types]
 	return items
 
+def get_asset_name(asset_ids):
+	def joined(strings):
+		result = ''
+		i = 0
+		for s in strings:
+			if i < len(strings)-1:
+				s += '_'
+			result += s
+			i += 1
+		return result
+	labels = [l.label.name for l in asset_ids]
+	return joined(labels)
+
 def update_current_asset_properties(self, context):
+	asset_names = [a.asset_name for a in context.scene.custo_assets]
 	# update Asset ID
 	context.scene.current_asset_id.clear()
-	for lc in context.scene.custo_asset_types[self.name].asset_label_categories:
+	for i, lc in enumerate(context.scene.custo_asset_types[self.name].asset_label_categories):
 		id_enum = context.scene.current_asset_id.add()
 		id_enum.label_category_name = lc.name
+		
+		if context.scene.current_asset_name in asset_names:
+			id_enum.name = context.scene.custo_assets[context.scene.current_asset_name].asset_id[i].name
 
 	# Update Slots
 	context.scene.current_edited_asset_slots.clear()
-	for s in context.scene.custo_label_categories[context.scene.custo_asset_types[self.name].slot_label_category.name].labels:
+	for s in context.scene.current_label_category[context.scene.custo_asset_types[self.name].slot_label_category.name].labels:
 		slot = context.scene.current_edited_asset_slots.add()
 		slot.name = s.name
 		slot.checked = s.checked
+		slot.keep_lower_layer_slot = s.keep_lower_layer_slot
 
 class CustoAssetTypeEnumProperties(bpy.types.PropertyGroup):
 	name : bpy.props.EnumProperty(name="Asset Type", items=asset_type_enum, update=update_current_asset_properties)
@@ -53,17 +71,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	
 	@property
 	def asset_name(self):
-		def joined(strings):
-			result = ''
-			i = 0
-			for s in strings:
-				if i < len(strings)-1:
-					s += '_'
-				result += s
-				i += 1
-			return result
-		labels = [l.label.name for l in self.asset_id]
-		return joined(labels)
+		return get_asset_name(self.asset_id)
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"
@@ -110,8 +118,12 @@ def register():
 	bpy.types.Scene.custo_assets_idx = bpy.props.IntProperty(default=0, min=0)
 	bpy.types.Scene.current_asset_id = bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
 	bpy.types.Scene.current_asset_id_idx = bpy.props.IntProperty(default=0, min=0)
+	bpy.types.Scene.current_asset_name = bpy.props.StringProperty()
+	bpy.types.Scene.current_label_category = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
 
 def unregister():
+	del bpy.types.Scene.current_label_category
+	del bpy.types.Scene.current_asset_name
 	del bpy.types.Scene.current_asset_id
 	del bpy.types.Scene.current_asset_id_idx
 	del bpy.types.Scene.custo_assets
