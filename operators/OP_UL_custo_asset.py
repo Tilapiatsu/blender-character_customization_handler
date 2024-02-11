@@ -43,15 +43,10 @@ def set_current_label_category(self, context):
 
 	category = context.scene.current_label_category.add()
 	category.name = context.scene.custo_asset_types[self.asset_type.name].slot_label_category.name
-	for l in context.scene.custo_assets[self.index].slots:
-		label = category.labels.add()
-		label.name = l.name
-		label.checked = l.checked
-		label.keep_lower_layer_slot = l.keep_lower_layer_slot
 	
 	for l in context.scene.custo_label_categories[category.name].labels:
 		if l.name in context.scene.custo_assets[self.index].slots:
-			continue
+			l = context.scene.custo_assets[self.index].slots[l.name]
 
 		label = category.labels.add()
 		label.name = l.name

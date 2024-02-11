@@ -147,11 +147,15 @@ class UI_EditLabel(bpy.types.Operator):
 	def refresh_asset_label_categories(self, context):
 		for asset_type in context.scene.custo_asset_types:
 			for lc in asset_type.asset_label_categories:
+				if lc.name != self.label_category_name:
+					continue
 				for l in lc.label_category.labels:
 					if l.name == self.old_name:
 						l.name = self.name
 
 			for lc in asset_type.mesh_variation_label_categories:
+				if lc.name != self.label_category_name:
+					continue
 				for l in lc.label_category.labels:
 					if l.name == self.old_name:
 						l.name = self.name
