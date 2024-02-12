@@ -30,50 +30,7 @@ class PT_CustoSlotSetup(PT_CustomizationHandler, bpy.types.Panel):
 
 		col.separator()
 		col.operator("scene.clear_customization_slots", text="", icon='TRASH')
-
-
-class PT_CustoLabelSetup(PT_CustomizationHandler, bpy.types.Panel): 
-	bl_label = "Customization Label Setup"
-	bl_idname = 'SCENE_PT_Customization_Label_Setup'
-
-	def draw(self, context):
-		layout = self.layout
-		scn = context.scene
-		ob = context.object
 		
-		main_row = layout.row()
-		
-		b = main_row.box()
-		b.label(text='Label Categories')
-		row = b.row()
-		rows = 20 if len(scn.custo_label_categories) > 20 else len(scn.custo_label_categories) + 1
-		row.template_list('SCENE_UL_CustoLabelCategories', '', scn, 'custo_label_categories', scn, 'custo_label_categories_idx', rows=rows)
-		col = row.column(align=True)
-		col.operator('scene.add_customization_label_category', text="", icon='ADD')
-
-		col.separator()
-		col.operator("scene.move_customization_label_category", text="", icon='TRIA_UP').direction = "UP"
-		col.operator("scene.move_customization_label_category", text="", icon='TRIA_DOWN').direction = "DOWN"
-
-		col.separator()
-		col.operator("scene.clear_customization_label_categories", text="", icon='TRASH')
-		
-
-		b = main_row.box()
-		b.label(text='Labels')
-		row = b.row()
-		rows = 20 if len(scn.custo_labels) > 20 else len(scn.custo_labels) + 1
-		row.template_list('SCENE_UL_CustoLabels', '', scn, 'custo_labels', scn, 'custo_labels_idx', rows=rows)
-		col = row.column(align=True)
-		col.operator('scene.add_customization_label', text="", icon='ADD')
-
-		col.separator()
-		col.operator("scene.move_customization_label", text="", icon='TRIA_UP').direction = "UP"
-		col.operator("scene.move_customization_label", text="", icon='TRIA_DOWN').direction = "DOWN"
-
-		col.separator()
-		col.operator("scene.clear_customization_labels", text="", icon='TRASH')
-
 
 class PT_CustoSpawnSetup(PT_CustomizationHandler, bpy.types.Panel): 
 	bl_label = "Customization Spawn Setup"
@@ -137,7 +94,7 @@ class PT_CustoPartSetup(bpy.types.Panel):
 		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
 
 
-classes = (PT_CustoSlotSetup, PT_CustoLabelSetup, PT_CustoSpawnSetup)
+classes = (PT_CustoSlotSetup, PT_CustoSpawnSetup)
 
 def register():
 
