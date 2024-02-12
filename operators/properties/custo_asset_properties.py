@@ -35,7 +35,9 @@ def update_current_asset_properties(self, context):
 		id_enum.label_category_name = lc.name
 		
 		if context.scene.current_asset_name in asset_names:
-			id_enum.name = context.scene.custo_assets[context.scene.current_asset_name].asset_id[i].name
+			asseet_id = context.scene.custo_assets[context.scene.current_asset_name].asset_id[i]
+			if asseet_id.label_category_name == id_enum.label_category_name:
+				id_enum.name = asseet_id.name
 
 	# Update Slots
 	context.scene.current_edited_asset_slots.clear()

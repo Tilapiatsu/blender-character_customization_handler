@@ -161,24 +161,34 @@ class UI_EditLabel(bpy.types.Operator):
 						l.name = self.name
 			
 			for l in asset_type.slot_label_category.label_category.labels:
+				if asset_type.slot_label_category.name != self.label_category_name:
+					continue
 				if l.name == self.old_name:
 					l.name = self.name
 
 			for l in asset_type.material_label_category.label_category.labels:
+				if asset_type.material_label_category.name != self.label_category_name:
+					continue
 				if l.name == self.old_name:
 					l.name = self.name
 			
 			for l in asset_type.material_variation_label_category.label_category.labels:
+				if asset_type.material_variation_label_category.name != self.label_category_name:
+					continue
 				if l.name == self.old_name:
 					l.name = self.name
 
 		for asset in context.scene.custo_assets:
 			for asset_id in asset.asset_id:
+				if asset_id.label_category_name != self.label_category_name:
+					continue
 				if asset_id.name == self.old_name:
 					asset_id.name = self.name
 					asset_id.label_category_name = self.label_category_name
 
 			for slot in asset.slots:
+				if asset.asset_type.asset_type.slot_label_category.name != self.label_category_name:
+					continue
 				if slot.name == self.old_name:
 					slot.name = self.name
 			
