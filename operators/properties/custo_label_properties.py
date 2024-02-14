@@ -1,21 +1,24 @@
 import bpy
 
+def in_range(ui_list, index):
+	return index > -1 and len(ui_list) and len(ui_list) < index
+
 def update_label_category(self, context):
 	context.scene.custo_labels.clear()
 	for l in context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels:
 		label = context.scene.custo_labels.add()
 		label.name = l.name
 	
-def update_part_label_category(self, context):
-	context.object.custo_part_labels.clear()
+def update_label_category_definition(self, context):
+	context.object.custo_label_definition.clear()
 	
-	if not len(context.object.custo_part_label_categories):
+	if not len(context.object.custo_label_category_definition):
 		return
 	
 	label_to_remove=[]
-	category_name = context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].name
+	category_name = context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].name
 
-	for i,l in enumerate(context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels):
+	for i,l in enumerate(context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels):
 		for c in context.scene.custo_label_categories:
 			if c.name != category_name:
 				continue
@@ -24,20 +27,18 @@ def update_part_label_category(self, context):
 				label_to_remove.append(i)
 
 	for l in label_to_remove:
-		context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels.remove(l)
+		context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels.remove(l)
 
-	for l in context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels:
-		label = context.object.custo_part_labels.add()
+	for l in context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels:
+		label = context.object.custo_label_definition.add()
 		label.name = l.name
 		label.checked = l.checked
 
-def update_part_labels(self, context):
-	i=0
-	for l in context.object.custo_part_label_categories[context.object.custo_part_label_categories_idx].labels:
-		if i > len(context.object.custo_part_labels) - 1:
+def update_label_definition(self, context):
+	for i, l in enumerate(context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels):
+		if i > len(context.object.custo_label_definition) - 1:
 			return
-		l.checked = context.object.custo_part_labels[i].checked
-		i+=1
+		l.checked = context.object.custo_label_definition[i].checked
 
 def label_categories_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories]
@@ -47,20 +48,25 @@ def label_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories[self.label_category_name].labels]
 	return items
 
+
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
 	name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
+
 
 class CustoLabelEnumProperties(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name')
 	name : bpy.props.EnumProperty(name="Label Name", items=label_enum)
 
+
 class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 	label_category_enums : bpy.props.CollectionProperty(name="Label Category Enums", type=CustoLabelCategoryEnumProperties)
+
 
 class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
 	checked : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
+
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
@@ -70,17 +76,21 @@ class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	def label(self):
 		return bpy.context.scene.custo_label_categories[self.label_category_name].labels[self.name]
 	
+
 class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
 	labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
 
-class CustoPartLabelProperties(bpy.types.PropertyGroup):
+
+class CustoLabelDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False, update=update_part_labels)
+	checked : bpy.props.BoolProperty(default=False, update=update_label_definition)
 	
-class CustoPartLabelCategoryProperties(bpy.types.PropertyGroup):
+
+class CustoLabelCategoryDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
 	labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
+
 
 class UL_CustoLabel(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoLabels"
@@ -95,6 +105,7 @@ class UL_CustoLabel(bpy.types.UIList):
 		row.operator('scene.duplicate_customization_label', text='', icon='COPYDOWN').index = index
 		row.operator('scene.remove_customization_label', text='', icon='X').index = index
 		
+		
 class UL_CustoLabelCategory(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoLabelCategories"
 
@@ -108,8 +119,9 @@ class UL_CustoLabelCategory(bpy.types.UIList):
 		row.operator('scene.duplicate_customization_label_category', text='', icon='COPYDOWN').index = index
 		row.operator('scene.remove_customization_label_category', text='', icon='X').index = index
 
-class UL_CustoPartLabel(bpy.types.UIList):
-	bl_idname = "OBJECT_UL_CustoPartLabels"
+
+class UL_CustoLabelDefinition(bpy.types.UIList):
+	bl_idname = "OBJECT_UL_CustoLabelDefinition"
 
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
@@ -118,26 +130,29 @@ class UL_CustoPartLabel(bpy.types.UIList):
 		row.separator()
 		row.label(text=f'{item.name}')
 		
-class UL_CustoPartLabelCategory(bpy.types.UIList):
-	bl_idname = "OBJECT_UL_CustoPartLabelCategories"
+
+class UL_CustoPartLabelCategoryDefinition(bpy.types.UIList):
+	bl_idname = "OBJECT_UL_CustoLabelCategorieDefinition"
 
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
 
+
 classes = ( CustoLabelProperties, 
 			CustoLabelCategoryProperties,
 			CustoLabelEnumProperties,
-			CustoPartLabelProperties,
+			CustoLabelDefinitionProperties,
 			CustoLabelPropertiesPointer,
-			CustoPartLabelCategoryProperties,
+			CustoLabelCategoryDefinitionProperties,
 			CustoLabelCategoryEnumProperties,
 			CustoLabelCategoryEnumCollectionProperties,
 			UL_CustoLabel, 
 			UL_CustoLabelCategory,
-			UL_CustoPartLabel,
-			UL_CustoPartLabelCategory,)
+			UL_CustoLabelDefinition,
+			UL_CustoPartLabelCategoryDefinition)
+
 
 def register():
 	from bpy.utils import register_class
@@ -149,24 +164,23 @@ def register():
 	bpy.types.Scene.custo_label_categories = bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	bpy.types.Scene.custo_label_categories_idx = bpy.props.IntProperty(default=0, update=update_label_category)
 
-	bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
-	bpy.types.Object.custo_part_labels = bpy.props.CollectionProperty(type=CustoPartLabelProperties)
-	bpy.types.Object.custo_part_labels_idx = bpy.props.IntProperty(default=0)
-	bpy.types.Object.custo_part_label_categories = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
-	bpy.types.Object.custo_part_label_categories_idx = bpy.props.IntProperty(default=0, update=update_part_label_category)
+	bpy.types.Object.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionProperties)
+	bpy.types.Object.custo_label_definition_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Object.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	bpy.types.Object.custo_label_category_definition_idx = bpy.props.IntProperty(default=0, update=update_label_category_definition)
 	
 
 def unregister():
+	del bpy.types.Object.custo_label_definition
+	del bpy.types.Object.custo_label_definition_idx
+	del bpy.types.Object.custo_label_category_definition
+	del bpy.types.Object.custo_label_category_definition_idx
+	
 	del bpy.types.Scene.custo_labels
 	del bpy.types.Scene.custo_labels_idx
 	del bpy.types.Scene.custo_label_categories
 	del bpy.types.Scene.custo_label_categories_idx
 
-	del bpy.types.Object.custo_part_layer
-	del bpy.types.Object.custo_part_labels
-	del bpy.types.Object.custo_part_labels_idx
-	del bpy.types.Object.custo_part_label_categories
-	del bpy.types.Object.custo_part_label_categories_idx
 	
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):

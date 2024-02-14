@@ -5,31 +5,6 @@ class PT_CustomizationHandler:
 	bl_region_type = "UI"
 	bl_category = 'Customization Handler'
 	bl_options = {"DEFAULT_CLOSED"}
-
-
-class PT_CustoSlotSetup(PT_CustomizationHandler, bpy.types.Panel): 
-	bl_label = "Customization Slot Setup"
-	bl_idname = 'SCENE_PT_Customization_Slot_Setup'
-
-	def draw(self, context):
-		layout = self.layout
-		scn = context.scene
-		ob = context.object
-		b = layout.box()
-		
-		b.label(text='Customization Slots')
-		row = b.row()
-		rows = 20 if len(scn.custo_slots) > 20 else len(scn.custo_slots) + 1
-		row.template_list('SCENE_UL_CustoSlots', '', scn, 'custo_slots', scn, 'custo_slots_idx', rows=rows)
-		col = row.column(align=True)
-		col.operator('scene.add_customization_slot', text="", icon='ADD')
-
-		col.separator()
-		col.operator("scene.move_customization_slot", text="", icon='TRIA_UP').direction = "UP"
-		col.operator("scene.move_customization_slot", text="", icon='TRIA_DOWN').direction = "DOWN"
-
-		col.separator()
-		col.operator("scene.clear_customization_slots", text="", icon='TRASH')
 		
 
 class PT_CustoSpawnSetup(PT_CustomizationHandler, bpy.types.Panel): 
@@ -94,7 +69,7 @@ class PT_CustoPartSetup(bpy.types.Panel):
 		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
 
 
-classes = (PT_CustoSlotSetup, PT_CustoSpawnSetup)
+classes = (PT_CustoSpawnSetup,)
 
 def register():
 

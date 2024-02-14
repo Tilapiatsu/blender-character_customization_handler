@@ -1,5 +1,5 @@
 import bpy
-from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoPartLabelCategoryProperties
+from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
 class CustoAssetTypePointer(bpy.types.PropertyGroup):
@@ -23,7 +23,7 @@ def get_asset_name(asset_ids):
 			result += s
 			i += 1
 		return result
-	labels = [l.label.name for l in asset_ids]
+	labels = [getattr(l, "label.name", "NULL") for l in asset_ids]
 	return joined(labels)
 
 def update_current_asset_properties(self, context):
@@ -121,7 +121,7 @@ def register():
 	bpy.types.Scene.current_asset_id = bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
 	bpy.types.Scene.current_asset_id_idx = bpy.props.IntProperty(default=0, min=0)
 	bpy.types.Scene.current_asset_name = bpy.props.StringProperty()
-	bpy.types.Scene.current_label_category = bpy.props.CollectionProperty(type=CustoPartLabelCategoryProperties)
+	bpy.types.Scene.current_label_category = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 
 def unregister():
 	del bpy.types.Scene.current_label_category

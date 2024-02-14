@@ -28,7 +28,7 @@ bl_info = {
 
 def obj_selected_callback():
     bpy.ops.object.refresh_part_slots('INVOKE_DEFAULT')
-    bpy.ops.object.refresh_part_labels('INVOKE_DEFAULT')
+    bpy.ops.object.refresh_label_definition('INVOKE_DEFAULT')
 
 @persistent
 def register_object_selected_callback(dummy):

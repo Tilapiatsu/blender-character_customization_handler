@@ -1,5 +1,6 @@
 import bpy
 from .properties.custo_asset_properties import get_asset_name
+from .properties.custo_label_properties import in_range
 
 def get_label(context):
 	idx = context.scene.custo_labels_idx
@@ -20,7 +21,7 @@ class UI_MoveLabel(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_labels)
+		return len(context.scene.custo_labels) and context.scene.custo_labels_idx > -1 and context.scene.custo_labels_idx < len(context.scene.custo_labels)
 
 	def execute(self, context):
 		idx, label, _ = get_label(context)
@@ -34,7 +35,7 @@ class UI_MoveLabel(bpy.types.Operator):
 		context.scene.custo_labels_idx = nextidx
 
 		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.move(idx, nextidx)
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
 
@@ -54,8 +55,10 @@ class UI_ClearLabels(bpy.types.Operator):
 
 	def execute(self, context):
 		context.scene.custo_labels.clear()
-		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.clear()
-		bpy.ops.object.refresh_part_labels()
+		if in_range(context.scene.custo_label_categories, context.scene.custo_label_categories_idx):
+			context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.clear()
+			
+		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
 
@@ -83,7 +86,7 @@ class UI_RemoveLabel(bpy.types.Operator):
 		context.scene.custo_labels_idx = min(self.index, len(context.scene.custo_labels) - 1)
 
 		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.remove(self.index)
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
 
@@ -109,7 +112,7 @@ class UI_DuplicateLabel(bpy.types.Operator):
 		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.add()
 		s.name = label[self.index].name+'_dup'
 		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.move(len(label) - 1, self.index + 1)
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
 
@@ -140,7 +143,7 @@ class UI_EditLabel(bpy.types.Operator):
 		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels[self.index]
 		s.name = self.name
 		self.label_category_name = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].name
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_label_definition()
 		self.refresh_asset_label_categories(context)
 		return {'FINISHED'}
 
@@ -217,7 +220,7 @@ class UI_AddLabel(bpy.types.Operator):
 		s.name = self.name
 		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.add()
 		s.name = self.name
-		bpy.ops.object.refresh_part_labels()
+		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 	
 classes = ( UI_MoveLabel, 

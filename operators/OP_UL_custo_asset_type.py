@@ -150,7 +150,7 @@ class UI_EditAssetType(bpy.types.Operator):
 		col = layout.column()
 		col.prop(self, 'name', text='Name')
 
-		draw_label_categories(col, 'Asset:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
 		col.prop(self.slot_label_category, 'name', text='Slot')
 		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
 		col.prop(self.material_label_category, 'name', text='Material')
@@ -228,7 +228,7 @@ class UI_AddAssetType(bpy.types.Operator):
 		col = layout.column()
 		col.prop(self, 'name', text='Name')
 
-		draw_label_categories(col, 'Asset:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
 		col.prop(self.slot_label_category, 'name', text='Slot')
 		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
 		col.prop(self.material_label_category, 'name', text='Material')

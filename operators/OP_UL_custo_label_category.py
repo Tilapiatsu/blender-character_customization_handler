@@ -19,7 +19,7 @@ class UI_MoveLabelCategory(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_label_categories)
+		return len(context.scene.custo_label_categories) and context.scene.custo_label_categories_idx > -1 and context.scene.custo_label_categories_idx < len(context.scene.custo_label_categories)
 
 	def execute(self, context):
 		idx, label_category, _ = get_label_category(context)
@@ -51,7 +51,7 @@ class UI_ClearLabelCategories(bpy.types.Operator):
 
 	def execute(self, context):
 		context.scene.custo_label_categories.clear()
-		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
+		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 
@@ -77,7 +77,7 @@ class UI_RemoveLabelCategory(bpy.types.Operator):
 		label_categories.remove(self.index)
 
 		context.scene.custo_label_categories_idx = min(self.index, len(context.scene.custo_label_categories) - 1)
-		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
+		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 
@@ -100,7 +100,7 @@ class UI_DuplicateLabelCategory(bpy.types.Operator):
 		s.name = label_category[self.index].name+'_dup'
 		self.duplicate_labels(label_category[self.index].labels, s.labels)
 		label_category.move(len(label_category) - 1, self.index + 1)
-		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
+		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
 
 	def duplicate_labels(self, source, destination):
@@ -134,7 +134,7 @@ class UI_EditLabelCategory(bpy.types.Operator):
 		s = context.scene.custo_label_categories[self.index]
 		s.name = self.name
 		self.refresh_asset_type_label_categories(context)
-		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
+		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
 	
 	def refresh_asset_type_label_categories(self, context):
@@ -179,7 +179,7 @@ class UI_AddLabelCategory(bpy.types.Operator):
 	def execute(self, context):
 		s = context.scene.custo_label_categories.add()
 		s.name = self.name
-		bpy.ops.object.refresh_part_labels('EXEC_DEFAULT')
+		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
 	
 classes = ( UI_MoveLabelCategory, 

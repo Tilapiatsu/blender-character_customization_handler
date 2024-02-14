@@ -31,7 +31,7 @@ class CustoPartSlotsKeepLowerLayerProperties(bpy.types.PropertyGroup):
 	checked : bpy.props.BoolProperty(default=False)
 	
 class CustoPartSlotCollectionProperties(bpy.types.PropertyGroup):
-	slots : bpy.props.CollectionProperty(name='Slots', type=CustoPartSlotsProperties)	
+	slots : bpy.props.CollectionProperty(name='Slots', type=CustoPartSlotsProperties)
 	
 class UL_CustoSlot(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoSlots"
@@ -75,16 +75,15 @@ def register():
 	
 	from bpy.utils import register_class
 	for cls in classes:
-		register_class(cls)
-	
-	bpy.types.Scene.custo_slots = bpy.props.CollectionProperty(type=CustoSlotProperties)
-	bpy.types.Scene.custo_slots_idx = bpy.props.IntProperty(default=0)
+		register_class(cls)	
 
-	bpy.types.Object.custo_part_layer = bpy.props.IntProperty(default=0, min=0)
 	bpy.types.Object.custo_part_slots = bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
 	bpy.types.Object.custo_part_slots_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Object.custo_part_keep_lower_slots = bpy.props.CollectionProperty(type=CustoPartSlotsKeepLowerLayerProperties)
 	bpy.types.Object.custo_part_keep_lower_slots_idx = bpy.props.IntProperty(default=0)
+	
+	bpy.types.Scene.custo_slots = bpy.props.CollectionProperty(type=CustoSlotProperties)
+	bpy.types.Scene.custo_slots_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Scene.current_edited_asset_slots = bpy.props.CollectionProperty(type=CustoPartSlotsProperties)
 	bpy.types.Scene.current_edited_asset_slots_idx = bpy.props.IntProperty(default=0)
 	
@@ -95,7 +94,6 @@ def unregister():
 	del bpy.types.Scene.custo_slots
 	del bpy.types.Scene.custo_slots_idx
 
-	del bpy.types.Object.custo_part_layer
 	del bpy.types.Object.custo_part_slots
 	del bpy.types.Object.custo_part_slots_idx
 	del bpy.types.Object.custo_part_keep_lower_slots

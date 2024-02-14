@@ -1,10 +1,10 @@
 import bpy
 
-class PT_CustoPartSetup(bpy.types.Panel): 
+class PT_CustoLabelDefinitionSetup(bpy.types.Panel): 
 	bl_space_type = 'PROPERTIES'
 	bl_region_type = "WINDOW"
-	bl_label = "Customization Part Setup"
-	bl_idname = 'OBJECT_PT_Customization_Part_Setup'
+	bl_label = "Customization Label Definition Setup"
+	bl_idname = 'OBJECT_PT_Customization_Label_Definition_Setup'
 	bl_context = 'object'
 
 	def draw(self, context):
@@ -12,40 +12,22 @@ class PT_CustoPartSetup(bpy.types.Panel):
 		scn = context.scene
 		ob = context.object
 		
-		row = layout.row(align=True)
-		row.prop(ob, 'custo_part_layer', text='layer')
-
-		b = layout.box()
-		b.label(text='Slots Coverage')
-		row = b.row()
-
-		rows = 20 if len(ob.custo_part_slots) > 20 else len(ob.custo_part_slots) + 1
-		row.template_list('OBJECT_UL_CustoPartSlots', '', ob, 'custo_part_slots', ob, 'custo_part_slots_idx', rows=rows)
-
-		b = layout.box()
-		b.label(text='Keep Lower Layers Slots')
-		row = b.row()
-
-		rows = 20 if len(ob.custo_part_keep_lower_slots) > 20 else len(ob.custo_part_keep_lower_slots) + 1
-		row.template_list('OBJECT_UL_CustoPartSlots', '', ob, 'custo_part_keep_lower_slots', ob, 'custo_part_keep_lower_slots_idx', rows=rows)
+		main_row = layout.row()
 		
-		splited_row = layout.row()
-		b = splited_row.box()
+		b = main_row.box()
 		b.label(text='Label Categories')
 		row = b.row()
+		rows = 20 if len(scn.custo_label_categories) > 20 else len(scn.custo_label_categories) + 1
+		row.template_list('OBJECT_UL_CustoLabelCategorieDefinition', '', ob, 'custo_label_category_definition', ob, 'custo_label_category_definition_idx', rows=rows)
 
-		rows = 20 if len(ob.custo_part_label_categories) > 20 else len(ob.custo_part_label_categories) + 1
-		row.template_list('OBJECT_UL_CustoPartLabelCategories', '', ob, 'custo_part_label_categories', ob, 'custo_part_label_categories_idx', rows=rows)
-
-		b = splited_row.box()
+		b = main_row.box()
 		b.label(text='Labels')
 		row = b.row()
-
-		rows = 20 if len(ob.custo_part_labels) > 20 else len(ob.custo_part_labels) + 1
-		row.template_list('OBJECT_UL_CustoPartLabels', '', ob, 'custo_part_labels', ob, 'custo_part_labels_idx', rows=rows)
+		rows = 20 if len(scn.custo_labels) > 20 else len(scn.custo_labels) + 1
+		row.template_list('OBJECT_UL_CustoLabelDefinition', '', ob, 'custo_label_definition', ob, 'custo_label_definition_idx', rows=rows)
 		
 
-classes = (PT_CustoPartSetup,)
+classes = (PT_CustoLabelDefinitionSetup,)
 
 def register():
 
