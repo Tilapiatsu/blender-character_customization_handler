@@ -23,7 +23,7 @@ def get_asset_name(asset_ids):
 			result += s
 			i += 1
 		return result
-	labels = [getattr(l, "label.name", "NULL") for l in asset_ids]
+	labels = [getattr(getattr(l, "label", "NULL"), "name", "NULL") for l in asset_ids]
 	return joined(labels)
 
 def update_current_asset_properties(self, context):

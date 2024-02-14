@@ -74,6 +74,10 @@ class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	
 	@property
 	def label(self):
+		if self.label_category_name not in bpy.context.scene.custo_label_categories:
+			return None
+		if self.name not in bpy.context.scene.custo_label_categories[self.label_category_name].labels:
+			return None
 		return bpy.context.scene.custo_label_categories[self.label_category_name].labels[self.name]
 	
 
