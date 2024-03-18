@@ -64,6 +64,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoAssetLabelCategoryPointer)
 	material_label_category : bpy.props.PointerProperty(type=CustoAssetLabelCategoryPointer)
 	material_variation_label_category : bpy.props.PointerProperty(type=CustoAssetLabelCategoryPointer)
+
 	
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
@@ -74,6 +75,16 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	@property
 	def asset_name(self):
 		return get_asset_name(self.asset_id)
+	
+	@property
+	def meshes(self):
+		meshes = [o for o in bpy.data.objects]
+		for id_label in self.asset_id:
+			for o in bpy.data.objects:
+				if o in meshes and not o.custo_label_category_definition[id_label.label_category_name].labels[id_label.name].checked:
+					meshes.remove(o)
+		return meshes
+	
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"

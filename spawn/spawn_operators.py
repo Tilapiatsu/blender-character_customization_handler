@@ -49,6 +49,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			while len(assets):
 				self._assets_per_layer.append([])
 				for a in self.assets:
+					if not len(a.meshes):
+						continue
 					if a.custo_part_layer == layer:
 						self._assets_per_layer[layer].append(a)
 						assets.remove(a)
@@ -138,7 +140,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		self._assets_per_slot = {}
 		for asset in self.assets:
-			slots = asset.custo_part_slots
+			if not len(asset.meshes):
+				continue
+			slots = asset.slots
 			for slot in slots:
 				if not slot.checked:
 					continue
@@ -179,7 +183,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		
 		collection = self.create_spawn_collection()
 		for i in range(self.spawn_count):
-			self.spawn_assets(collection)
+			self.spawn_assembly(collection)
 		
 		return {'FINISHED'}
 	
@@ -203,10 +207,12 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 		return collection
 
-	def spawn_assets(self, collection):
+	def spawn_assembly(self, collection):
 		'''
 		Spawn one model, ensuring the model is complete and is without overlapping
 		'''
+		self.first_asset = True
+		self.mesh_variation = {}
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
@@ -217,6 +223,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			# Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
 			self.assets_per_slot[slot].remove(asset)
+			
+			self.lock_mesh_variation(asset)
 
 			if self.spawned_assets_per_slot[slot] is None:
 				self.spawned_assets_per_slot[slot] = []
@@ -226,6 +234,16 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 			# add Object to Collection : Spawning !
 			collection.objects.link(asset)
+			
+	def lock_mesh_variation(self, asset):
+		if self.first_asset:
+			# Lock Mesh Variation
+			self.first_asset = False
+			for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
+				valid_labels = [l for l in mesh_category.label_category.labels if l.checked]
+				if not len(valid_labels):
+					continue
+				self.mesh_variation[mesh_category.name] = random.choice(valid_labels)
 			
 	def get_layer_collection_per_name(self, collection_name, layer_collection):
 		'''

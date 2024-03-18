@@ -3,7 +3,10 @@ from bpy.types import NodeSocket
 from .node_sockets import CustomizationSocket
 
 def get_asset_types(self, context):
-	return [(a.name, a.name, '') for a in context.scene.custo_asset_types]
+	if len(context.scene.custo_asset_types):
+		return [(a.name, a.name, '') for a in context.scene.custo_asset_types]
+	else:
+		return[('NONE', 'No Assets', '')]
 
 # Asset socket type
 class AssetTypesSocket(CustomizationSocket, NodeSocket):

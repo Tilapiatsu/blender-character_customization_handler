@@ -35,10 +35,11 @@ def update_label_category_definition(self, context):
 		label.checked = l.checked
 
 def update_label_definition(self, context):
-	for i, l in enumerate(context.object.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels):
-		if i > len(context.object.custo_label_definition) - 1:
-			return
-		l.checked = context.object.custo_label_definition[i].checked
+	for o in context.selected_objects:
+		for i, l in enumerate(o.custo_label_category_definition[context.object.custo_label_category_definition_idx].labels):
+			if i > len(context.object.custo_label_definition) - 1:
+				return
+			l.checked = context.object.custo_label_definition[i].checked
 
 def label_categories_enum(self, context):
 	items = [(l.name, l.name, '') for l in context.scene.custo_label_categories]
@@ -70,7 +71,7 @@ class CustoLabelProperties(bpy.types.PropertyGroup):
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
-	name : bpy.props.StringProperty(name='Label Category Name', default='')
+	name : bpy.props.StringProperty(name='Label Name', default='')
 	
 	@property
 	def label(self):

@@ -36,6 +36,8 @@ class AssetsGetByTypeNode(CustomizationTreeNode, Node):
 	
 	def get_assets(self):
 		asset_type = self.inputs[0].input_value
+		if not len(asset_type):
+			return []
 		all_assets = [a for a in bpy.context.scene.custo_assets if a.asset_type.name == asset_type]
 		return all_assets
 
