@@ -1,5 +1,5 @@
 import bpy
-from .. import node_sockets
+from ..sockets import node_socket_asset
 from .node_const import SPAWN_COLOR, INVALID_COLOR
 from ..node_const import TREE_NAME
 
@@ -93,13 +93,13 @@ class CustomizationTreeNode:
 	def get_assets(self):
 		input_assets = []
 		for i,input in enumerate(self.inputs):
-			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+			if input.bl_idname != node_socket_asset.AssetsSocket.bl_idname:
 				continue
 			
 			if not input.is_linked or not len(input.links):
 				continue
 			
-			input_node = input.links[0].from_node
+			input_node = follow_input_link(input.links[0]).from_node
 			current_input_assets = input_node.get_assets()
 			input_assets += current_input_assets
 		
@@ -132,7 +132,7 @@ class CustomizationTreeNode:
 		linked = False
 
 		for input in self.inputs:
-			if input.bl_idname != node_sockets.AssetsSocket.bl_idname:
+			if input.bl_idname != node_socket_asset.AssetsSocket.bl_idname:
 				continue
 
 			if not input.is_linked or not len(input.links):

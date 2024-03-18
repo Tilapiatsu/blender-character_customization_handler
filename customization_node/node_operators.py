@@ -10,14 +10,14 @@ class PrintAssetListOperator(bpy.types.Operator):
 	node_name: bpy.props.StringProperty(default="", name="Node", description="Name of the node")
 
 	def node(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		if self.tree:
 			return self.tree.nodes.get(self.node_name)
 		
 	@classmethod
 	def poll(cls, context):
 		space = context.space_data
-		return space.type == 'NODE_EDITOR' and context.scene.custo_spawn_tree is not None and context.scene.custo_spawn_tree.bl_idname == TREE_NAME
+		return space.type == 'NODE_EDITOR'
 
 	def execute(self, context):
 		self.node(context).print_assets()

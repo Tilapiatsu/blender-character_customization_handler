@@ -17,11 +17,14 @@ class CustomizationCategory(NodeCategory):
 # all categories in a list
 node_categories = [
     CustomizationCategory('INPUTS', "Input", items=[
+        NodeItem("AssetsGetByTypeNodeType"),
         NodeItem("AssetsGetFromCollectionNodeType"),
     ]),
     # identifier, label, items list
     CustomizationCategory('ASSETS', "Assets", items=[
         NodeItem("AssetsAppendNodeType"),
+        NodeItem("AssetsFilterByLayerNodeType"),
+        NodeItem("AssetsFilterBySlotsNodeType"),
         NodeItem("AssetsFilterByLabelsNodeType"),
         NodeItem("AssetsSelectorNodeType")
     ]),

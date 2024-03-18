@@ -15,7 +15,7 @@ class UI_MoveLabel(bpy.types.Operator, NodeOperator):
 		return len(context.scene.custo_labels)
 
 	def execute(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		idx, label, _ = self.labels
 
 		if self.direction == "UP":
@@ -46,7 +46,7 @@ class UI_ClearLabels(bpy.types.Operator, NodeOperator):
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		self.node.labels.clear()
 		return {'FINISHED'}
 
@@ -69,7 +69,7 @@ class UI_RemoveLabel(bpy.types.Operator, NodeOperator):
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		_, labels, _ = self.labels
 
 		labels.remove(self.index)
@@ -92,7 +92,7 @@ class UI_DuplicateLabel(bpy.types.Operator, NodeOperator):
 		return context.scene.custo_labels
 
 	def execute(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		_, label, _ = self.labels
 
 		s = label.add()
@@ -115,7 +115,7 @@ class UI_AddLabel(bpy.types.Operator, NodeOperator):
 	name : bpy.props.StringProperty(name="Label Name", default="")
 
 	def execute(self, context):
-		self.tree = context.scene.custo_spawn_tree
+		self.tree = context.space_data.node_tree
 		s = self.node.labels.add()
 		s.name = self.name
 		return {'FINISHED'}

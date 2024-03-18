@@ -95,6 +95,8 @@ class UL_CustoAsset(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.asset_name}')
+		row.separator()
+		row.label(text=f'|  layer={item.layer}')
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
 		row.operator('scene.edit_customization_asset', text='', icon='GREASEPENCIL').index = index
