@@ -49,7 +49,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			while len(assets):
 				self._assets_per_layer.append([])
 				for a in self.assets:
-					if not len(a.mesh_variations):
+					if not len(a.all_mesh_variations):
 						continue
 					if a.custo_part_layer == layer:
 						self._assets_per_layer[layer].append(a)
@@ -108,7 +108,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			else:
 				is_available = True
 				for a in assets:
-					if a.custo_part_slots[slot].checked and not a.custo_part_keep_lower_slots[slot].checked:
+					if a.slots[slot].checked and not a.slots[slot].keep_lower_layer_slot:
 						is_available = False
 						break
 				if is_available:
@@ -140,7 +140,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		self._assets_per_slot = {}
 		for asset in self.assets:
-			if not len(asset.mesh_variations):
+			if not len(asset.all_mesh_variations):
 				continue
 			slots = asset.slots
 			for slot in slots:
@@ -181,9 +181,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for node in self.nodes:
 			node.print_assets()
 		
-		collection = self.create_spawn_collection()
+		self.collection = self.create_spawn_collection()
 		for i in range(self.spawn_count):
-			self.spawn_assembly(collection)
+			self.spawn_assembly()
 		
 		return {'FINISHED'}
 	
@@ -207,7 +207,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 		return collection
 
-	def spawn_assembly(self, collection):
+	def spawn_assembly(self):
 		'''
 		Spawn one model, ensuring the model is complete and is without overlapping
 		'''
@@ -219,6 +219,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			# Randomly pick one slot
 			random.shuffle(available_slots)
 			slot = available_slots.pop()
+			print(f'Spawn slot : {slot}')
 			
 			# Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
@@ -228,15 +229,26 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			if not self.lock_mesh_variation(asset):
 				# if no valid mesh found, pick another asset
 				continue
-
-			if self.spawned_assets_per_slot[slot] is None:
-				self.spawned_assets_per_slot[slot] = []
 			
-			# Add object to Spawned slot Dict
-			self.spawned_assets_per_slot[slot].append(asset)
+			# Spawn Mesh
+			self.spawn_mesh(asset, slot)
 
-			# add Object to Collection : Spawning !
-			collection.objects.link(asset)
+	def spawn_mesh(self, asset, slot):
+		mesh = asset.mesh_variation(self.mesh_variation)
+		if mesh is None:
+			print(f'No valid mesh found for this mesh variation')
+			return False
+		
+		if self.spawned_assets_per_slot[slot] is None:
+			self.spawned_assets_per_slot[slot] = []
+		
+		# Add object to Spawned slot Dict
+		self.spawned_assets_per_slot[slot].append(asset)
+
+		# add Object to Collection : Spawning !
+		print(f'Spawning Mesh : {mesh.name}')
+		self.collection.objects.link(mesh)
+		return True
 			
 	def lock_mesh_variation(self, asset) -> bool:
 		'''
@@ -247,7 +259,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			# Lock Mesh Variation
 			self.first_asset = False
 			valid_mesh = False
-			asset_meshes = asset.mesh_variations
+			asset_meshes = asset.all_mesh_variations
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
 				asset_meshes.remove(picked_variation_mesh)
@@ -265,7 +277,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 					return False
 		print(f'Current Mesh Variation =', self.mesh_variation)
 		return True
-			
+	
 	def get_layer_collection_per_name(self, collection_name, layer_collection):
 		'''
 		Recursivelly search through "layer_collection" the collection with the given "collection_name" and returns it. Returns None if not found

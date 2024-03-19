@@ -133,7 +133,6 @@ def register():
 	for cls in classes:
 		register_class(cls)
 
-
 	bpy.types.Object.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionProperties)
 	bpy.types.Object.custo_label_definition_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Object.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)

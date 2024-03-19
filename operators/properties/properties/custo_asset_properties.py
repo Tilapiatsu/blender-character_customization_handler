@@ -77,10 +77,14 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		return get_asset_name(self.asset_id)
 	
 	@property
-	def mesh_variations(self):
+	def all_mesh_variations(self):
 		meshes = [o for o in bpy.data.objects]
 		for id_label in self.asset_id:
 			for o in bpy.data.objects:
+				for asset_id in self.asset_id:
+					# TODO : need to test asset_id is correct !
+					pass
+
 				category = getattr(o.custo_label_category_definition, id_label.label_category_name, None)
 				if category is None:
 					continue
@@ -92,6 +96,17 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 				if o in meshes and not label.checked:
 					meshes.remove(o)
 		return meshes
+	
+	def mesh_variation(self, variations:dict):
+		mesh = None
+
+		all_variations = self.all_mesh_variations
+
+		for m in all_variations:
+			if m.custo_mesh.is_valid(m, variations):
+				mesh = m
+
+		return mesh
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"

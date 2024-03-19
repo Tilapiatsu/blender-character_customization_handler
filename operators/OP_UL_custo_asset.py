@@ -217,8 +217,8 @@ class UI_EditAsset(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
-		self.layer = context.scene.custo_handler_settings.custo_handler_settings.custo_assets[self.index].layer
-		context.scene.custo_handler_settings.current_asset_name = get_asset_name(context.scene.custo_handler_settings.custo_handler_settings.custo_assets[self.index].asset_id)
+		self.layer = context.scene.custo_handler_settings.custo_assets[self.index].layer
+		context.scene.custo_handler_settings.current_asset_name = get_asset_name(context.scene.custo_handler_settings.custo_assets[self.index].asset_id)
 		set_current_label_category(self, context)
 		update_current_asset_properties(self.asset_type, context)
 
