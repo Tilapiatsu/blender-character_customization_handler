@@ -38,7 +38,7 @@ class AssetsGetByTypeNode(CustomizationTreeNode, Node):
 		asset_type = self.inputs[0].input_value
 		if not len(asset_type):
 			return []
-		all_assets = [a for a in bpy.context.scene.custo_assets if a.asset_type.name == asset_type]
+		all_assets = [a for a in bpy.context.scene.custo_handler_settings.custo_assets if a.asset_type.name == asset_type]
 		return all_assets
 
 	def update_inputs(self):

@@ -1,6 +1,5 @@
 import bpy
-from .properties.custo_label_properties import update_label_category_definition
-
+from .properties.custo_scene_properties import update_label_category_definition
 
 class UI_RefreshLabelDefinition(bpy.types.Operator):
 	bl_idname = "object.refresh_label_definition"
@@ -12,7 +11,7 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 		if context.object is None:
 			return {'FINISHED'}
 		# print(f'refreshing {context.object.name} part slots')
-		for lc in context.scene.custo_label_categories:
+		for lc in context.scene.custo_handler_settings.custo_label_categories:
 			# print(s.name)
 			if lc.name not in context.object.custo_label_category_definition:
 				# print(f'adding {lc.name}')
@@ -30,7 +29,7 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 						label = olc.add()
 						label.name = l.name
 		for i, lc in enumerate(context.object.custo_label_category_definition):
-			if lc.name not in context.scene.custo_label_categories:
+			if lc.name not in context.scene.custo_handler_settings.custo_label_categories:
 				context.object.custo_label_category_definition.remove(i)
 		
 		update_label_category_definition(self, context)

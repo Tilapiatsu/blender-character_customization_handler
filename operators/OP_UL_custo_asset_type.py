@@ -1,9 +1,9 @@
 import bpy
-from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
+from .properties.properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
 
 def get_asset_type(context):
-	idx = context.scene.custo_asset_types_idx
-	asset_types = context.scene.custo_asset_types
+	idx = context.scene.custo_handler_settings.custo_asset_types_idx
+	asset_types = context.scene.custo_handler_settings.custo_asset_types
 
 	active = asset_types[idx] if len(asset_types) else None
 
@@ -48,7 +48,7 @@ class UI_MoveAssetType(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_asset_types)
+		return len(context.scene.custo_handler_settings.custo_asset_types)
 
 	def execute(self, context):
 		idx, asset_type, _ = get_asset_type(context)
@@ -59,7 +59,7 @@ class UI_MoveAssetType(bpy.types.Operator):
 			nextidx = min(idx + 1, len(asset_type) - 1)
 
 		asset_type.move(idx, nextidx)
-		context.scene.custo_asset_types_idx = nextidx
+		context.scene.custo_handler_settings.custo_asset_types_idx = nextidx
 
 		return {'FINISHED'}
 
@@ -72,14 +72,14 @@ class UI_ClearAssetTypes(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_asset_types)
+		return len(context.scene.custo_handler_settings.custo_asset_types)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.custo_asset_types.clear()
+		context.scene.custo_handler_settings.custo_asset_types.clear()
 		return {'FINISHED'}
 
 
@@ -93,7 +93,7 @@ class UI_RemoveAssetType(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_asset_types
+		return context.scene.custo_handler_settings.custo_asset_types
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -104,7 +104,7 @@ class UI_RemoveAssetType(bpy.types.Operator):
 
 		asset_types.remove(self.index)
 
-		context.scene.custo_asset_types_idx = min(self.index, len(context.scene.custo_asset_types) - 1)
+		context.scene.custo_handler_settings.custo_asset_types_idx = min(self.index, len(context.scene.custo_handler_settings.custo_asset_types) - 1)
 
 		return {'FINISHED'}
 
@@ -119,7 +119,7 @@ class UI_DuplicateAssetType(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_asset_types
+		return context.scene.custo_handler_settings.custo_asset_types
 
 	def execute(self, context):
 		_, asset_type, _ = get_asset_type(context)
@@ -150,14 +150,14 @@ class UI_EditAssetType(bpy.types.Operator):
 		col = layout.column()
 		col.prop(self, 'name', text='Name')
 
-		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene.custo_handler_settings, 'custo_label_categories')
 		col.prop(self.slot_label_category, 'name', text='Slot')
-		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene.custo_handler_settings, 'custo_label_categories')
 		col.prop(self.material_label_category, 'name', text='Material')
 		col.prop(self.material_variation_label_category, 'name', text='Material Variation')
 	
 	def invoke(self, context, event):
-		self.current_asset_type = context.scene.custo_asset_types[self.index]
+		self.current_asset_type = context.scene.custo_handler_settings.custo_asset_types[self.index]
 		self.name = self.current_asset_type.name
 		self.old_name = self.current_asset_type.name
 
@@ -203,7 +203,7 @@ class UI_EditAssetType(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def refresh_assets_asset_types(self, context):
-		for asset in context.scene.custo_assets:
+		for asset in context.scene.custo_handler_settings.custo_assets:
 			if asset.asset_type.name == self.old_name:
 				asset.asset_type.name = self.name	
 	
@@ -228,9 +228,9 @@ class UI_AddAssetType(bpy.types.Operator):
 		col = layout.column()
 		col.prop(self, 'name', text='Name')
 
-		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Asset ID:', self, 'asset_label_category_count', 'asset_label_categories', context.scene.custo_handler_settings, 'custo_label_categories')
 		col.prop(self.slot_label_category, 'name', text='Slot')
-		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene, 'custo_label_categories')
+		draw_label_categories(col, 'Mesh Variation:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories', context.scene.custo_handler_settings, 'custo_label_categories')
 		col.prop(self.material_label_category, 'name', text='Material')
 		col.prop(self.material_variation_label_category, 'name', text='Material Variation')
 
@@ -240,7 +240,7 @@ class UI_AddAssetType(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_asset_types.add()
+		s = context.scene.custo_handler_settings.custo_asset_types.add()
 		s.name = self.name
 		for l in self.asset_label_categories.label_category_enums:
 			asset_label = s.asset_label_categories.add()

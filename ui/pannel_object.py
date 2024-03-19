@@ -17,13 +17,13 @@ class PT_CustoLabelDefinitionSetup(bpy.types.Panel):
 		b = main_row.box()
 		b.label(text='Label Categories')
 		row = b.row()
-		rows = 20 if len(scn.custo_label_categories) > 20 else len(scn.custo_label_categories) + 1
-		row.template_list('OBJECT_UL_CustoLabelCategorieDefinition', '', ob, 'custo_label_category_definition', ob, 'custo_label_category_definition_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_label_categories) > 20 else len(scn.custo_handler_settings.custo_label_categories) + 1
+		row.template_list('OBJECT_UL_CustoLabelCategorieDefinition', '', ob, 'custo_label_category_definition', scn.custo_handler_settings, 'custo_label_category_definition_idx', rows=rows)
 
 		b = main_row.box()
 		b.label(text='Labels')
 		row = b.row()
-		rows = 20 if len(scn.custo_labels) > 20 else len(scn.custo_labels) + 1
+		rows = 20 if len(scn.custo_handler_settings.custo_labels) > 20 else len(scn.custo_handler_settings.custo_labels) + 1
 		row.template_list('OBJECT_UL_CustoLabelDefinition', '', ob, 'custo_label_definition', ob, 'custo_label_definition_idx', rows=rows)
 		
 

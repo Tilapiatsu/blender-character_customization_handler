@@ -1,12 +1,12 @@
 import bpy
-from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
+from .properties.properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
 
 def update_custo_slot(self, context):
 	print(self.asset_type.name)
 
 def get_asset(context):
-	idx = context.scene.custo_assets_idx
-	assets = context.scene.custo_assets
+	idx = context.scene.custo_handler_settings.custo_assets_idx
+	assets = context.scene.custo_handler_settings.custo_assets
 
 	active = assets[idx] if len(assets) else None
 
@@ -39,14 +39,14 @@ def revert_assets_parameters(self):
 	self.layer = 0
 	
 def set_current_label_category(self, context):
-	context.scene.current_label_category.clear()
+	context.scene.custo_handler_settings.current_label_category.clear()
 
-	category = context.scene.current_label_category.add()
-	category.name = context.scene.custo_asset_types[self.asset_type.name].slot_label_category.name
+	category = context.scene.custo_handler_settings.current_label_category.add()
+	category.name = context.scene.custo_handler_settings.custo_asset_types[self.asset_type.name].slot_label_category.name
 	
-	for l in context.scene.custo_label_categories[category.name].labels:
-		if l.name in context.scene.custo_assets[self.index].slots:
-			l = context.scene.custo_assets[self.index].slots[l.name]
+	for l in context.scene.custo_handler_settings.custo_label_categories[category.name].labels:
+		if l.name in context.scene.custo_handler_settings.custo_assets[self.index].slots:
+			l = context.scene.custo_handler_settings.custo_assets[self.index].slots[l.name]
 
 		label = category.labels.add()
 		label.name = l.name
@@ -64,7 +64,7 @@ class UI_MoveAsset(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_assets)
+		return len(context.scene.custo_handler_settings.custo_assets)
 
 	def execute(self, context):
 		idx, asset, _ = get_asset(context)
@@ -75,7 +75,7 @@ class UI_MoveAsset(bpy.types.Operator):
 			nextidx = min(idx + 1, len(asset) - 1)
 
 		asset.move(idx, nextidx)
-		context.scene.custo_assets_idx = nextidx
+		context.scene.custo_handler_settings.custo_assets_idx = nextidx
 
 		return {'FINISHED'}
 
@@ -88,14 +88,14 @@ class UI_ClearAssets(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_assets)
+		return len(context.scene.custo_handler_settings.custo_assets)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.custo_assets.clear()
+		context.scene.custo_handler_settings.custo_assets.clear()
 		return {'FINISHED'}
 
 
@@ -109,7 +109,7 @@ class UI_RemoveAsset(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_assets
+		return context.scene.custo_handler_settings.custo_assets
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -120,7 +120,7 @@ class UI_RemoveAsset(bpy.types.Operator):
 
 		assets.remove(self.index)
 
-		context.scene.custo_assets_idx = min(self.index, len(context.scene.custo_assets) - 1)
+		context.scene.custo_handler_settings.custo_assets_idx = min(self.index, len(context.scene.custo_handler_settings.custo_assets) - 1)
 
 		return {'FINISHED'}
 
@@ -135,14 +135,14 @@ class UI_DuplicateAsset(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_assets
+		return context.scene.custo_handler_settings.custo_assets
 
 	def execute(self, context):
 		_, asset, _ = get_asset(context)
 
 		s = asset.add()
 		s.name = asset[self.index].asset_name
-		s.layer = context.scene.custo_assets[self.index].layer
+		s.layer = context.scene.custo_handler_settings.custo_assets[self.index].layer
 		self.asset_type = asset[self.index].asset_type
 		set_current_label_category(self, context)
 		update_current_asset_properties(self.asset_type, context)
@@ -170,11 +170,11 @@ class UI_EditAsset(bpy.types.Operator):
 		col.prop(self.asset_type, 'name', text='Asset Type')
 		
 		col.label(text='Asset ID:')
-		if len(context.scene.current_asset_id):
+		if len(context.scene.custo_handler_settings.current_asset_id):
 			row = col.row(align=True)
 			self.separator(row, 10)
 			col1 = row.column(align=True)
-			for asset_id in context.scene.current_asset_id:
+			for asset_id in context.scene.custo_handler_settings.current_asset_id:
 				col1.prop(asset_id, 'name', text='')
 
 		col.separator()
@@ -184,8 +184,8 @@ class UI_EditAsset(bpy.types.Operator):
 		b.label(text='Slots')
 		row = b.row()
 
-		rows = 20 if len(context.scene.current_edited_asset_slots) > 20 else len(context.scene.current_edited_asset_slots) + 1
-		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene, 'current_edited_asset_slots', context.scene, 'current_edited_asset_slots_idx', rows=rows)
+		rows = 20 if len(context.scene.custo_handler_settings.current_edited_asset_slots) > 20 else len(context.scene.custo_handler_settings.current_edited_asset_slots) + 1
+		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene.custo_handler_settings, 'current_edited_asset_slots', context.scene.custo_handler_settings, 'current_edited_asset_slots_idx', rows=rows)
 
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -193,19 +193,19 @@ class UI_EditAsset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_assets[self.index]
+		s = context.scene.custo_handler_settings.custo_assets[self.index]
 			
 		s.asset_type.name = self.asset_type.name
 		s.layer = self.layer
 
 		s.asset_id.clear()
-		for label in context.scene.current_asset_id:
+		for label in context.scene.custo_handler_settings.current_asset_id:
 			current_label = s.asset_id.add()
 			current_label.label_category_name = label.label_category_name
 			current_label.name = label.name
 		
 		s.slots.clear()
-		for slot in context.scene.current_edited_asset_slots:
+		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
 			current_slot = s.slots.add()
 			current_slot.name = slot.name
 			current_slot.checked = slot.checked
@@ -217,8 +217,8 @@ class UI_EditAsset(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
-		self.layer = context.scene.custo_assets[self.index].layer
-		context.scene.current_asset_name = get_asset_name(context.scene.custo_assets[self.index].asset_id)
+		self.layer = context.scene.custo_handler_settings.custo_handler_settings.custo_assets[self.index].layer
+		context.scene.custo_handler_settings.current_asset_name = get_asset_name(context.scene.custo_handler_settings.custo_handler_settings.custo_assets[self.index].asset_id)
 		set_current_label_category(self, context)
 		update_current_asset_properties(self.asset_type, context)
 
@@ -241,11 +241,11 @@ class UI_AddAsset(bpy.types.Operator):
 		col.prop(self.asset_type, 'name', text='Asset Type')
 		
 		col.label(text='Asset ID:')
-		if len(context.scene.current_asset_id):
+		if len(context.scene.custo_handler_settings.current_asset_id):
 			row = col.row(align=True)
 			self.separator(row, 10)
 			col1 = row.column(align=True)
-			for asset_id in context.scene.current_asset_id:
+			for asset_id in context.scene.custo_handler_settings.current_asset_id:
 				col1.prop(asset_id, 'name', text='')
 
 		col.separator()
@@ -255,8 +255,8 @@ class UI_AddAsset(bpy.types.Operator):
 		b.label(text='Slots')
 		row = b.row()
 
-		rows = 20 if len(context.scene.current_edited_asset_slots) > 20 else len(context.scene.current_edited_asset_slots) + 1
-		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene, 'current_edited_asset_slots', context.scene, 'current_edited_asset_slots_idx', rows=rows)
+		rows = 20 if len(context.scene.custo_handler_settings.current_edited_asset_slots) > 20 else len(context.scene.custo_handler_settings.current_edited_asset_slots) + 1
+		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene.custo_handler_settings, 'current_edited_asset_slots', context.scene.custo_handler_settings, 'current_edited_asset_slots_idx', rows=rows)
 
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -264,17 +264,17 @@ class UI_AddAsset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_assets.add()
+		s = context.scene.custo_handler_settings.custo_assets.add()
 
 		s.asset_type.name = self.asset_type.name
 		s.layer = self.layer
 
-		for label in context.scene.current_asset_id:
+		for label in context.scene.custo_handler_settings.current_asset_id:
 			current_label = s.asset_id.add()
 			current_label.label_category_name = label.label_category_name
 			current_label.name = label.name
 		
-		for slot in context.scene.current_edited_asset_slots:
+		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
 			current_slot = s.slots.add()
 			current_slot.name = slot.name
 			current_slot.checked = slot.checked
@@ -290,10 +290,10 @@ class UI_AddAsset(bpy.types.Operator):
 		update_current_asset_properties(self.asset_type, context)
 	
 	def set_current_label_category(self, context):
-		context.scene.current_label_category.clear()
+		context.scene.custo_handler_settings.current_label_category.clear()
 
-		for lc in context.scene.custo_label_categories:
-			category = context.scene.current_label_category.add()
+		for lc in context.scene.custo_handler_settings.custo_label_categories:
+			category = context.scene.custo_handler_settings.current_label_category.add()
 			category.name = lc.name
 			for l in lc.labels:
 				label = category.labels.add()

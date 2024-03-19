@@ -1,10 +1,10 @@
 import bpy
-from .properties.custo_asset_properties import get_asset_name
-from .properties.custo_label_properties import in_range
+from .properties.properties.custo_asset_properties import get_asset_name
+from .properties.properties.custo_label_properties import in_range
 
 def get_label(context):
-	idx = context.scene.custo_labels_idx
-	labels = context.scene.custo_labels
+	idx = context.scene.custo_handler_settings.custo_labels_idx
+	labels = context.scene.custo_handler_settings.custo_labels
 
 	active = labels[idx] if len(labels) else None
 
@@ -21,7 +21,7 @@ class UI_MoveLabel(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_labels) and context.scene.custo_labels_idx > -1 and context.scene.custo_labels_idx < len(context.scene.custo_labels)
+		return len(context.scene.custo_handler_settings.custo_labels) and context.scene.custo_handler_settings.custo_labels_idx > -1 and context.scene.custo_handler_settings.custo_labels_idx < len(context.scene.custo_handler_settings.custo_labels)
 
 	def execute(self, context):
 		idx, label, _ = get_label(context)
@@ -32,9 +32,9 @@ class UI_MoveLabel(bpy.types.Operator):
 			nextidx = min(idx + 1, len(label) - 1)
 
 		label.move(idx, nextidx)
-		context.scene.custo_labels_idx = nextidx
+		context.scene.custo_handler_settings.custo_labels_idx = nextidx
 
-		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.move(idx, nextidx)
+		context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.move(idx, nextidx)
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
@@ -47,16 +47,16 @@ class UI_ClearLabels(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_labels)
+		return len(context.scene.custo_handler_settings.custo_labels)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.custo_labels.clear()
-		if in_range(context.scene.custo_label_categories, context.scene.custo_label_categories_idx):
-			context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.clear()
+		context.scene.custo_handler_settings.custo_labels.clear()
+		if in_range(context.scene.custo_handler_settings.custo_label_categories, context.scene.custo_handler_settings.custo_label_categories_idx):
+			context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.clear()
 			
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
@@ -72,7 +72,7 @@ class UI_RemoveLabel(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_labels
+		return context.scene.custo_handler_settings.custo_labels
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -83,9 +83,9 @@ class UI_RemoveLabel(bpy.types.Operator):
 
 		labels.remove(self.index)
 
-		context.scene.custo_labels_idx = min(self.index, len(context.scene.custo_labels) - 1)
+		context.scene.custo_handler_settings.custo_labels_idx = min(self.index, len(context.scene.custo_handler_settings.custo_labels) - 1)
 
-		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.remove(self.index)
+		context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.remove(self.index)
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
@@ -100,7 +100,7 @@ class UI_DuplicateLabel(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_labels
+		return context.scene.custo_handler_settings.custo_labels
 
 	def execute(self, context):
 		_, label, _ = get_label(context)
@@ -109,9 +109,9 @@ class UI_DuplicateLabel(bpy.types.Operator):
 		s.name = label[self.index].name+'_dup'
 		label.move(len(label) - 1, self.index + 1)
 		
-		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.add()
+		s = context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.add()
 		s.name = label[self.index].name+'_dup'
-		context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.move(len(label) - 1, self.index + 1)
+		context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.move(len(label) - 1, self.index + 1)
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
 
@@ -131,24 +131,24 @@ class UI_EditLabel(bpy.types.Operator):
 		col.prop(self, 'name', text='Label Name')
 	
 	def invoke(self, context, event):
-		current_label = context.scene.custo_labels[self.index]
+		current_label = context.scene.custo_handler_settings.custo_labels[self.index]
 		self.name = current_label.name
 		self.old_name = current_label.name
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=500)
 	
 	def execute(self, context):
-		s = context.scene.custo_labels[self.index]
+		s = context.scene.custo_handler_settings.custo_labels[self.index]
 		s.name = self.name
-		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels[self.index]
+		s = context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels[self.index]
 		s.name = self.name
-		self.label_category_name = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].name
+		self.label_category_name = context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].name
 		bpy.ops.object.refresh_label_definition()
 		self.refresh_asset_label_categories(context)
 		return {'FINISHED'}
 
 	def refresh_asset_label_categories(self, context):
-		for asset_type in context.scene.custo_asset_types:
+		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
 			for lc in asset_type.asset_label_categories:
 				if lc.name != self.label_category_name:
 					continue
@@ -181,7 +181,7 @@ class UI_EditLabel(bpy.types.Operator):
 				if l.name == self.old_name:
 					l.name = self.name
 
-		for asset in context.scene.custo_assets:
+		for asset in context.scene.custo_handler_settings.custo_assets:
 			for asset_id in asset.asset_id:
 				if asset_id.label_category_name != self.label_category_name:
 					continue
@@ -216,9 +216,9 @@ class UI_AddLabel(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_labels.add()
+		s = context.scene.custo_handler_settings.custo_labels.add()
 		s.name = self.name
-		s = context.scene.custo_label_categories[context.scene.custo_label_categories_idx].labels.add()
+		s = context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels.add()
 		s.name = self.name
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}

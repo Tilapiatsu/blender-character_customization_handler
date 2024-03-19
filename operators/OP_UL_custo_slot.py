@@ -1,8 +1,8 @@
 import bpy
 
 def get_slot(context):
-	idx = context.scene.custo_slots_idx
-	slots = context.scene.custo_slots
+	idx = context.scene.custo_handler_settings.custo_slots_idx
+	slots = context.scene.custo_handler_settings.custo_slots
 
 	active = slots[idx] if len(slots) else None
 
@@ -19,7 +19,7 @@ class UI_MoveSlot(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_slots)
+		return len(context.scene.custo_handler_settings.custo_slots)
 
 	def execute(self, context):
 		idx, slot, _ = get_slot(context)
@@ -30,7 +30,7 @@ class UI_MoveSlot(bpy.types.Operator):
 			nextidx = min(idx + 1, len(slot) - 1)
 
 		slot.move(idx, nextidx)
-		context.scene.custo_slots_idx = nextidx
+		context.scene.custo_handler_settings.custo_slots_idx = nextidx
 
 		return {'FINISHED'}
 
@@ -43,14 +43,14 @@ class UI_ClearSlots(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_slots)
+		return len(context.scene.custo_handler_settings.custo_slots)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_confirm(self, event)
 
 	def execute(self, context):
-		context.scene.custo_slots.clear()
+		context.scene.custo_handler_settings.custo_slots.clear()
 		bpy.ops.object.refresh_part_slots()
 		return {'FINISHED'}
 
@@ -65,7 +65,7 @@ class UI_RemoveSlot(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_slots
+		return context.scene.custo_handler_settings.custo_slots
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -76,7 +76,7 @@ class UI_RemoveSlot(bpy.types.Operator):
 
 		slots.remove(self.index)
 
-		context.scene.custo_slots_idx = min(self.index, len(context.scene.custo_slots) - 1)
+		context.scene.custo_handler_settings.custo_slots_idx = min(self.index, len(context.scene.custo_handler_settings.custo_slots) - 1)
 
 		bpy.ops.object.refresh_part_slots()
 		return {'FINISHED'}
@@ -92,7 +92,7 @@ class UI_DuplicateSlot(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_slots
+		return context.scene.custo_handler_settings.custo_slots
 
 	def execute(self, context):
 		_, slot, _ = get_slot(context)
@@ -119,13 +119,13 @@ class UI_EditSlot(bpy.types.Operator):
 		col.prop(self, 'name', text='Slot Name')
 	
 	def invoke(self, context, event):
-		current_slot = context.scene.custo_slots[self.index]
+		current_slot = context.scene.custo_handler_settings.custo_slots[self.index]
 		self.name = current_slot.name
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self, width=500)
 	
 	def execute(self, context):
-		s = context.scene.custo_slots[self.index]
+		s = context.scene.custo_handler_settings.custo_slots[self.index]
 		s.name = self.name
 		bpy.ops.object.refresh_part_slots()
 		return {'FINISHED'}
@@ -150,7 +150,7 @@ class UI_AddSlot(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_slots.add()
+		s = context.scene.custo_handler_settings.custo_slots.add()
 		s.name = self.name
 		bpy.ops.object.refresh_part_slots()
 		return {'FINISHED'}

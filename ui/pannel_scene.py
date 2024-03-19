@@ -17,8 +17,8 @@ class PT_CustoLabelSetup(bpy.types.Panel):
 		b = main_row.box()
 		b.label(text='Label Categories')
 		row = b.row()
-		rows = 20 if len(scn.custo_label_categories) > 20 else len(scn.custo_label_categories) + 1
-		row.template_list('SCENE_UL_CustoLabelCategories', '', scn, 'custo_label_categories', scn, 'custo_label_categories_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_label_categories) > 20 else len(scn.custo_handler_settings.custo_label_categories) + 1
+		row.template_list('SCENE_UL_CustoLabelCategories', '', scn.custo_handler_settings, 'custo_label_categories', scn.custo_handler_settings, 'custo_label_categories_idx', rows=rows)
 		col = row.column(align=True)
 		col.operator('scene.add_customization_label_category', text="", icon='ADD')
 
@@ -33,8 +33,8 @@ class PT_CustoLabelSetup(bpy.types.Panel):
 		b = main_row.box()
 		b.label(text='Labels')
 		row = b.row()
-		rows = 20 if len(scn.custo_labels) > 20 else len(scn.custo_labels) + 1
-		row.template_list('SCENE_UL_CustoLabels', '', scn, 'custo_labels', scn, 'custo_labels_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_labels) > 20 else len(scn.custo_handler_settings.custo_labels) + 1
+		row.template_list('SCENE_UL_CustoLabels', '', scn.custo_handler_settings, 'custo_labels', scn.custo_handler_settings, 'custo_labels_idx', rows=rows)
 		col = row.column(align=True)
 		col.operator('scene.add_customization_label', text="", icon='ADD')
 
@@ -61,8 +61,8 @@ class PT_CustoAssetSetup(bpy.types.Panel):
 		row = b.row()
 		
 
-		rows = 20 if len(scn.custo_asset_types) > 20 else len(scn.custo_asset_types) + 1
-		row.template_list('SCENE_UL_CustoAssetTypes', '', scn, 'custo_asset_types', scn, 'custo_asset_types_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_asset_types) > 20 else len(scn.custo_handler_settings.custo_asset_types) + 1
+		row.template_list('SCENE_UL_CustoAssetTypes', '', scn.custo_handler_settings, 'custo_asset_types', scn.custo_handler_settings, 'custo_asset_types_idx', rows=rows)
 		
 		col = row.column(align=True)
 		col.operator('scene.add_customization_asset_type', text="", icon='ADD')
@@ -78,8 +78,8 @@ class PT_CustoAssetSetup(bpy.types.Panel):
 		b.label(text='Assets')
 		row = b.row()
 
-		rows = 20 if len(scn.custo_assets) > 20 else len(scn.custo_assets) + 1
-		row.template_list('SCENE_UL_CustoAssets', '', scn, 'custo_assets', scn, 'custo_assets_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_assets) > 20 else len(scn.custo_handler_settings.custo_assets) + 1
+		row.template_list('SCENE_UL_CustoAssets', '', scn.custo_handler_settings, 'custo_assets', scn.custo_handler_settings, 'custo_assets_idx', rows=rows)
 		
 		col = row.column(align=True)
 		col.operator('scene.add_customization_asset', text="", icon='ADD')

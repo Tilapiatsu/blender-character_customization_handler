@@ -12,7 +12,7 @@ class UI_RefreshPartSlots(bpy.types.Operator):
 
 	def execute(self, context):
 		# print(f'refreshing {context.object.name} part slots')
-		for s in context.scene.custo_slots:
+		for s in context.scene.custo_handler_settings.custo_slots:
 			# print(s.name)
 			if s.name not in context.object.custo_part_slots:
 				print(f'adding {s.name}')
@@ -20,7 +20,7 @@ class UI_RefreshPartSlots(bpy.types.Operator):
 				oslot.name = s.name
 		i = 0
 		for s in context.object.custo_part_slots:
-			if s.name not in context.scene.custo_slots:
+			if s.name not in context.scene.custo_handler_settings.custo_slots:
 				context.object.custo_part_slots.remove(i)
 			i += 1
 		return {'FINISHED'}

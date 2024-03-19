@@ -12,7 +12,7 @@ class UI_MoveLabel(bpy.types.Operator, NodeOperator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_labels)
+		return len(context.scene.custo_handler_settings.custo_labels)
 
 	def execute(self, context):
 		self.tree = context.space_data.node_tree
@@ -39,7 +39,7 @@ class UI_ClearLabels(bpy.types.Operator, NodeOperator):
 
 	@classmethod
 	def poll(cls, context):
-		return len(context.scene.custo_labels)
+		return len(context.scene.custo_handler_settings.custo_labels)
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -62,7 +62,7 @@ class UI_RemoveLabel(bpy.types.Operator, NodeOperator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_labels
+		return context.scene.custo_handler_settings.custo_labels
 	
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -89,7 +89,7 @@ class UI_DuplicateLabel(bpy.types.Operator, NodeOperator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_labels
+		return context.scene.custo_handler_settings.custo_labels
 
 	def execute(self, context):
 		self.tree = context.space_data.node_tree

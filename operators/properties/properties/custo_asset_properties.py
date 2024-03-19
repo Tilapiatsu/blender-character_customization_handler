@@ -7,10 +7,10 @@ class CustoAssetTypePointer(bpy.types.PropertyGroup):
 	
 	@property
 	def asset_type(self):
-		return bpy.context.scene.custo_asset_types[self.name]
+		return bpy.context.scene.custo_handler_settings.custo_asset_types[self.name]
 
 def asset_type_enum(self, context):
-	items = [(l.name, l.name, '') for l in context.scene.custo_asset_types]
+	items = [(l.name, l.name, '') for l in context.scene.custo_handler_settings.custo_asset_types]
 	return items
 
 def get_asset_name(asset_ids):
@@ -27,22 +27,22 @@ def get_asset_name(asset_ids):
 	return joined(labels)
 
 def update_current_asset_properties(self, context):
-	asset_names = [a.asset_name for a in context.scene.custo_assets]
+	asset_names = [a.asset_name for a in context.scene.custo_handler_settings.custo_assets]
 	# update Asset ID
-	context.scene.current_asset_id.clear()
-	for i, lc in enumerate(context.scene.custo_asset_types[self.name].asset_label_categories):
-		id_enum = context.scene.current_asset_id.add()
+	context.scene.custo_handler_settings.current_asset_id.clear()
+	for i, lc in enumerate(context.scene.custo_handler_settings.custo_asset_types[self.name].asset_label_categories):
+		id_enum = context.scene.custo_handler_settings.current_asset_id.add()
 		id_enum.label_category_name = lc.name
 		
-		if context.scene.current_asset_name in asset_names:
-			asseet_id = context.scene.custo_assets[context.scene.current_asset_name].asset_id[i]
+		if context.scene.custo_handler_settings.current_asset_name in asset_names:
+			asseet_id = context.scene.custo_handler_settings.custo_assets[context.scene.custo_handler_settings.current_asset_name].asset_id[i]
 			if asseet_id.label_category_name == id_enum.label_category_name:
 				id_enum.name = asseet_id.name
 
 	# Update Slots
-	context.scene.current_edited_asset_slots.clear()
-	for s in context.scene.current_label_category[context.scene.custo_asset_types[self.name].slot_label_category.name].labels:
-		slot = context.scene.current_edited_asset_slots.add()
+	context.scene.custo_handler_settings.current_edited_asset_slots.clear()
+	for s in context.scene.custo_handler_settings.current_label_category[context.scene.custo_handler_settings.custo_asset_types[self.name].slot_label_category.name].labels:
+		slot = context.scene.custo_handler_settings.current_edited_asset_slots.add()
 		slot.name = s.name
 		slot.checked = s.checked
 		slot.keep_lower_layer_slot = s.keep_lower_layer_slot
@@ -55,7 +55,7 @@ class CustoAssetLabelCategoryPointer(bpy.types.PropertyGroup):
 	
 	@property
 	def label_category(self):
-		return bpy.context.scene.custo_label_categories[self.name]
+		return bpy.context.scene.custo_handler_settings.custo_label_categories[self.name]
 
 class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
@@ -77,14 +77,21 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		return get_asset_name(self.asset_id)
 	
 	@property
-	def meshes(self):
+	def mesh_variations(self):
 		meshes = [o for o in bpy.data.objects]
 		for id_label in self.asset_id:
 			for o in bpy.data.objects:
-				if o in meshes and not o.custo_label_category_definition[id_label.label_category_name].labels[id_label.name].checked:
+				category = getattr(o.custo_label_category_definition, id_label.label_category_name, None)
+				if category is None:
+					continue
+
+				label = getattr(category.labels, id_label.name, None)
+				if id_label is None:
+					continue
+
+				if o in meshes and not label.checked:
 					meshes.remove(o)
 		return meshes
-	
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"
@@ -126,26 +133,8 @@ def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
-	
-	bpy.types.Scene.custo_asset_types = bpy.props.CollectionProperty(type=CustoAssetTypeProperties)
-	bpy.types.Scene.custo_asset_types_idx = bpy.props.IntProperty(default=0)
-	bpy.types.Scene.custo_assets = bpy.props.CollectionProperty(type=CustoAssetProperties)
-	bpy.types.Scene.custo_assets_idx = bpy.props.IntProperty(default=0, min=0)
-	bpy.types.Scene.current_asset_id = bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
-	bpy.types.Scene.current_asset_id_idx = bpy.props.IntProperty(default=0, min=0)
-	bpy.types.Scene.current_asset_name = bpy.props.StringProperty()
-	bpy.types.Scene.current_label_category = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 
 def unregister():
-	del bpy.types.Scene.current_label_category
-	del bpy.types.Scene.current_asset_name
-	del bpy.types.Scene.current_asset_id
-	del bpy.types.Scene.current_asset_id_idx
-	del bpy.types.Scene.custo_assets
-	del bpy.types.Scene.custo_assets_idx
-	del bpy.types.Scene.custo_asset_types
-	del bpy.types.Scene.custo_asset_types_idx
-	
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
 		unregister_class(cls)
