@@ -285,7 +285,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				
 				if not len(asset_meshes):
 					return False
-		print(f'Current Mesh Variation =', self.mesh_variation)
+			print(f'Current Mesh Variation =', self.mesh_variation)
 		return True
 	
 	def get_layer_collection_per_name(self, collection_name, layer_collection):
