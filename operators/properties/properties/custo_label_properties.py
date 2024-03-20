@@ -23,7 +23,16 @@ def label_enum(self, context):
 
 def update_label_category(self, context):
 	ch_settings = context.scene.custo_handler_settings
-	ch_settings.custo_label_categories[ch_settings.custo_label_categories_idx].labels[ch_settings.custo_labels_idx].valid_any = ch_settings.custo_labels[ch_settings.custo_labels_idx].valid_any
+	current_name = self.name
+
+	ch_settings.custo_label_categories[ch_settings.custo_label_categories_idx].labels[current_name].valid_any = ch_settings.custo_labels[current_name].valid_any
+
+	if ch_settings.custo_labels[current_name].valid_any:
+		for l in ch_settings.custo_labels:
+			if l.name == current_name:
+				continue
+			l.valid_any = False
+			ch_settings.custo_label_categories[ch_settings.custo_label_categories_idx].labels[l.name].valid_any = False
 
 
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
