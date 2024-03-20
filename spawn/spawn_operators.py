@@ -255,6 +255,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	
 	def update_spawned_assets_per_slot(self, asset):
 		for s in asset.slots:
+			if s.name not in self.spawned_assets_per_slot.keys():
+				continue
 			if self.spawned_assets_per_slot[s.name] is None:
 				self.spawned_assets_per_slot[s.name] = []
 			self.spawned_assets_per_slot[s.name].append(asset)

@@ -17,7 +17,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 
-
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
 		print("Copying from node ", node)
@@ -37,7 +36,6 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		CustomizationTreeNode.update_inputs(self, 'AssetsSocketType', "Assets")
-
 
 classes = (	AssetsAppendNode,)
 

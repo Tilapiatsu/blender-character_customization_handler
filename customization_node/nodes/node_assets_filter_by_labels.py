@@ -25,7 +25,6 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 		self.labels.add()
-		
 
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -73,32 +72,25 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		# filtering by label
 		filtered = []
 		assets = super().get_assets()
+		ch_settings = bpy.context.scene.custo_handler_settings
 
-		for o in assets:
-			valid_labels = []
-			for i, label in enumerate(self.labels):
+		for a in assets:
+			label_combinaison = {}
+			for label in self.labels:
 				if not len(label.name):
 					continue
-				for lc in o.custo_part_label_categories:
+				for lc in ch_settings.custo_label_categories:
 					for l in lc.labels:
 						if label.name.lower() not in l.name.lower():
 							continue
-						if l.checked and not label.invert or not l.checked and label.invert:
-							valid_labels.append(label.name)
-			
-			valid_object = True
-			for l in self.label_names:
-				if not len(l):
-					continue
-				if l not in valid_labels:
-					valid_object = False
-					break
-			if valid_object:
-				filtered.append(o)
+						if not label.invert:
+							label_combinaison[lc.name] = label.name
+							self.temp_labels.append(label.name)
+				
+			if a.has_mesh_with_labels(variations=label_combinaison):
+				filtered.append(a)
 
 		return filtered
-
-
 
 classes = (AssetsFilterByLabelsNode,)
 

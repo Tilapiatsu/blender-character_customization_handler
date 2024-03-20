@@ -21,6 +21,7 @@ def update_values(self, context):
 
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
+	temp_labels = []
 	
 	@property
 	def spawned_assets(self):
@@ -29,15 +30,21 @@ class CustomizationTreeNode:
 	@property
 	def assets(self):
 		return self.get_assets()
+		if len(assets):
+			return assets[0]
+		else:
+			return []
 	
-	def node_tree(self, context):
-		space = context.space_data
-		node_tree = space.node_tree
-		return node_tree
 
 	@classmethod
 	def poll(cls, ntree):
 		return ntree.bl_idname == TREE_NAME
+
+
+	def node_tree(self, context):
+		space = context.space_data
+		node_tree = space.node_tree
+		return node_tree
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self, socket_type=None, socket_name=None, sub_socket_dict=None, ui_list_callback=None):
@@ -89,10 +96,18 @@ class CustomizationTreeNode:
 				link.to_socket.valid = True
 			else:
 				link.to_socket.valid = False
-				
+	
+	def transfer_attributes(func):
+		def transfer(self):
+			print('transfering attributes')
+			return func(self), self.temp_labels
+
+		return transfer
+	
+	# @transfer_attributes
 	def get_assets(self):
 		input_assets = []
-		for i,input in enumerate(self.inputs):
+		for input in self.inputs:
 			if input.bl_idname != node_socket_asset.AssetsSocket.bl_idname:
 				continue
 			

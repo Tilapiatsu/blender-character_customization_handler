@@ -115,13 +115,13 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		else:
 			return random.choice(valid_meshes)
 	
-	def is_valid_mesh(self, ob, variation:dict):
+	def is_valid_mesh(self, ob, variations:dict):
 		'''
 		Check that the mesh matches the inputed label combinaison.
 		'''
 		valid = True
 		ch_settings = bpy.context.scene.custo_handler_settings
-		for c,l in variation.items():
+		for c,l in variations.items():
 			if c not in ob.custo_label_category_definition.keys() or c not in ch_settings.custo_label_categories.keys():
 				valid = False
 				break
@@ -145,6 +145,18 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 				break
 
 		return valid
+
+
+	def has_mesh_with_labels(self, variations:dict):
+		'''
+		Returns True if the asset contains at least one mesh with given variation combinaison
+		'''
+		all_variations = self.all_mesh_variations
+
+		valid_meshes = [m for m in all_variations if self.is_valid_mesh(m, variations)]
+		
+		return True if len(valid_meshes) else False
+		
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"
