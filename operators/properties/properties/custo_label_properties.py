@@ -4,19 +4,26 @@ def in_range(ui_list, index):
 	return index > -1 and len(ui_list) and len(ui_list) < index
 
 def update_label_definition(self, context):
+	ch_settings = context.scene.custo_handler_settings
 	for o in context.selected_objects:
-		for i, l in enumerate(o.custo_label_category_definition[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels):
+		for i, l in enumerate(o.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
 			if i > len(context.object.custo_label_definition) - 1:
 				return
 			l.checked = context.object.custo_label_definition[i].checked
 
 def label_categories_enum(self, context):
-	items = [(l.name, l.name, '') for l in context.scene.custo_handler_settings.custo_label_categories]
+	ch_settings = context.scene.custo_handler_settings
+	items = [(l.name, l.name, '') for l in ch_settings.custo_label_categories]
 	return items
 
 def label_enum(self, context):
-	items = [(l.name, l.name, '') for l in context.scene.custo_handler_settings.custo_label_categories[self.label_category_name].labels]
+	ch_settings = context.scene.custo_handler_settings
+	items = [(l.name, l.name, '') for l in ch_settings.custo_label_categories[self.label_category_name].labels]
 	return items
+
+def update_label_category(self, context):
+	ch_settings = context.scene.custo_handler_settings
+	ch_settings.custo_label_categories[ch_settings.custo_label_categories_idx].labels[ch_settings.custo_labels_idx].valid_any = ch_settings.custo_labels[ch_settings.custo_labels_idx].valid_any
 
 
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
@@ -36,7 +43,13 @@ class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
 	checked : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
+	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False)
 
+class CustoLabelPropertiesDisplay(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Label Name', default='')
+	checked : bpy.props.BoolProperty(default=False)
+	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
+	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False, update=update_label_category)
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')
@@ -54,6 +67,15 @@ class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
 	labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
+	
+	@property
+	def valid_any(self):
+		valid = None
+		for l in self.labels:
+			if l.valid_any:
+				return l
+
+		return valid
 
 
 class CustoLabelDefinitionProperties(bpy.types.PropertyGroup):
@@ -73,8 +95,11 @@ class UL_CustoLabel(bpy.types.UIList):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
 		row.label(text=f'{item.name}')
+		row.separator()
+
 		row = layout.row(align=True)
 		row.alignment = 'RIGHT'
+		row.prop(item, 'valid_any')
 		row.operator('scene.edit_customization_label', text='', icon='GREASEPENCIL').index = index
 		row.operator('scene.duplicate_customization_label', text='', icon='COPYDOWN').index = index
 		row.operator('scene.remove_customization_label', text='', icon='X').index = index
@@ -115,6 +140,7 @@ class UL_CustoPartLabelCategoryDefinition(bpy.types.UIList):
 
 
 classes = ( CustoLabelProperties, 
+		   	CustoLabelPropertiesDisplay,
 			CustoLabelCategoryProperties,
 			CustoLabelEnumProperties,
 			CustoLabelDefinitionProperties,

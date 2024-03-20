@@ -1,13 +1,14 @@
 import bpy
 from .properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
-from .properties.custo_label_properties import CustoLabelProperties, CustoLabelCategoryProperties
+from .properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties
 
 def update_label_category(self, context):
 	context.scene.custo_handler_settings.custo_labels.clear()
 	for l in context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].labels:
 		label = context.scene.custo_handler_settings.custo_labels.add()
 		label.name = l.name
+		label.valid_any = l.valid_any
 	
 def update_label_category_definition(self, context):
 	context.object.custo_label_definition.clear()
@@ -52,7 +53,7 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	current_edited_asset_slots_idx : bpy.props.IntProperty(default=0)
 
 	# Label Property
-	custo_labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
+	custo_labels : bpy.props.CollectionProperty(type=CustoLabelPropertiesDisplay)
 	custo_labels_idx : bpy.props.IntProperty(default=0)
 	custo_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	custo_label_categories_idx : bpy.props.IntProperty(default=0, update=update_label_category)

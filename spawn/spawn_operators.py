@@ -142,10 +142,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for asset in self.assets:
 			if not len(asset.all_mesh_variations):
 				continue
-			slots = asset.slots
+			slots = [s for s in asset.slots if s.checked]
 			for slot in slots:
-				if not slot.checked:
-					continue
 				if slot.name not in self._assets_per_slot.keys():
 					self._assets_per_slot[slot.name] = [asset]
 				else:
@@ -213,6 +211,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		self.first_asset = True
 		self.mesh_variation = {}
+		self.spawned_meshes = []
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
@@ -223,33 +222,44 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			
 			# Pick one asset for selected slot
 			asset = random.choice(self.assets_per_slot[slot])
-			self.assets_per_slot[slot].remove(asset)
-			
-			# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
-			if not self.lock_mesh_variation(asset):
-				# if no valid mesh found, pick another asset
-				continue
 			
 			# Spawn Mesh
 			self.spawn_mesh(asset, slot)
 
 	def spawn_mesh(self, asset, slot):
-		mesh = asset.mesh_variation(self.mesh_variation)
+		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
+		if not self.lock_mesh_variation(asset):
+			# if no valid mesh found, pick another asset
+			return False
+		
+		mesh = asset.mesh_variation(self.mesh_variation, self.spawned_meshes)
+		
+		self.remove_asset_per_slot(asset)
+		self.update_spawned_assets_per_slot(asset)
+
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
 			return False
-		
-		if self.spawned_assets_per_slot[slot] is None:
-			self.spawned_assets_per_slot[slot] = []
-		
-		# Add object to Spawned slot Dict
-		self.spawned_assets_per_slot[slot].append(asset)
+
 
 		# add Object to Collection : Spawning !
 		print(f'Spawning Mesh : {mesh.name}')
+		self.spawned_meshes.append(mesh)
 		self.collection.objects.link(mesh)
 		return True
-			
+	
+	def remove_asset_per_slot(self, asset):
+		for s in self.assets_per_slot.keys():
+			if asset in self.assets_per_slot[s]:
+				self.assets_per_slot[s].remove(asset)
+	
+	def update_spawned_assets_per_slot(self, asset):
+		for s in asset.slots:
+			if self.spawned_assets_per_slot[s.name] is None:
+				self.spawned_assets_per_slot[s.name] = []
+			self.spawned_assets_per_slot[s.name].append(asset)
+
+
 	def lock_mesh_variation(self, asset) -> bool:
 		'''
 		The First Asset need to lock one mesh variation combinaison to only spawn mesh from this combinaison for the next parts.

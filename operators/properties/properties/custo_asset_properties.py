@@ -1,4 +1,5 @@
 import bpy
+import random
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
@@ -78,35 +79,72 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	
 	@property
 	def all_mesh_variations(self):
+		'''
+		Returns the list of all mesh variations in the current asset
+		'''
 		meshes = [o for o in bpy.data.objects]
 		for id_label in self.asset_id:
 			for o in bpy.data.objects:
-				for asset_id in self.asset_id:
-					# TODO : need to test asset_id is correct !
-					pass
-
-				category = getattr(o.custo_label_category_definition, id_label.label_category_name, None)
-				if category is None:
+				if id_label.label_category_name not in o.custo_label_category_definition:
+					if o in meshes:
+						meshes.remove(o)
 					continue
 
-				label = getattr(category.labels, id_label.name, None)
-				if id_label is None:
+				if id_label.name not in o.custo_label_category_definition[id_label.label_category_name].labels:
+					if o in meshes:
+						meshes.remove(o)
 					continue
 
-				if o in meshes and not label.checked:
-					meshes.remove(o)
+				if not o.custo_label_category_definition[id_label.label_category_name].labels[id_label.name].checked:
+					if o in meshes:
+						meshes.remove(o)
+					continue
+
 		return meshes
 	
-	def mesh_variation(self, variations:dict):
-		mesh = None
-
+	def mesh_variation(self, variations:dict, exclude=[]):
+		'''
+		Returns one valid mesh matching the inputed label combinaison
+		'''
 		all_variations = self.all_mesh_variations
 
-		for m in all_variations:
-			if m.custo_mesh.is_valid(m, variations):
-				mesh = m
+		valid_meshes = [m for m in all_variations if m not in exclude and self.is_valid_mesh(m, variations)]
 
-		return mesh
+		if not len(valid_meshes):
+			return None
+		else:
+			return random.choice(valid_meshes)
+	
+	def is_valid_mesh(self, ob, variation:dict):
+		'''
+		Check that the mesh matches the inputed label combinaison.
+		'''
+		valid = True
+		ch_settings = bpy.context.scene.custo_handler_settings
+		for c,l in variation.items():
+			if c not in ob.custo_label_category_definition.keys() or c not in ch_settings.custo_label_categories.keys():
+				valid = False
+				break
+
+			ob_category = ob.custo_label_category_definition[c]
+			ch_category = ch_settings.custo_label_categories[c]
+
+			if l not in ob_category.labels.keys() or l not in ch_category.labels.keys():
+				valid = False
+				break
+			
+			if ch_category.labels[l].valid_any:
+				continue
+
+			if not ob_category.labels[l].checked:
+				valid_any_label = ch_category.valid_any
+				if valid_any_label is not None:
+					if ob_category.labels[valid_any_label.name].checked:
+						continue
+				valid = False
+				break
+
+		return valid
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"
