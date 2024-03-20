@@ -100,7 +100,10 @@ class CustomizationTreeNode:
 	def transfer_attributes(func):
 		def transfer(self):
 			print('transfering attributes')
-			return func(self), self.temp_labels
+			for input in self.inputs:
+				input_node = follow_input_link(input.links[0]).from_node
+				self.temp_labels += input_node.temp_labels
+			return func(self)
 
 		return transfer
 	
