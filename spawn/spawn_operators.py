@@ -272,13 +272,25 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			valid_mesh = False
 			asset_meshes = asset.all_mesh_variations
 			# print(asset.valid_labels)
-			# print(asset.attributes.labels)
+			print(asset.attributes.labels)
+			asset_valid_label_attributes = asset.attributes.labels
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
 				asset_meshes.remove(picked_variation_mesh)
 				self.mesh_variation = {}
 				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
-					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked and mesh_category.name]
+					valid_labels = []
+
+					for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels:
+						if not l.checked:
+							continue
+						
+						if mesh_category.name in asset_valid_label_attributes.keys():
+							pass
+
+						valid_labels.append(l)
+							
+					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked]
 
 					if not len(valid_labels):
 						print(f'Invalid Mesh : {picked_variation_mesh.name}, skipping')

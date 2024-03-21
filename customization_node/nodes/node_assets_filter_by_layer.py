@@ -1,7 +1,6 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .operators.properties.node_label_properties import NodeAssetLabelProperties
 
 class AssetsFilterByLayerNode(CustomizationTreeNode, Node):
 	# === Basics ===
