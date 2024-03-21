@@ -85,12 +85,11 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 							continue
 						if not label.invert:
 							label_combinaison[lc.name] = label.name
-							if label.name not in self.temp_labels:
-								self.temp_labels.append(label.name)
 				
 			if a.has_mesh_with_labels(variations=label_combinaison):
+				a.attributes.add_label_combinaison(label_combinaison)
 				filtered.append(a)
-
+		
 		return filtered
 
 classes = (AssetsFilterByLabelsNode,)

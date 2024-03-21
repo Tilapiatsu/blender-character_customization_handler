@@ -102,6 +102,46 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return meshes
 	
+	@property
+	def valid_labels(self):
+		def add_valid_mesh_label(label_set, mesh, label_category):
+			labels = [l.name for l in mesh.custo_label_category_definition[label_category].labels if l.checked]
+			if label_category not in label_set.keys():
+				label_set[label_category] = set(labels)
+			else:
+				for l in labels:
+					label_set[label_category].add(l)
+
+		valid_labels = {}
+		ch_settings = bpy.context.scene.custo_handler_settings
+
+		# Adding Slot
+		slot_category = self.asset_type.asset_type.slot_label_category.label_category.name
+		for slot in self.slots:
+			if not slot.checked:
+				continue
+
+			if slot_category not in valid_labels.keys():
+				valid_labels[slot_category] = set([slot.name])
+			else:
+				valid_labels[slot_category].add(slot.name)
+
+		all_meshes_variations = self.all_mesh_variations
+		asset_label_categories = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories] + [slot_category]
+
+		other_label_category = [lc.name for lc in ch_settings.custo_label_categories if lc not in asset_label_categories]
+
+		for m in all_meshes_variations:
+			# Adding Mesh variatio Label Categories
+			for mesh_category in self.asset_type.asset_type.mesh_variation_label_categories:
+				add_valid_mesh_label(valid_labels, m, mesh_category.name)
+
+			# Add all other labels
+			for lc in other_label_category:
+				add_valid_mesh_label(valid_labels, m, lc)
+
+		return valid_labels
+
 	def mesh_variation(self, variations:dict, exclude=[]):
 		'''
 		Returns one valid mesh matching the inputed label combinaison
@@ -146,7 +186,6 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return valid
 
-
 	def has_mesh_with_labels(self, variations:dict):
 		'''
 		Returns True if the asset contains at least one mesh with given variation combinaison
@@ -156,7 +195,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		valid_meshes = [m for m in all_variations if self.is_valid_mesh(m, variations)]
 		
 		return True if len(valid_meshes) else False
-		
+	
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"

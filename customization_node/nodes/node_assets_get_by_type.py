@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Node
-from .node import CustomizationTreeNode
+from .node import CustomizationTreeNode, NodeAsset
 from .node_const import SPAWN_COLOR
 
 class AssetsGetByTypeNode(CustomizationTreeNode, Node):
@@ -38,7 +38,8 @@ class AssetsGetByTypeNode(CustomizationTreeNode, Node):
 		asset_type = self.inputs[0].input_value
 		if not len(asset_type):
 			return []
-		all_assets = [a for a in bpy.context.scene.custo_handler_settings.custo_assets if a.asset_type.name == asset_type]
+		ch_settings = bpy.context.scene.custo_handler_settings
+		all_assets = [NodeAsset(asset=a) for a in ch_settings.custo_assets if a.asset_type.name == asset_type]
 		return all_assets
 
 	def update_inputs(self):

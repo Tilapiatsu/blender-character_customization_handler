@@ -261,7 +261,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				self.spawned_assets_per_slot[s.name] = []
 			self.spawned_assets_per_slot[s.name].append(asset)
 
-
 	def lock_mesh_variation(self, asset) -> bool:
 		'''
 		The First Asset need to lock one mesh variation combinaison to only spawn mesh from this combinaison for the next parts.
@@ -272,16 +271,19 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			self.first_asset = False
 			valid_mesh = False
 			asset_meshes = asset.all_mesh_variations
+			# print(asset.valid_labels)
+			# print(asset.attributes.labels)
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
 				asset_meshes.remove(picked_variation_mesh)
 				self.mesh_variation = {}
 				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
-					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked]
+					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked and mesh_category.name]
+
 					if not len(valid_labels):
 						print(f'Invalid Mesh : {picked_variation_mesh.name}, skipping')
 						break
-
+					
 					valid_mesh = True
 					self.mesh_variation[mesh_category.name] = random.choice(valid_labels).name
 				
