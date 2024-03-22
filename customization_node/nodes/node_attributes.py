@@ -11,9 +11,13 @@ class NodeBinaryLabel:
 	def __str__(self):
 		return f'{self.label} : {self.positive}'
 
+
 @dataclass
 class LabelCombinaison:
 	labels : dict = field(default_factory=dict)
+
+	def set_invalid_label(self):
+		self.labels['__invalid__'] = None
 
 	def set_label(self, category:str, label:str, value:bool, replace=True):
 		if not replace and category in self.labels:
@@ -27,7 +31,6 @@ class LabelCombinaison:
 		
 		self.labels[category] = binary_label
 
-
 	def items(self):
 		return self.labels.items()
 	
@@ -39,6 +42,9 @@ class LabelCombinaison:
 	
 	def __getitem__(self, key):
 		return self.labels[key]
+	
+	def __len__(self):
+		return len(self.labels)
 	
 
 @dataclass
@@ -65,8 +71,9 @@ class NodeAttributes:
 		for lc in self.labels.keys():
 			label = random.choice(self.labels[lc])
 			label_combinaison.set_binary_label(lc, binary_label=label)
-		
+
 		return label_combinaison
+
 
 @dataclass
 class NodeAsset:

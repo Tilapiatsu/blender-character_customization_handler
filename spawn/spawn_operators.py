@@ -277,8 +277,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			
 			self.first_asset = False
 			valid_mesh = False
-			print(asset.valid_labels)
-			print(asset_label_combinaison)
+			print(f'Valid Labels for asset "{asset.name}" :\n{asset.valid_labels}')
+			print(f'"{asset.name}" label attribute :\n{asset_label_combinaison}')
 			
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
@@ -306,7 +306,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 				if not len(asset_meshes):
 					return False
-			print(f'Current Mesh Variation =', self.mesh_variation)
+			print(f'Current Mesh Variation :\n{self.mesh_variation}')
 		return True
 	
 	def get_layer_collection_per_name(self, collection_name, layer_collection):

@@ -80,13 +80,18 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 			for label in self.labels:
 				if not len(label.name):
 					continue
+				found=False
 				for lc in ch_settings.custo_label_categories:
 					for l in lc.labels:
 						if label.name.lower() not in l.name.lower():
 							continue
 						
 						labels.set_label(category=lc.name, label=label.name, value=not label.invert)
-
+						found = True
+						
+				if not found:
+					labels.set_invalid_label()
+					
 			if a.has_mesh_with_labels(variations=labels):
 				a.attributes.add_labels(labels)
 				filtered.append(a)
