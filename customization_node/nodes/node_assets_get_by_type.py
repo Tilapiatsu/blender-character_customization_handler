@@ -37,6 +37,10 @@ class AssetsGetByTypeNode(CustomizationTreeNode, Node):
 	
 	def get_assets(self):
 		asset_type = self.inputs[0].input_value
+		# skip node if muted
+		if self.mute:
+			return []
+		
 		if not len(asset_type):
 			return []
 		ch_settings = bpy.context.scene.custo_handler_settings

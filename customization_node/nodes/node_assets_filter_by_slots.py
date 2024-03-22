@@ -72,6 +72,10 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 		# filtering by label
 		filtered = []
 		assets = super().get_assets()
+		
+        # skip node if muted
+		if self.mute:
+			return assets
 
 		for a in assets:
 			valid_labels = []

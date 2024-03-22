@@ -110,7 +110,11 @@ class CustomizationTreeNode:
 			if not input.is_linked or not len(input.links):
 				continue
 			
+            
 			input_node = follow_input_link(input.links[0]).from_node
+			if input_node.mute:
+				return input_node.get_assets()
+			
 			current_input_assets = input_node.get_assets()
 			input_assets += current_input_assets
 		

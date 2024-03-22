@@ -73,6 +73,11 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		# filtering by label
 		filtered = []
 		assets = super().get_assets()
+		
+		# skip node if muted
+		if self.mute:
+			return assets
+		
 		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:

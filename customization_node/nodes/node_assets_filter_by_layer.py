@@ -50,6 +50,11 @@ class AssetsFilterByLayerNode(CustomizationTreeNode, Node):
 	
 	def get_assets(self):
 		assets = super().get_assets()
+		
+		# skip node if muted
+		if self.mute:
+			return assets
+		
 		if self.operation == 'EQUAL':
 			return [a for a in assets if a.layer == self.layer]
 		elif self.operation == 'GREATER':
