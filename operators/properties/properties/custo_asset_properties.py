@@ -164,7 +164,9 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		Returns one valid mesh matching the inputed label combinaison
 		'''
 		valid_variations = self.mesh_variations(variations, exclude=exclude)
-		if not len(valid_variations):
+		if valid_variations is None:
+			return None
+		elif not len(valid_variations):
 			return None
 		else:
 			return random.choice(valid_variations)
