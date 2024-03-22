@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
+from .node_attributes import LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 
 class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
@@ -75,7 +76,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:
-			label_combinaison = {}
+			labels = LabelCombinaison()
 			for label in self.labels:
 				if not len(label.name):
 					continue
@@ -83,14 +84,11 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 					for l in lc.labels:
 						if label.name.lower() not in l.name.lower():
 							continue
-						if not label.invert:
-							label_combinaison[lc.name] = label.name
-						else:
-							# TODO: Include all other ?
-							pass
-				
-			if a.has_mesh_with_labels(variations=label_combinaison):
-				a.attributes.add_label_combinaison(label_combinaison)
+						
+						labels.set_label(category=lc.name, label=label.name, value=not label.invert)
+
+			if a.has_mesh_with_labels(variations=labels):
+				a.attributes.add_labels(labels)
 				filtered.append(a)
 
 		return filtered

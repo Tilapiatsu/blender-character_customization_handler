@@ -2,30 +2,71 @@ from ...operators.properties.properties.custo_asset_properties import CustoAsset
 from dataclasses import dataclass, field
 import random
 
+
 @dataclass
 class NodeBinaryLabel:
 	label: str
-	positive: bool = True
+	value: bool = True
 	
 	def __str__(self):
 		return f'{self.label} : {self.positive}'
 
 @dataclass
-class NodeAttributes:
+class LabelCombinaison:
 	labels : dict = field(default_factory=dict)
 
-	def add_label_combinaison(self, label_combinaison:dict):
+	def set_label(self, category:str, label:str, value:bool, replace=True):
+		if not replace and category in self.labels:
+			return
+		
+		self.labels[category] = NodeBinaryLabel(label=label, value=value)
+
+	def set_binary_label(self, category:str, binary_label:NodeBinaryLabel, replace=True):
+		if not replace and category in self.labels:
+			return
+		
+		self.labels[category] = binary_label
+
+
+	def items(self):
+		return self.labels.items()
+	
+	def keys(self):
+		return self.labels.keys()
+	
+	def values(self):
+		return self.labels.values()
+	
+	def __getitem__(self, key):
+		return self.labels[key]
+	
+
+@dataclass
+class NodeAttributes:
+	labels : dict = field(default_factory=dict)
+	
+	def add_label(self, category:str, label:str, value:bool):
+		if category not in self.labels.keys():
+			self.labels[category] = [NodeBinaryLabel(label=label, value=value)]
+		else:
+			self.labels[category].append(NodeBinaryLabel(label=label, value=value))
+
+	def add_labels(self, labels:dict):
+		for lc, l in labels.items():
+			self.add_label(lc, label=l.label, value=l.value)
+
+	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
-			if lc not in self.labels.keys():
-				self.labels[lc] = [NodeBinaryLabel(label=l)]
-			else:
-				self.labels[lc].append(NodeBinaryLabel(label=l))
+			self.add_label(lc, l.label, True)
 	
 	def get_label_combinaison(self):
-		label_combinaison = {}
+		label_combinaison = LabelCombinaison()
 
 		for lc in self.labels.keys():
-			label_combinaison[lc] = random.choice(self.labels[lc])
+			label = random.choice(self.labels[lc])
+			label_combinaison.set_binary_label(lc, binary_label=label)
+		
+		return label_combinaison
 
 @dataclass
 class NodeAsset:
@@ -64,12 +105,12 @@ class NodeAsset:
 	def all_mesh_variations(self):
 		return self.asset.all_mesh_variations
 	
-	def mesh_variation(self, variations:dict, exclude=[]):
+	def mesh_variation(self, variations:LabelCombinaison, exclude=[]):
 		return self.asset.mesh_variation(variations, exclude=exclude)
 	
-	def is_valid_mesh(self, ob, variations:dict):
+	def is_valid_mesh(self, ob, variations:LabelCombinaison):
 		return self.asset.is_valid_mesh(ob, variations)
 
-	def has_mesh_with_labels(self, variations:dict):
+	def has_mesh_with_labels(self, variations:LabelCombinaison):
 		return self.asset.has_mesh_with_labels(variations)
 

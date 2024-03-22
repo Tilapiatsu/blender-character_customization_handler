@@ -224,9 +224,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			asset = random.choice(self.assets_per_slot[slot])
 			
 			# Spawn Mesh
-			self.spawn_mesh(asset, slot)
+			self.spawn_mesh(asset)
 
-	def spawn_mesh(self, asset, slot):
+	def spawn_mesh(self, asset):
 		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
 		if not self.lock_mesh_variation(asset):
 			# if no valid mesh found, pick another asset
@@ -268,16 +268,23 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		if self.first_asset:
 			# Lock Mesh Variation
+			asset_attributes = asset.attributes
+			asset_label_combinaison = asset_attributes.get_label_combinaison()
+			asset_meshes = asset.asset.mesh_variations(asset_label_combinaison)
+			
+			if not len(asset_meshes):
+				return False
+			
 			self.first_asset = False
 			valid_mesh = False
-			asset_meshes = asset.all_mesh_variations
-			# print(asset.valid_labels)
-			print(asset.attributes.labels)
-			asset_valid_label_attributes = asset.attributes.labels
+			print(asset.valid_labels)
+			print(asset_label_combinaison)
+			
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
 				asset_meshes.remove(picked_variation_mesh)
-				self.mesh_variation = {}
+				self.mesh_variation = asset_label_combinaison
+				
 				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
 					valid_labels = []
 
@@ -285,9 +292,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 						if not l.checked:
 							continue
 						
-						if mesh_category.name in asset_valid_label_attributes.keys():
-							pass
-
 						valid_labels.append(l)
 							
 					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked]
@@ -297,8 +301,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 						break
 					
 					valid_mesh = True
-					self.mesh_variation[mesh_category.name] = random.choice(valid_labels).name
-				
+					self.mesh_variation.set_label(category=mesh_category.name, label=random.choice(valid_labels).name, value=True, replace=False)
+
+
 				if not len(asset_meshes):
 					return False
 			print(f'Current Mesh Variation =', self.mesh_variation)

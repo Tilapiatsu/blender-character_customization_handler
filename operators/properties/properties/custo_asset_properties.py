@@ -104,6 +104,10 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	
 	@property
 	def valid_labels(self):
+		'''
+		Returns a list of labels enabled in all mesh variations contains in this asset.
+		In other terms picking one of this label will give you at least one valid mesh to spawn.
+		'''
 		def add_valid_mesh_label(label_set, mesh, label_category):
 			labels = [l.name for l in mesh.custo_label_category_definition[label_category].labels if l.checked]
 			if label_category not in label_set.keys():
@@ -142,9 +146,9 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return valid_labels
 
-	def mesh_variation(self, variations:dict, exclude=[]):
+	def mesh_variations(self, variations:dict, exclude=[]):
 		'''
-		Returns one valid mesh matching the inputed label combinaison
+		Returns all valid meshs matching the inputed label combinaison
 		'''
 		all_variations = self.all_mesh_variations
 
@@ -153,7 +157,17 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		if not len(valid_meshes):
 			return None
 		else:
-			return random.choice(valid_meshes)
+			return valid_meshes
+	
+	def mesh_variation(self, variations:dict, exclude=[]):
+		'''
+		Returns one valid mesh matching the inputed label combinaison
+		'''
+		valid_variations = self.mesh_variations(variations, exclude=exclude)
+		if not len(valid_variations):
+			return None
+		else:
+			return random.choice(valid_variations)
 	
 	def is_valid_mesh(self, ob, variations:dict):
 		'''
@@ -169,14 +183,14 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			ob_category = ob.custo_label_category_definition[c]
 			ch_category = ch_settings.custo_label_categories[c]
 
-			if l not in ob_category.labels.keys() or l not in ch_category.labels.keys():
+			if l.label not in ob_category.labels.keys() or l.label not in ch_category.labels.keys():
 				valid = False
 				break
 			
-			if ch_category.labels[l].valid_any:
+			if ch_category.labels[l.label].valid_any:
 				continue
 
-			if not ob_category.labels[l].checked:
+			if ob_category.labels[l.label].checked != l.value:
 				valid_any_label = ch_category.valid_any
 				if valid_any_label is not None:
 					if ob_category.labels[valid_any_label.name].checked:
