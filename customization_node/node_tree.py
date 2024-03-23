@@ -12,6 +12,10 @@ class CustomizationTree(NodeTree):
 	bl_label = "Customization Tree"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	
+	@property
+	def custo_nodes(self):
+		return [n for n in self.nodes if n.bl_static_type not in ['REROUTE']]
 
 
 classes = ( CustomizationTree,

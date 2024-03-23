@@ -1,5 +1,5 @@
 import bpy
-import random, math
+import random, math, copy
 from .spawn_const import SPAWN_COLLECTION, SPAWN_INSTANCE
 
 class AssetsPerSlot:
@@ -23,7 +23,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		if self._assets is None:
 			self._assets = []
-			for node in self.spawn_tree.nodes:
+			for node in self.spawn_tree.custo_nodes:
 				self._assets += [a for a in node.assets if node.spawn and a not in self._assets]
 		
 		return self._assets
@@ -34,7 +34,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		Returns a list of all nodes that can be spawned
 		'''
 		if self._nodes is None:
-			self._nodes = [node for node in self.spawn_tree.nodes if node.spawn]
+			self._nodes = [node for node in self.spawn_tree.custo_nodes if node.spawn]
 		
 		return self._nodes
 
@@ -171,6 +171,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_tree = self.ch_settings.custo_spawn_tree
 		self.spawn_count = self.ch_settings.custo_spawn_count
 		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
+		self.exclude_incomplete_mesh_combinaison = self.ch_settings.exclude_incomplete_mesh_combinaison
 
 		self._assets = None
 		self._nodes = None
@@ -278,7 +279,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 	def spawn_mesh(self, asset):
 		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
-		if not self.lock_mesh_variation(asset):
+		if not self.lock_mesh_variation_combinaison(asset):
 			# if no valid mesh found, pick another asset
 			return False
 		
@@ -290,7 +291,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
 			return False
-
 
 		# add Object to Collection : Spawning !
 		print(f'Spawning Mesh "{mesh.name}" to "{self.collection.name}" collection')
@@ -311,9 +311,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				self.spawned_assets_per_slot[s.name] = []
 			self.spawned_assets_per_slot[s.name].append(asset)
 
-	def lock_mesh_variation(self, asset) -> bool:
+	def lock_mesh_variation_combinaison(self, asset) -> bool:
 		'''
-		The First Asset need to lock one mesh variation combinaison to only spawn mesh from this combinaison for the next parts.
+		The First Asset need to lock one mesh variation combinaison to only spawn meshes from this combinaison for the next parts.
 		This method is storing the combinaison defined by this first asset to reuse it on other assets.
 		'''
 		if self.first_asset:
@@ -333,17 +333,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			while not valid_mesh:
 				picked_variation_mesh = random.choice(asset_meshes)
 				asset_meshes.remove(picked_variation_mesh)
-				self.mesh_variation = asset_label_combinaison
+				self.mesh_variation = copy.deepcopy(asset_label_combinaison)
 				
-				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
-					valid_labels = []
-
-					for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels:
-						if not l.checked:
-							continue
-						
-						valid_labels.append(l)
-							
+				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:	
 					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked]
 
 					if not len(valid_labels):
@@ -356,6 +348,33 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 				if not len(asset_meshes):
 					return False
+				
+				if self.exclude_incomplete_mesh_combinaison:
+					valid = True
+
+					# check if all slots have at least one valid mesh that matches the variation
+					for slot in asset.asset_type.asset_type.slots:
+						assets = asset.asset_type.asset_type.get_assets_per_slot(slot)
+						if not len(assets):
+							valid = False
+							break
+
+						valid_asset = False
+
+						for a in assets:
+							variations = a.mesh_variations(self.mesh_variation)
+							if variations is not None:
+								valid_asset=True
+								break
+						else:
+							if not valid_asset:
+								valid = False
+								break
+					
+					if not valid:
+						print(f'Incomplete variation :\n{self.mesh_variation}. skipping...')
+						valid_mesh=False
+				
 			print(f'Current Mesh Variation :\n{self.mesh_variation}')
 		return True
 	

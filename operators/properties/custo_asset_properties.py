@@ -65,6 +65,41 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	mesh_variation_label_categories : bpy.props.CollectionProperty(type=CustoAssetLabelCategoryPointer)
 	material_label_category : bpy.props.PointerProperty(type=CustoAssetLabelCategoryPointer)
 	material_variation_label_category : bpy.props.PointerProperty(type=CustoAssetLabelCategoryPointer)
+	
+	@property
+	def slots(self) -> list:
+		"""return the list of slots in the current asset type
+
+		Returns:
+			list: ["slot1", "slot2", "slot3"]
+		"""
+		ch_settings = bpy.context.scene.custo_handler_settings
+		return [s.name for s in ch_settings.custo_label_categories[self.slot_label_category.label_category.name].labels]
+	
+	def get_assets_per_slot(self, slot:str)->list:
+		"""Returns a list of asset that covers the slot given as parameters
+
+		Args:
+			slot (str): name of the slot
+
+		Returns:
+			list: [Asset1, Asset2, Asset3]
+		"""
+		ch_settings = bpy.context.scene.custo_handler_settings
+		assets = []
+
+		for a in ch_settings.custo_assets:
+			if a.asset_type.name != self.name:
+				continue
+
+			slots = [s.name for s in a.slots if s.checked]
+
+			if slot not in slots:
+				continue
+
+			assets.append(a)
+
+		return assets
 
 	
 class CustoAssetProperties(bpy.types.PropertyGroup):
