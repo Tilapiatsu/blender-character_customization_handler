@@ -1,6 +1,6 @@
 import bpy
-import random
-from .spawn_const import SPAWN_COLLECTION
+import random, math
+from .spawn_const import SPAWN_COLLECTION, SPAWN_INSTANCE
 
 class AssetsPerSlot:
 	def __init__(self):
@@ -137,6 +137,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def poll(cls, context):
 		return context.scene.custo_handler_settings.custo_spawn_root is not None and context.scene.custo_handler_settings.custo_spawn_tree is not None and context.scene.custo_handler_settings.custo_spawn_count
 	
+	def get_indexed_name(self, prefix, index):
+		return f'{prefix}_{str(index).zfill(3)}'
+
 	def init_assets_per_slot(self, context) -> None:
 		'''
 		Init value for assets_per_slots
@@ -167,14 +170,25 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_root = self.ch_settings.custo_spawn_root
 		self.spawn_tree = self.ch_settings.custo_spawn_tree
 		self.spawn_count = self.ch_settings.custo_spawn_count
+		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
+
 		self._assets = None
+		self._nodes = None
+		self.layer_collection_root = context.view_layer.layer_collection
+
+		self.clean_previous_generation()
+
+	def clean_previous_generation(self):
+		previous_generation = [o for o in bpy.data.objects if o.name.startswith(SPAWN_INSTANCE)]
+		for o in previous_generation:
+			bpy.data.objects.remove(o)
+	
+	def init_spawn(self, context):
 		self._assets_per_layer = None
 		self._assets_per_slot = None
 		self.init_assets_per_slot(context)
 		self._spawned_assets_per_slot = None
 		self.init_spawned_assets_per_slot(context)
-		self._nodes = None
-		self.layer_collection_root = context.view_layer.layer_collection
 
 	def execute(self, context):
 		self.init(context)
@@ -182,31 +196,63 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for node in self.nodes:
 			node.print_assets()
 		
-		self.collection = self.create_spawn_collection()
 		for i in range(self.spawn_count):
+			self.init_spawn(context)
+			self.collection = self.create_spawn_collection(index=i)
 			self.spawn_assembly()
 		
 		return {'FINISHED'}
 	
-	def create_spawn_collection(self):
+	def create_spawn_collection(self, index=0):
 		'''
 		Creates a new collection to instance assets into. Reuse existing one if found
 		'''
-		if SPAWN_COLLECTION not in bpy.data.collections:
-			collection = bpy.data.collections.new(name=SPAWN_COLLECTION)
-			bpy.context.scene.collection.children.link(collection)
+		spawn_collection_name = self.get_indexed_name(SPAWN_COLLECTION, index)
+		if spawn_collection_name not in bpy.data.collections:
+			collection = bpy.data.collections.new(name=spawn_collection_name)
 		else:
-			collection = bpy.data.collections[SPAWN_COLLECTION]
+			collection = bpy.data.collections[spawn_collection_name]
 			for o in collection.objects:
 				collection.objects.unlink(o)
-		
-		layer_collection = self.get_layer_collection_per_name(SPAWN_COLLECTION, self.layer_collection_root)
-		layer_collection.hide_viewport = True
 
-		self.spawn_root.instance_type = 'COLLECTION'
-		self.spawn_root.instance_collection = collection
+		spawn_instance_name = self.get_indexed_name(SPAWN_INSTANCE, index)
+		if spawn_instance_name not in bpy.data.objects:
+			spawn_instance = self.create_spawn_instance(index=index)
+		else:
+			spawn_instance = bpy.data.objects[spawn_instance_name]
+
+		spawn_instance.instance_type = 'COLLECTION'
+		spawn_instance.instance_collection = collection
 
 		return collection
+
+	def create_spawn_instance(self, index:int=0)->bpy.types.Object:
+		"""Create an empty object in the proper location based on its index
+
+		Args:
+			index (int): curent instance index
+
+		Returns:
+			bpy.types.Object: The Empty Object
+		"""
+		root_instance = bpy.data.objects.new(self.get_indexed_name(SPAWN_INSTANCE, index), object_data=None)
+		self.spawn_root.users_collection[0].objects.link(root_instance)
+		root_instance.empty_display_size = 0.2
+		root_instance.parent = self.spawn_root
+
+		root_instance.location = self.get_root_instance_location(index)
+		return root_instance
+
+	def get_root_instance_location(self, index:int=0)->tuple:
+		"""Returns the root instance coordinate to spawn each instance in a grid pattern
+
+		Args:
+			index (int): curent instance index
+
+		Returns:
+			tuple: (10, 20, 0)
+		"""
+		return (index % self.spawn_max_per_row, math.floor(index / self.spawn_max_per_row), 0)
 
 	def spawn_assembly(self):
 		'''
@@ -215,6 +261,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.first_asset = True
 		self.mesh_variation = {}
 		self.spawned_meshes = []
+
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
@@ -246,7 +293,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 
 		# add Object to Collection : Spawning !
-		print(f'Spawning Mesh : {mesh.name}')
+		print(f'Spawning Mesh "{mesh.name}" to "{self.collection.name}" collection')
 		self.spawned_meshes.append(mesh)
 		self.collection.objects.link(mesh)
 		return True

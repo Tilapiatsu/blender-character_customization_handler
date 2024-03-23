@@ -67,6 +67,7 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_spawn_tree : bpy.props.PointerProperty(name='Spawn Tree', type=bpy.types.NodeTree, poll=is_customization_tree)
 	custo_spawn_root : bpy.props.PointerProperty(name='Spawn Root', type=bpy.types.Object)
 	custo_spawn_count : bpy.props.IntProperty(name='Spawn Count', default=1, min=1)
+	custo_spawn_max_per_row : bpy.props.IntProperty(name='Max Spawn per Row', default=10, min=1)
 	exclude_incomplete_mesh_combinaison : bpy.props.BoolProperty(name='Exclude Incomplete Combinaison', default=True)
 
 classes = (CustoHandlerSettings, )

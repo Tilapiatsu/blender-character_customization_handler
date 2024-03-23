@@ -23,6 +23,7 @@ class PT_CustoSpawnSetup(PT_CustomizationHandler, bpy.types.Panel):
 		b.prop(ch_settings, 'custo_spawn_tree')
 		b.prop(ch_settings, 'custo_spawn_root')
 		b.prop(ch_settings, 'custo_spawn_count')
+		b.prop(ch_settings, 'custo_spawn_max_per_row')
 		b.prop(ch_settings, 'exclude_incomplete_mesh_combinaison')
 		b.operator('scene.customization_spawn', text='Spawn')
 
