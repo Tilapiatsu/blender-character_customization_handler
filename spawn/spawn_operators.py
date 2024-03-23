@@ -286,11 +286,14 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		mesh = asset.mesh_variation(self.mesh_variation, self.spawned_meshes)
 		
 		self.remove_asset_per_slot(asset)
-		self.update_spawned_assets_per_slot(asset)
-
+		
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
+			if not self.exclude_incomplete_mesh_combinaison:
+				self.update_spawned_assets_per_slot(asset)
 			return False
+
+		self.update_spawned_assets_per_slot(asset)
 
 		# add Object to Collection : Spawning !
 		print(f'Spawning Mesh "{mesh.name}" to "{self.collection.name}" collection')
