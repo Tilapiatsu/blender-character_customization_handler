@@ -2,7 +2,6 @@ import bpy
 from bpy.types import NodeTree
 from .node_const import TREE_NAME
 
-
 # Derived from the NodeTree base type, similar to Menu, Operator, Panel, etc.
 class CustomizationTree(NodeTree):
 	# Description string
@@ -18,12 +17,10 @@ class CustomizationTree(NodeTree):
 classes = ( CustomizationTree,
 			)
 
-
 def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
-
 
 def unregister():
 	from bpy.utils import unregister_class

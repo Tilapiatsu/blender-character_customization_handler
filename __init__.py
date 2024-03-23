@@ -12,7 +12,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import bpy
-from . import operators, ui, customization_node, spawn
+from . import operators, ui, customization_node, spawn, settings
 
 from bpy.app.handlers import persistent
 
@@ -42,12 +42,14 @@ def register():
     operators.register()
     ui.register()
     customization_node.register()
+    settings.register()
     
     bpy.app.handlers.load_post.append(register_object_selected_callback)
 
 def unregister():
     del bpy.types.Scene.object_selection_updater
 
+    settings.unregister()
     customization_node.unregister()
     ui.unregister()
     spawn.unregister()

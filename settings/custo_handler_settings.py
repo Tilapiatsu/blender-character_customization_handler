@@ -1,7 +1,8 @@
 import bpy
-from .properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
-from .properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
-from .properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties
+from ..operators.properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
+from ..operators.properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
+from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties
+from ..customization_node import TREE_NAME
 
 def update_label_category(self, context):
 	context.scene.custo_handler_settings.custo_labels.clear()
@@ -35,6 +36,9 @@ def update_label_category_definition(self, context):
 		label.name = l.name
 		label.checked = l.checked
 
+def is_customization_tree(self, context):
+	return context.bl_idname == TREE_NAME
+
 class CustoHandlerSettings(bpy.types.PropertyGroup):
 	# Asset Properties
 	custo_asset_types : bpy.props.CollectionProperty(type=CustoAssetTypeProperties)
@@ -58,6 +62,12 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	custo_label_categories_idx : bpy.props.IntProperty(default=0, update=update_label_category)
 	custo_label_category_definition_idx : bpy.props.IntProperty(default=0, update=update_label_category_definition)
+	
+	# Custo Tree
+	custo_spawn_tree : bpy.props.PointerProperty(name='Spawn Tree', type=bpy.types.NodeTree, poll=is_customization_tree)
+	custo_spawn_root : bpy.props.PointerProperty(name='Spawn Root', type=bpy.types.Object)
+	custo_spawn_count : bpy.props.IntProperty(name='Spawn Count', default=1, min=1)
+	exclude_incomplete_mesh_combinaison : bpy.props.BoolProperty(name='Exclude Incomplete Combinaison', default=True)
 
 classes = (CustoHandlerSettings, )
 

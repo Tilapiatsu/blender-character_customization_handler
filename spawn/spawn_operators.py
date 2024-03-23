@@ -12,6 +12,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Spawn Objects Using Customization Tree"
 
+	@property
+	def ch_settings(self):
+		return bpy.context.scene.custo_handler_settings
 
 	@property
 	def assets(self) -> list:
@@ -132,7 +135,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		return context.scene.custo_spawn_root is not None and context.scene.custo_spawn_tree is not None and context.scene.custo_spawn_count
+		return context.scene.custo_handler_settings.custo_spawn_root is not None and context.scene.custo_handler_settings.custo_spawn_tree is not None and context.scene.custo_handler_settings.custo_spawn_count
 	
 	def init_assets_per_slot(self, context) -> None:
 		'''
@@ -161,9 +164,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		Init all values to be able to start spawning process correctly. 
 		'''
-		self.spawn_root = context.scene.custo_spawn_root
-		self.spawn_tree = context.scene.custo_spawn_tree
-		self.spawn_count = context.scene.custo_spawn_count
+		self.spawn_root = self.ch_settings.custo_spawn_root
+		self.spawn_tree = self.ch_settings.custo_spawn_tree
+		self.spawn_count = self.ch_settings.custo_spawn_count
 		self._assets = None
 		self._assets_per_layer = None
 		self._assets_per_slot = None
@@ -329,17 +332,9 @@ def register():
 	from bpy.utils import register_class
 	for cls in classes:
 		register_class(cls)
-	
-	bpy.types.Scene.custo_spawn_tree = bpy.props.PointerProperty(name='Customization Tree', type=bpy.types.NodeTree)
-	bpy.types.Scene.custo_spawn_root = bpy.props.PointerProperty(name='Root', type=bpy.types.Object)
-	bpy.types.Scene.custo_spawn_count = bpy.props.IntProperty(name='Spawn Count', default=1)
 
 
 def unregister():
-	del bpy.types.Scene.custo_spawn_count
-	del bpy.types.Scene.custo_spawn_root
-	del bpy.types.Scene.custo_spawn_tree
-
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
 		unregister_class(cls)

@@ -1,6 +1,6 @@
 import bpy
-from .properties.properties.custo_asset_properties import get_asset_name
-from .properties.properties.custo_label_properties import in_range
+from .properties.custo_asset_properties import get_asset_name
+from .properties.custo_label_properties import in_range
 
 def get_label(context):
 	idx = context.scene.custo_handler_settings.custo_labels_idx

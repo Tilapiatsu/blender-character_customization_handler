@@ -1,5 +1,5 @@
 import bpy
-from .properties.custo_scene_properties import update_label_category_definition
+from ..settings.custo_handler_settings import update_label_category_definition
 
 class UI_RefreshLabelDefinition(bpy.types.Operator):
 	bl_idname = "object.refresh_label_definition"

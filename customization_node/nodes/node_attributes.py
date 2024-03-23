@@ -1,4 +1,4 @@
-from ...operators.properties.properties.custo_asset_properties import CustoAssetProperties
+from ...operators.properties.custo_asset_properties import CustoAssetProperties
 from dataclasses import dataclass, field
 import random
 

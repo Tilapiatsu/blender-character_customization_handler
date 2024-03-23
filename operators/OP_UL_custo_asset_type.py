@@ -1,5 +1,5 @@
 import bpy
-from .properties.properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
+from .properties.custo_label_properties import CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
 
 def get_asset_type(context):
 	idx = context.scene.custo_handler_settings.custo_asset_types_idx

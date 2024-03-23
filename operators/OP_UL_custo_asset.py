@@ -1,5 +1,5 @@
 import bpy
-from .properties.properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
+from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
 
 def update_custo_slot(self, context):
 	print(self.asset_type.name)

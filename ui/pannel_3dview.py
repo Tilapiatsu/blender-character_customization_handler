@@ -13,14 +13,17 @@ class PT_CustoSpawnSetup(PT_CustomizationHandler, bpy.types.Panel):
 
 	def draw(self, context):
 		layout = self.layout
-		scn = context.scene
+		ch_settings = context.scene.custo_handler_settings
 		ob = context.object
 		b = layout.box()
+		b.use_property_split = True
+		b.use_property_decorate = False
 		
 		b.label(text='Customization Spawning')
-		b.prop(scn, 'custo_spawn_tree')
-		b.prop(scn, 'custo_spawn_root')
-		b.prop(scn, 'custo_spawn_count')
+		b.prop(ch_settings, 'custo_spawn_tree')
+		b.prop(ch_settings, 'custo_spawn_root')
+		b.prop(ch_settings, 'custo_spawn_count')
+		b.prop(ch_settings, 'exclude_incomplete_mesh_combinaison')
 		b.operator('scene.customization_spawn', text='Spawn')
 
 
@@ -73,14 +76,14 @@ classes = (PT_CustoSpawnSetup,)
 
 def register():
 
-    from bpy.utils import register_class
-    for cls in classes:
-        register_class(cls)
+	from bpy.utils import register_class
+	for cls in classes:
+		register_class(cls)
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
+	from bpy.utils import unregister_class
+	for cls in reversed(classes):
+		unregister_class(cls)
 
 if __name__ == "__main__":
-    register()
+	register()
