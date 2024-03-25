@@ -3,13 +3,20 @@ import bpy
 def in_range(ui_list, index):
 	return index > -1 and len(ui_list) and len(ui_list) < index
 
-def update_label_definition(self, context):
+def update_label_definition_object(self, context):
 	ch_settings = context.scene.custo_handler_settings
 	for o in context.selected_objects:
 		for i, l in enumerate(o.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
 			if i > len(context.object.custo_label_definition) - 1:
 				return
 			l.checked = context.object.custo_label_definition[i].checked
+
+def update_label_definition_material(self, context):
+	ch_settings = context.scene.custo_handler_settings
+	for i, l in enumerate(context.object.active_material.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
+		if i > len(context.object.active_material.custo_label_definition) - 1:
+			return
+		l.checked = context.object.active_material.custo_label_definition[i].checked
 
 def label_categories_enum(self, context):
 	ch_settings = context.scene.custo_handler_settings
@@ -87,10 +94,13 @@ class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 		return valid
 
 
-class CustoLabelDefinitionProperties(bpy.types.PropertyGroup):
+class CustoLabelDefinitionObjectProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False, update=update_label_definition)
-	
+	checked : bpy.props.BoolProperty(default=False, update=update_label_definition_object)
+
+class CustoLabelDefinitionMaterialProperties(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Label Name', default='')
+	checked : bpy.props.BoolProperty(default=False, update=update_label_definition_material)
 
 class CustoLabelCategoryDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
@@ -152,7 +162,8 @@ classes = ( CustoLabelProperties,
 		   	CustoLabelPropertiesDisplay,
 			CustoLabelCategoryProperties,
 			CustoLabelEnumProperties,
-			CustoLabelDefinitionProperties,
+			CustoLabelDefinitionObjectProperties,
+			CustoLabelDefinitionMaterialProperties,
 			CustoLabelPropertiesPointer,
 			CustoLabelCategoryDefinitionProperties,
 			CustoLabelCategoryEnumProperties,
@@ -168,12 +179,20 @@ def register():
 	for cls in classes:
 		register_class(cls)
 
-	bpy.types.Object.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionProperties)
+	bpy.types.Object.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionObjectProperties)
 	bpy.types.Object.custo_label_definition_idx = bpy.props.IntProperty(default=0)
 	bpy.types.Object.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+
+	bpy.types.Material.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionMaterialProperties)
+	bpy.types.Material.custo_label_definition_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Material.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 	
 
 def unregister():
+	del bpy.types.Material.custo_label_definition
+	del bpy.types.Material.custo_label_definition_idx
+	del bpy.types.Material.custo_label_category_definition
+
 	del bpy.types.Object.custo_label_definition
 	del bpy.types.Object.custo_label_definition_idx
 	del bpy.types.Object.custo_label_category_definition

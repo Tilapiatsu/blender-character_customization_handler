@@ -10,17 +10,17 @@ def update_label_category(self, context):
 		label = context.scene.custo_handler_settings.custo_labels.add()
 		label.name = l.name
 		label.valid_any = l.valid_any
+		
+def do_update_label_category_definition(context, prop, prop_source):
+	prop.clear()
 	
-def update_label_category_definition(self, context):
-	context.object.custo_label_definition.clear()
-	
-	if not len(context.object.custo_label_category_definition):
+	if not len(prop_source):
 		return
 	
 	label_to_remove=[]
-	category_name = context.object.custo_label_category_definition[context.scene.custo_handler_settings.custo_label_category_definition_idx].name
+	category_name = prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].name
 
-	for i,l in enumerate(context.object.custo_label_category_definition[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels):
+	for i,l in enumerate(prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels):
 		for c in context.scene.custo_handler_settings.custo_label_categories:
 			if c.name != category_name:
 				continue
@@ -29,12 +29,17 @@ def update_label_category_definition(self, context):
 				label_to_remove.append(i)
 
 	for l in label_to_remove:
-		context.object.custo_label_category_definition[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels.remove(l)
+		prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels.remove(l)
 
-	for l in context.object.custo_label_category_definition[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels:
-		label = context.object.custo_label_definition.add()
+	for l in prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels:
+		label = prop.add()
 		label.name = l.name
 		label.checked = l.checked
+	
+def update_label_category_definition(self, context):
+	do_update_label_category_definition(context, context.object.custo_label_definition, context.object.custo_label_category_definition)
+	if context.object.active_material:
+	    do_update_label_category_definition(context, context.object.active_material.custo_label_definition, context.object.active_material.custo_label_category_definition)
 
 def is_customization_tree(self, context):
 	return context.bl_idname == TREE_NAME

@@ -1,11 +1,13 @@
-from . import pannel_3dview, pannel_object, pannel_scene
+from . import panel_3dview, panel_material, panel_object, panel_scene
 
 def register():
-    pannel_3dview.register()
-    pannel_object.register()
-    pannel_scene.register()
+    panel_3dview.register()
+    panel_object.register()
+    panel_material.register()
+    panel_scene.register()
 
 def unregister():
-    pannel_scene.unregister()
-    pannel_object.unregister()
-    pannel_3dview.unregister()
+    panel_scene.unregister()
+    panel_object.unregister()
+    panel_material.unregister()
+    panel_3dview.unregister()

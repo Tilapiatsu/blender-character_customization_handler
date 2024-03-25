@@ -7,6 +7,7 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Refresh Part Labels from the Label Definition"
 
+
 	def execute(self, context):
 		if context.object is None:
 			return {'FINISHED'}
@@ -15,38 +16,57 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 		for lc in context.scene.custo_handler_settings.custo_label_categories:
 			# print(s.name)
 			if lc.name not in context.object.custo_label_category_definition:
-				# print(f'adding {lc.name}')
-				lcategory = context.object.custo_label_category_definition.add()
-				lcategory.name = lc.name
-				for l in lc.labels:
-					# print(f'adding {l.name}')
-					label = lcategory.labels.add()
-					label.name = l.name
+				self.add_label_category(context.object.custo_label_category_definition, lc)
 			else:
-				olc = context.object.custo_label_category_definition[lc.name].labels
-				for l in lc.labels:
-					if l.name not in olc:
-						# print(f'adding {l.name}')
-						label = olc.add()
-						label.name = l.name
+				self.edit_label_category(context.object.custo_label_category_definition, lc)
+			
+			if not context.object.active_material:
+				continue
+			if lc.name not in context.object.active_material.custo_label_category_definition:
+				self.add_label_category(context.object.active_material.custo_label_category_definition, lc)
+			else:
+				self.edit_label_category(context.object.active_material.custo_label_category_definition, lc)
 		
+		self.clean_label_category(context.object.custo_label_category_definition)
+		if context.object.active_material:
+			self.clean_label_category(context.object.active_material.custo_label_category_definition)
 		
-		for i, lc in enumerate(context.object.custo_label_category_definition):
-			if lc.name not in context.scene.custo_handler_settings.custo_label_categories:
-				context.object.custo_label_category_definition.remove(i)
-		
-		self.reorder_label_category(context)
+		self.reorder_label_category(context, context.object.custo_label_category_definition)
+		if context.object.active_material:
+			self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
 
 		update_label_category_definition(self, context)
 		return {'FINISHED'}
 	
-	def reorder_label_category(self, context):
+	def add_label_category(self, prop, label_category):
+		# print(f'adding {lc.name}')
+		lcategory = prop.add()
+		lcategory.name = label_category.name
+		for l in label_category.labels:
+			# print(f'adding {l.name}')
+			label = lcategory.labels.add()
+			label.name = l.name
+
+	def edit_label_category(self, prop, label_category):
+		olc = prop[label_category.name].labels
+		for l in label_category.labels:
+			if l.name not in olc:
+				# print(f'adding {l.name}')
+				label = olc.add()
+				label.name = l.name
+
+	def clean_label_category(self, prop):
+		for i, lc in enumerate(prop):
+			if lc.name not in prop:
+				prop.remove(i)
+	
+	def reorder_label_category(self, context, prop):
 		source_label_categories = []
 		for lc in context.scene.custo_handler_settings.custo_label_categories:
 			source_label_categories.append(lc.name)
 		
 		target_label_categories = []
-		for lc in context.object.custo_label_category_definition:
+		for lc in prop:
 			target_label_categories.append(lc.name)
 		
 		# print(source_label_categories)
@@ -62,7 +82,7 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 
 			# Move Element to the proper index
 			# print(f'Moving "{lc}" from {src_index} to {i}')
-			context.object.custo_label_category_definition.move(src_index, i)
+			prop.move(src_index, i)
 
 	
 classes = ( UI_RefreshLabelDefinition, 

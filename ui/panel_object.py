@@ -1,6 +1,6 @@
 import bpy
 
-class PT_CustoLabelDefinitionSetup(bpy.types.Panel): 
+class PT_OBJECT_CustoLabelDefinitionSetup(bpy.types.Panel): 
 	bl_space_type = 'PROPERTIES'
 	bl_region_type = "WINDOW"
 	bl_label = "Customization Label Definition Setup"
@@ -27,7 +27,7 @@ class PT_CustoLabelDefinitionSetup(bpy.types.Panel):
 		row.template_list('OBJECT_UL_CustoLabelDefinition', '', ob, 'custo_label_definition', ob, 'custo_label_definition_idx', rows=rows)
 		
 
-classes = (PT_CustoLabelDefinitionSetup,)
+classes = (PT_OBJECT_CustoLabelDefinitionSetup,)
 
 def register():
 

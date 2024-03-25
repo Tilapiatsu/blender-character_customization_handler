@@ -118,7 +118,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 
 		return valid
 	
-	
+
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
 	asset_id : bpy.props.CollectionProperty(type=CustoLabelPropertiesPointer)
@@ -222,7 +222,6 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	
 	def valid_label_catgory_labels_from_mesh(self, mesh, category):
 		return [l for l in mesh.custo_label_category_definition[category.name].labels if l.checked]
-
 
 	def mesh_variations(self, variations:dict, exclude=[]):
 		'''
