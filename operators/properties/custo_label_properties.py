@@ -13,6 +13,8 @@ def update_label_definition_object(self, context):
 
 def update_label_definition_material(self, context):
 	ch_settings = context.scene.custo_handler_settings
+	if context.object.active_material is None:
+		return
 	for i, l in enumerate(context.object.active_material.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
 		if i > len(context.object.active_material.custo_label_definition) - 1:
 			return

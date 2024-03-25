@@ -157,7 +157,6 @@ class UI_EditLabelCategory(bpy.types.Operator):
 				asset_type.material_variation_label_category.name = self.name
 
 
-
 class UI_AddLabelCategory(bpy.types.Operator):
 	bl_idname = "scene.add_customization_label_category"
 	bl_label = "Add Label Category"

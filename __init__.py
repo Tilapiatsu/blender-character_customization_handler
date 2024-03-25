@@ -27,14 +27,20 @@ bl_info = {
 }
 
 def obj_selected_callback():
-    bpy.ops.object.refresh_part_slots('INVOKE_DEFAULT')
     bpy.ops.object.refresh_label_definition('INVOKE_DEFAULT')
+
+def mat_selected_callback():
+    settings.custo_handler_settings.update_label_category_definition(None, bpy.context)
 
 @persistent
 def register_object_selected_callback(dummy):
     subscribe_to = bpy.types.LayerObjects, "active"
     bpy.types.Scene.object_selection_updater = object()
     bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy.types.Scene.object_selection_updater, args=(), notify=obj_selected_callback)
+
+    bpy.types.Scene.material_selection_updater = object()
+    subscribe_to = bpy.types.Object, "active_material_index"
+    bpy.msgbus.subscribe_rna(key=subscribe_to, owner=bpy, args=(), notify=mat_selected_callback)
 
 
 def register():

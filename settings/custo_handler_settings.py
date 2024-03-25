@@ -39,7 +39,7 @@ def do_update_label_category_definition(context, prop, prop_source):
 def update_label_category_definition(self, context):
 	do_update_label_category_definition(context, context.object.custo_label_definition, context.object.custo_label_category_definition)
 	if context.object.active_material:
-	    do_update_label_category_definition(context, context.object.active_material.custo_label_definition, context.object.active_material.custo_label_category_definition)
+		do_update_label_category_definition(context, context.object.active_material.custo_label_definition, context.object.active_material.custo_label_category_definition)
 
 def is_customization_tree(self, context):
 	return context.bl_idname == TREE_NAME
