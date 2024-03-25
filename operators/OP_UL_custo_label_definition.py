@@ -59,6 +59,8 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 		for i, lc in enumerate(prop):
 			if lc.name not in prop:
 				prop.remove(i)
+			if lc.name not in bpy.context.scene.custo_handler_settings.custo_label_categories:
+				prop.remove(i)
 	
 	def reorder_label_category(self, context, prop):
 		source_label_categories = []
