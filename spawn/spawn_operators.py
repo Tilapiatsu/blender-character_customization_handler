@@ -274,17 +274,19 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
+			# Picking a new Slot
 			if pick_new_slot:
 				# Randomly pick one slot
 				random.shuffle(available_slots)
 				self.slot = available_slots.pop()
 				print(f'Spawn slot : {self.slot}')
 			
-			# Pick one asset for selected slot
+			# no more mesh in current Slot, invalidate and allow to pick a new slot
 			if not len(self.assets_per_slot[self.slot]):
 				pick_new_slot = True
 				self.spawned_assets_per_slot[self.slot] = False
 				continue
+			# Pick one asset for selected slot
 			else:
 				asset = random.choice(self.assets_per_slot[self.slot])
 			
