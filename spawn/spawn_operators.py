@@ -200,6 +200,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for i in range(self.spawn_count):
 			self.init_spawn(context)
 			self.collection = self.create_spawn_collection(index=i)
+			print('')
+			print('========================================================')
+			print(f'Spawn New Assembly {str(i).zfill(3)}')
+			print(f'--------------------------------------------------------')
 			self.spawn_assembly()
 		
 		return {'FINISHED'}
@@ -240,6 +244,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_root.users_collection[0].objects.link(root_instance)
 		root_instance.empty_display_size = 0.2
 		root_instance.parent = self.spawn_root
+		# root_instance.show_name = True
 
 		root_instance.location = self.get_root_instance_location(index)
 		return root_instance
@@ -281,7 +286,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
 		if not self.lock_mesh_variation_combinaison(asset):
 			# if no valid mesh found, pick another asset
-			return False
+			return None
 		
 		mesh = asset.mesh_variation(self.mesh_variation, self.spawned_meshes)
 		
@@ -319,6 +324,24 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		The First Asset need to lock one mesh variation combinaison to only spawn meshes from this combinaison for the next parts.
 		This method is storing the combinaison defined by this first asset to reuse it on other assets.
 		'''
+
+		def label_fake_intersection(label1:list, label2:list)->list:
+			"""
+			Args:
+				label1 (list)
+				label2 (list)
+
+			Returns:
+				list[str]: return the list of labels that are common to both inputed label list
+			"""
+			result = []
+			for l in label1:
+				if l not in label2:
+					result.append(l)
+				elif l in label2:
+					result.append(l)
+			return result
+		
 		if self.first_asset:
 			# Lock Mesh Variation
 			asset_attributes = asset.attributes
@@ -334,49 +357,58 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			print(f'"{asset.name}" label attribute :\n{asset_label_combinaison}')
 			
 			while not valid_mesh:
-				picked_variation_mesh = random.choice(asset_meshes)
-				asset_meshes.remove(picked_variation_mesh)
-				self.mesh_variation = copy.deepcopy(asset_label_combinaison)
-				
-				for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:	
-					valid_labels = [l for l in picked_variation_mesh.custo_label_category_definition[mesh_category.name].labels if l.checked]
-
-					if not len(valid_labels):
-						print(f'Invalid Mesh : {picked_variation_mesh.name}, skipping')
-						break
-					
-					valid_mesh = True
-					self.mesh_variation.set_label(category=mesh_category.name, label=random.choice(valid_labels).name, value=True, replace=False)
-
-
 				if not len(asset_meshes):
 					return False
-				
-				if self.exclude_incomplete_mesh_combinaison:
-					valid = True
 
-					# check if all slots have at least one valid mesh that matches the variation
-					for slot in asset.asset_type.asset_type.slots:
-						assets = asset.asset_type.asset_type.get_assets_per_slot(slot)
-						if not len(assets):
-							valid = False
+				picked_variation_mesh = random.choice(asset_meshes)
+				asset_meshes.remove(picked_variation_mesh)
+				valid_mesh_variation = False
+				mesh_labels = asset.asset.valid_labels_from_mesh(picked_variation_mesh)
+				
+
+				while not valid_mesh_variation:
+					# Get asset label attribute
+					self.mesh_variation = copy.deepcopy(asset_label_combinaison)
+
+					# Parsing label to pick a random one to be use for all other slots
+					for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:		
+						valid_labels = asset.asset.valid_label_catgory_labels_from_mesh(picked_variation_mesh, mesh_category)
+						valid_labels = label_fake_intersection(valid_labels, mesh_labels[mesh_category.name])
+
+						if not len(valid_labels):
+							print(f'Invalid Mesh : {picked_variation_mesh.name}, skipping...')
 							break
 
-						valid_asset = False
+						picked_label = random.choice(valid_labels)
 
-						for a in assets:
-							variations = a.mesh_variations(self.mesh_variation)
-							if variations is not None:
-								valid_asset=True
+						if len(mesh_labels[mesh_category.name]) > 0:
+							if picked_label in mesh_labels[mesh_category.name]:
+								mesh_labels[mesh_category.name].remove(picked_label)
+
+						valid_mesh = True
+						self.mesh_variation.set_label(category=mesh_category.name, label=picked_label.name, value=True, replace=False)
+
+					# Check if other slots have at least one valid mesh that matches the previously picked label combinaison
+					if self.exclude_incomplete_mesh_combinaison:
+						viable = asset.asset_type.asset_type.is_viable_mesh_variation(self.mesh_variation)
+						if not viable:
+							print(f'Incomplete variation :\n{self.mesh_variation}. skipping...')
+							valid_mesh = False
+
+							for lc, l in mesh_labels.items():
+								asset_id_label_categories = [category.name for category in asset.asset_type.asset_type.asset_label_categories]
+								if lc in asset_id_label_categories:
+									continue
+								if len(l) > 0:
+									break
+							else:
+								print('All Label Variation tested, picking another mesh.')
+								valid_mesh = False
 								break
-						else:
-							if not valid_asset:
-								valid = False
-								break
-					
-					if not valid:
-						print(f'Incomplete variation :\n{self.mesh_variation}. skipping...')
-						valid_mesh=False
+							
+							continue
+
+					valid_mesh_variation = True
 				
 			print(f'Current Mesh Variation :\n{self.mesh_variation}')
 		return True
