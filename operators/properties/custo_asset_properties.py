@@ -117,6 +117,8 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 				break
 
 		return valid
+	
+	
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
 	asset_id : bpy.props.CollectionProperty(type=CustoLabelPropertiesPointer)

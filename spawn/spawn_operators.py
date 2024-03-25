@@ -108,6 +108,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for slot, assets in self.spawned_assets_per_slot.items():
 			if assets is None:
 				available.append(slot)
+			elif assets is False:
+				pass
 			else:
 				is_available = True
 				for a in assets:
@@ -267,20 +269,28 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.first_asset = True
 		self.mesh_variation = {}
 		self.spawned_meshes = []
+		pick_new_slot = True
 
 		while len(self.available_slots):
 			available_slots = self.available_slots.copy()
 			
-			# Randomly pick one slot
-			random.shuffle(available_slots)
-			slot = available_slots.pop()
-			print(f'Spawn slot : {slot}')
+			if pick_new_slot:
+				# Randomly pick one slot
+				random.shuffle(available_slots)
+				self.slot = available_slots.pop()
+				print(f'Spawn slot : {self.slot}')
 			
 			# Pick one asset for selected slot
-			asset = random.choice(self.assets_per_slot[slot])
+			if not len(self.assets_per_slot[self.slot]):
+				pick_new_slot = True
+				self.spawned_assets_per_slot[self.slot] = False
+				continue
+			else:
+				asset = random.choice(self.assets_per_slot[self.slot])
 			
 			# Spawn Mesh
-			self.spawn_mesh(asset)
+			if not self.spawn_mesh(asset) and len(self.assets_per_slot[self.slot]):
+				pick_new_slot = False
 
 	def spawn_mesh(self, asset):
 		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
@@ -294,8 +304,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
-			if not self.exclude_incomplete_mesh_combinaison:
-				self.update_spawned_assets_per_slot(asset)
 			return False
 
 		self.update_spawned_assets_per_slot(asset)
@@ -317,6 +325,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				continue
 			if self.spawned_assets_per_slot[s.name] is None:
 				self.spawned_assets_per_slot[s.name] = []
+			elif self.spawned_assets_per_slot[s.name] is False:
+				continue
 			self.spawned_assets_per_slot[s.name].append(asset)
 
 	def lock_mesh_variation_combinaison(self, asset) -> bool:
