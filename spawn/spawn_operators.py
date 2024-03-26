@@ -307,6 +307,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
 			return False
+		
+		print(mesh.custo_attributes.materials(asset.asset_type))
 
 		self.update_spawned_assets_per_slot(asset)
 

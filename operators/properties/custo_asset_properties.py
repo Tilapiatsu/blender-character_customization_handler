@@ -212,20 +212,6 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return valid_labels
 
-	@property
-	def materials(self)->dict:
-		materials = {}
-		mesh_variations = self.all_mesh_variations
-
-		for mesh in mesh_variations:
-			valid_mesh_variations = self.valid_mesh_variations_from_mesh(mesh)
-			for m in bpy.data.materials:
-				valid_mesh_material_variation = self.valid_mesh_variations_from_mesh
-				materials[mesh] = [m for m in bpy.data.materials]
-
-
-		return materials
-
 	def valid_labels_from_mesh(self, mesh, include_label_category:list=None):
 		valid_labels = {}
 		for lc in mesh.custo_label_category_definition:
@@ -309,7 +295,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		valid_meshes = [m for m in all_variations if self.is_valid_mesh(m, variations)]
 		
 		return True if len(valid_meshes) else False
-	
+
 
 class UL_CustoAssetType(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoAssetTypes"

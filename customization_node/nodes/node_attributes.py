@@ -8,6 +8,7 @@ import random
 class NodeBinaryLabel:
 	label: str
 	value: bool = True
+	valid_any: bool = False
 	
 	def __str__(self):
 		return f'{self.label} : {self.positive}'
@@ -20,11 +21,11 @@ class LabelCombinaison:
 	def set_invalid_label(self):
 		self.labels['__invalid__'] = None
 
-	def set_label(self, category:str, label:str, value:bool, replace=True):
+	def set_label(self, category:str, label:str, value:bool, replace=True, valid_any=False):
 		if not replace and category in self.labels:
 			return
 		
-		self.labels[category] = NodeBinaryLabel(label=label, value=value)
+		self.labels[category] = NodeBinaryLabel(label=label, value=value, valid_any=valid_any)
 
 	def set_binary_label(self, category:str, binary_label:NodeBinaryLabel, replace=True):
 		if not replace and category in self.labels:
@@ -52,19 +53,19 @@ class LabelCombinaison:
 class NodeAttributes:
 	labels : dict = field(default_factory=dict)
 	
-	def add_label(self, category:str, label:str, value:bool):
+	def add_label(self, category:str, label:str, value:bool, valid_any=False):
 		if category not in self.labels.keys():
-			self.labels[category] = [NodeBinaryLabel(label=label, value=value)]
+			self.labels[category] = [NodeBinaryLabel(label=label, value=value, valid_any=valid_any)]
 		else:
-			self.labels[category].append(NodeBinaryLabel(label=label, value=value))
+			self.labels[category].append(NodeBinaryLabel(label=label, value=value, valid_any=valid_any))
 
 	def add_labels(self, labels:dict):
 		for lc, l in labels.items():
-			self.add_label(lc, label=l.label, value=l.value)
+			self.add_label(lc, label=l.label, value=l.value, valid_any=l.valid_any)
 
 	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
-			self.add_label(lc, l.label, True)
+			self.add_label(lc, l.label, True, valid_any=l.valid_any)
 	
 	def get_label_combinaison(self):
 		label_combinaison = LabelCombinaison()
@@ -80,7 +81,6 @@ class NodeAttributes:
 class NodeAsset:
 	asset : CustoAssetProperties
 	attributes : NodeAttributes = field(default_factory=NodeAttributes)
-	materials : bpy.props.CollectionProperty(type=bpy.types.Material)
 
 	@property
 	def name(self):

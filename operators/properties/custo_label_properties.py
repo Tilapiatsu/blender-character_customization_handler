@@ -108,7 +108,6 @@ class CustoLabelCategoryDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
 	labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
 
-
 class UL_CustoLabel(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoLabels"
 
