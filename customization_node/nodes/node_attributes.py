@@ -1,3 +1,4 @@
+import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
 from dataclasses import dataclass, field
 import random
@@ -79,6 +80,7 @@ class NodeAttributes:
 class NodeAsset:
 	asset : CustoAssetProperties
 	attributes : NodeAttributes = field(default_factory=NodeAttributes)
+	materials : bpy.props.CollectionProperty(type=bpy.types.Material)
 
 	@property
 	def name(self):
@@ -111,6 +113,10 @@ class NodeAsset:
 	@property
 	def all_mesh_variations(self):
 		return self.asset.all_mesh_variations
+	
+	@property
+	def materials(self)->dict:
+		return self.asset.materials
 	
 	def mesh_variation(self, variations:LabelCombinaison, exclude=[]):
 		return self.asset.mesh_variation(variations, exclude=exclude)

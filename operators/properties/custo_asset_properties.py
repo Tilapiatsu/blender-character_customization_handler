@@ -212,13 +212,34 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return valid_labels
 
-	def valid_labels_from_mesh(self, mesh):
-		valid_labels = {}
+	@property
+	def materials(self)->dict:
+		materials = {}
+		mesh_variations = self.all_mesh_variations
 
+		for mesh in mesh_variations:
+			valid_mesh_variations = self.valid_mesh_variations_from_mesh(mesh)
+			for m in bpy.data.materials:
+				valid_mesh_material_variation = self.valid_mesh_variations_from_mesh
+				materials[mesh] = [m for m in bpy.data.materials]
+
+
+		return materials
+
+	def valid_labels_from_mesh(self, mesh, include_label_category:list=None):
+		valid_labels = {}
 		for lc in mesh.custo_label_category_definition:
-			valid_labels[lc.name] = self.valid_label_catgory_labels_from_mesh(mesh, lc)
+			if include_label_category is not None:
+				if lc.name in include_label_category:
+					valid_labels[lc.name] = self.valid_label_catgory_labels_from_mesh(mesh, lc)
+			else:
+				valid_labels[lc.name] = self.valid_label_catgory_labels_from_mesh(mesh, lc)
 
 		return valid_labels
+	
+	def valid_mesh_variations_from_mesh(self, mesh):
+		mesh_variation_label_category = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories]
+		return self.valid_labels_from_mesh(mesh, include_label_category=mesh_variation_label_category)
 	
 	def valid_label_catgory_labels_from_mesh(self, mesh, category):
 		return [l for l in mesh.custo_label_category_definition[category.name].labels if l.checked]
