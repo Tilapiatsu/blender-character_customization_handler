@@ -172,6 +172,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_root = self.ch_settings.custo_spawn_root
 		self.spawn_tree = self.ch_settings.custo_spawn_tree
 		self.spawn_count = self.ch_settings.custo_spawn_count
+		self.spawned_mesh_instance = self.ch_settings.spawned_mesh_instance
 		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
 		self.exclude_incomplete_mesh_combinaison = self.ch_settings.exclude_incomplete_mesh_combinaison
 
@@ -182,6 +183,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.clean_previous_generation()
 
 	def clean_previous_generation(self):
+		for o in self.spawned_mesh_instance:
+			bpy.data.objects.remove(o.object, do_unlink=True)
+		
+		self.spawned_mesh_instance.clear()
 		previous_generation = [o for o in bpy.data.objects if o.name.startswith(SPAWN_INSTANCE)]
 		for o in previous_generation:
 			bpy.data.objects.remove(o)
@@ -291,10 +296,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				asset = random.choice(self.assets_per_slot[self.slot])
 			
 			# Spawn Mesh
-			if not self.spawn_mesh(asset) and len(self.assets_per_slot[self.slot]):
+			if not self.spawn_asset(asset) and len(self.assets_per_slot[self.slot]):
 				pick_new_slot = False
 
-	def spawn_mesh(self, asset):
+	def spawn_asset(self, asset):
 		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
 		if not self.lock_mesh_variation_combinaison(asset):
 			# if no valid mesh found, pick another asset
@@ -307,17 +312,29 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if mesh is None:
 			print(f'No valid mesh found for this mesh variation')
 			return False
-		
-		print(mesh.custo_attributes.materials(asset.asset_type))
 
 		self.update_spawned_assets_per_slot(asset)
 
 		# add Object to Collection : Spawning !
 		print(f'Spawning Mesh "{mesh.name}" to "{self.collection.name}" collection')
 		self.spawned_meshes.append(mesh)
-		self.collection.objects.link(mesh)
+		object_instance = mesh.copy()
+
+		instance = self.spawned_mesh_instance.add()
+		instance.object = object_instance
+
+		if len(object_instance.material_slots):
+			# Pick Material
+			materials = mesh.custo_attributes.materials(asset.asset_type)
+			if len(materials):
+				material = random.choice(materials)
+				# Asstign Material
+				print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
+				object_instance.material_slots[0].material = material
+
+		self.collection.objects.link(object_instance)
 		return True
-	
+
 	def remove_asset_per_slot(self, asset):
 		for s in self.assets_per_slot.keys():
 			if asset in self.assets_per_slot[s]:

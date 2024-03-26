@@ -44,6 +44,9 @@ def update_label_category_definition(self, context):
 def is_customization_tree(self, context):
 	return context.bl_idname == TREE_NAME
 
+class CustoObjectProperties(bpy.types.PropertyGroup):
+	object : bpy.props.PointerProperty(name='Object', type=bpy.types.Object)
+
 class CustoHandlerSettings(bpy.types.PropertyGroup):
 	# Asset Properties
 	custo_asset_types : bpy.props.CollectionProperty(type=CustoAssetTypeProperties)
@@ -74,8 +77,11 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_spawn_count : bpy.props.IntProperty(name='Spawn Count', default=1, min=1)
 	custo_spawn_max_per_row : bpy.props.IntProperty(name='Max Spawn per Row', default=10, min=1)
 	exclude_incomplete_mesh_combinaison : bpy.props.BoolProperty(name='Exclude Incomplete Combinaison', default=True)
+	
+    # Spawn
+	spawned_mesh_instance : bpy.props.CollectionProperty(type=CustoObjectProperties)
 
-classes = (CustoHandlerSettings, )
+classes = (CustoObjectProperties, CustoHandlerSettings, )
 
 def register():
 	from bpy.utils import register_class
