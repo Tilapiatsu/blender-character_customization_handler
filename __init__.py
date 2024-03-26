@@ -30,6 +30,7 @@ def obj_selected_callback():
     bpy.ops.object.refresh_label_definition('INVOKE_DEFAULT')
 
 def mat_selected_callback():
+    bpy.ops.object.refresh_label_definition('INVOKE_DEFAULT')
     settings.custo_handler_settings.update_label_category_definition(None, bpy.context)
 
 @persistent
