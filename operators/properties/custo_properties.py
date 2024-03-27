@@ -39,3 +39,14 @@ class CustoProperty:
             result = result and c
 
         return result
+    
+    def filter_by_label_combinaison(self, data_list:list, label_combinaison:dict)->list:
+        result_list = []
+
+        for lc, l in label_combinaison.items():
+            for label in l:
+                for d in data_list:
+                    if d.custo_label_category_definition[lc].labels[label.name].checked:
+                        result_list.append(d)
+
+        return result_list

@@ -334,14 +334,17 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		instance.object = object_instance
 
 		if len(object_instance.material_slots):
-			# Pick Material
+			
+			# get all materials for Mesh Variations
 			materials = mesh.custo_attributes.materials(asset.asset_type, variation=self.mesh_variation)
 			if len(materials):
-				material = random.choice(materials)
-				# Asstign Material
-				print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
-				for m in object_instance.material_slots:
-					m.material = material
+				
+				# Asstign the proper material to each slots
+				for s in object_instance.material_slots:
+					filtered = mesh.custo_attributes.filter_by_label_combinaison(materials, mesh.custo_attributes.valid_labels(s.material, include_label_category=[asset.asset_type.asset_type.material_slot_label_category.name]))
+					material = random.choice(filtered)
+					print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
+					s.material = material
 
 		self.collection.objects.link(object_instance)
 		return True

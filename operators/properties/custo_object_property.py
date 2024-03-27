@@ -37,9 +37,9 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		for lc in data.custo_label_category_definition:
 			if include_label_category is not None:
 				if lc.name in include_label_category:
-					valid_labels[lc.name] = self.valid_label_catgory_labels(data, lc)
+					valid_labels[lc.name] = self.valid_label_category_labels(data, lc.name)
 			else:
-				valid_labels[lc.name] = self.valid_label_catgory_labels(data, lc)
+				valid_labels[lc.name] = self.valid_label_category_labels(data, lc.name)
 
 		return valid_labels
 	
@@ -48,8 +48,8 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		mesh_variation_label_category += [asset_type.asset_type.asset_label_category.name]
 		return self.valid_labels(data, include_label_category=mesh_variation_label_category)
 
-	def valid_label_catgory_labels(self, data, category):
-		return [l for l in data.custo_label_category_definition[category.name].labels if l.checked]
+	def valid_label_category_labels(self, data, category:str):
+		return [l for l in data.custo_label_category_definition[category].labels if l.checked]
 
 classes = (CustoObjectAttributesProperties, )
 
