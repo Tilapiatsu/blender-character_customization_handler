@@ -55,8 +55,7 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_asset_types_idx : bpy.props.IntProperty(default=0)
 	custo_assets : bpy.props.CollectionProperty(type=CustoAssetProperties)
 	custo_assets_idx : bpy.props.IntProperty(default=0, min=0)
-	current_asset_id : bpy.props.CollectionProperty(type=CustoLabelEnumProperties)
-	current_asset_id_idx : bpy.props.IntProperty(default=0, min=0)
+	current_asset_id : bpy.props.PointerProperty(type=CustoLabelEnumProperties)
 	current_asset_name : bpy.props.StringProperty()
 	current_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 

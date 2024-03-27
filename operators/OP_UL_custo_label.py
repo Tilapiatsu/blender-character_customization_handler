@@ -144,12 +144,12 @@ class UI_EditLabel(bpy.types.Operator):
 		s.name = self.name
 		self.label_category_name = context.scene.custo_handler_settings.custo_label_categories[context.scene.custo_handler_settings.custo_label_categories_idx].name
 		bpy.ops.object.refresh_label_definition()
-		self.refresh_asset_label_categories(context)
+		self.refresh_asset_label_category(context)
 		return {'FINISHED'}
 
-	def refresh_asset_label_categories(self, context):
+	def refresh_asset_label_category(self, context):
 		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
-			for lc in asset_type.asset_label_categories:
+			for lc in asset_type.asset_label_category:
 				if lc.name != self.label_category_name:
 					continue
 				for l in lc.label_category.labels:
@@ -163,8 +163,8 @@ class UI_EditLabel(bpy.types.Operator):
 					if l.name == self.old_name:
 						l.name = self.name
 			
-			for l in asset_type.slot_label_category.label_category.labels:
-				if asset_type.slot_label_category.name != self.label_category_name:
+			for l in asset_type.mesh_slot_label_category.label_category.labels:
+				if asset_type.mesh_slot_label_category.name != self.label_category_name:
 					continue
 				if l.name == self.old_name:
 					l.name = self.name
@@ -175,8 +175,8 @@ class UI_EditLabel(bpy.types.Operator):
 				if l.name == self.old_name:
 					l.name = self.name
 			
-			for l in asset_type.material_variation_label_category.label_category.labels:
-				if asset_type.material_variation_label_category.name != self.label_category_name:
+			for l in asset_type.material_variation_label_categories.label_category.labels:
+				if asset_type.material_variation_label_categories.name != self.label_category_name:
 					continue
 				if l.name == self.old_name:
 					l.name = self.name
@@ -190,7 +190,7 @@ class UI_EditLabel(bpy.types.Operator):
 					asset_id.label_category_name = self.label_category_name
 
 			for slot in asset.slots:
-				if asset.asset_type.asset_type.slot_label_category.name != self.label_category_name:
+				if asset.asset_type.asset_type.mesh_slot_label_category.name != self.label_category_name:
 					continue
 				if slot.name == self.old_name:
 					slot.name = self.name

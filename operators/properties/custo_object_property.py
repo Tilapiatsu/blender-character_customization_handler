@@ -18,8 +18,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		if not isinstance(variation, dict):
 			variation = variation.as_dict()
 
-		for lc in asset_type.asset_type.asset_label_categories:
-			variation[lc.name] = [l for l in self.object.custo_label_category_definition[lc.name].labels if l.checked]
+		variation[asset_type.asset_type.asset_label_category.name] = [l for l in self.object.custo_label_category_definition[asset_type.asset_type.asset_label_category.name].labels if l.checked]
 
 		if not self.is_compatible_label_combinaison(mesh_variations_labels, variation):
 			return materials
@@ -48,7 +47,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 	
 	def valid_mesh_variations(self, asset_type, data):
 		mesh_variation_label_category = [lc.name for lc in asset_type.asset_type.mesh_variation_label_categories]
-		mesh_variation_label_category += [lc.name for  lc in asset_type.asset_type.asset_label_categories]
+		mesh_variation_label_category += [asset_type.asset_type.asset_label_category.name]
 		return self.valid_labels(data, include_label_category=mesh_variation_label_category)
 
 	def valid_label_catgory_labels(self, data, category):

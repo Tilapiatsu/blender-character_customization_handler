@@ -42,8 +42,7 @@ def set_current_label_category(self, context):
 	context.scene.custo_handler_settings.current_label_category.clear()
 
 	category = context.scene.custo_handler_settings.current_label_category.add()
-	category.name = context.scene.custo_handler_settings.custo_asset_types[self.asset_type.name].slot_label_category.name
-	
+	category.name = context.scene.custo_handler_settings.custo_asset_types[self.asset_type.name].mesh_slot_label_category.name
 	for l in context.scene.custo_handler_settings.custo_label_categories[category.name].labels:
 		if l.name in context.scene.custo_handler_settings.custo_assets[self.index].slots:
 			l = context.scene.custo_handler_settings.custo_assets[self.index].slots[l.name]
@@ -169,13 +168,7 @@ class UI_EditAsset(bpy.types.Operator):
 		col = layout.column()
 		col.prop(self.asset_type, 'name', text='Asset Type')
 		
-		col.label(text='Asset ID:')
-		if len(context.scene.custo_handler_settings.current_asset_id):
-			row = col.row(align=True)
-			self.separator(row, 10)
-			col1 = row.column(align=True)
-			for asset_id in context.scene.custo_handler_settings.current_asset_id:
-				col1.prop(asset_id, 'name', text='')
+		col.prop(context.scene.custo_handler_settings.current_asset_id, 'name', text='Asset ID')
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -198,11 +191,8 @@ class UI_EditAsset(bpy.types.Operator):
 		s.asset_type.name = self.asset_type.name
 		s.layer = self.layer
 
-		s.asset_id.clear()
-		for label in context.scene.custo_handler_settings.current_asset_id:
-			current_label = s.asset_id.add()
-			current_label.label_category_name = label.label_category_name
-			current_label.name = label.name
+		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
+		s.asset_id.label_category_name = context.scene.custo_handler_settings.current_asset_id.label_category_name
 		
 		s.slots.clear()
 		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
@@ -211,14 +201,14 @@ class UI_EditAsset(bpy.types.Operator):
 			current_slot.checked = slot.checked
 			current_slot.keep_lower_layer_slot = slot.keep_lower_layer_slot
 
-		s.name = get_asset_name(s.asset_id)
+		s.name = s.asset_id.name
 
 		revert_assets_parameters(self)
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
 		self.layer = context.scene.custo_handler_settings.custo_assets[self.index].layer
-		context.scene.custo_handler_settings.current_asset_name = get_asset_name(context.scene.custo_handler_settings.custo_assets[self.index].asset_id)
+		context.scene.custo_handler_settings.current_asset_name = context.scene.custo_handler_settings.custo_assets[self.index].asset_id.name
 		set_current_label_category(self, context)
 		update_current_asset_properties(self.asset_type, context)
 
@@ -239,14 +229,8 @@ class UI_AddAsset(bpy.types.Operator):
 		layout = self.layout
 		col = layout.column()
 		col.prop(self.asset_type, 'name', text='Asset Type')
-		
-		col.label(text='Asset ID:')
-		if len(context.scene.custo_handler_settings.current_asset_id):
-			row = col.row(align=True)
-			self.separator(row, 10)
-			col1 = row.column(align=True)
-			for asset_id in context.scene.custo_handler_settings.current_asset_id:
-				col1.prop(asset_id, 'name', text='')
+	
+		col.prop(context.scene.custo_handler_settings.current_asset_id, 'name', text='Asset ID')
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -269,10 +253,8 @@ class UI_AddAsset(bpy.types.Operator):
 		s.asset_type.name = self.asset_type.name
 		s.layer = self.layer
 
-		for label in context.scene.custo_handler_settings.current_asset_id:
-			current_label = s.asset_id.add()
-			current_label.label_category_name = label.label_category_name
-			current_label.name = label.name
+		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
+		s.asset_id.label_category_name = context.scene.custo_handler_settings.current_asset_id.label_category_name
 		
 		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
 			current_slot = s.slots.add()
@@ -280,7 +262,7 @@ class UI_AddAsset(bpy.types.Operator):
 			current_slot.checked = slot.checked
 			current_slot.keep_lower_layer_slot = slot.keep_lower_layer_slot
 
-		s.name = get_asset_name(s.asset_id)
+		s.name = s.asset_id.name
 		revert_assets_parameters(self)
 		return {'FINISHED'}
 	

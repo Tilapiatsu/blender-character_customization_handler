@@ -139,7 +139,7 @@ class UI_EditLabelCategory(bpy.types.Operator):
 	
 	def refresh_asset_type_label_categories(self, context):
 		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
-			for lc in asset_type.asset_label_categories:
+			for lc in asset_type.asset_label_category:
 				if lc.name == self.old_name:
 					lc.name = self.name
 
@@ -147,14 +147,14 @@ class UI_EditLabelCategory(bpy.types.Operator):
 				if lc.name == self.old_name:
 					lc.name = self.name
 			
-			if asset_type.slot_label_category.name == self.old_name:
-				asset_type.slot_label_category.name = self.name
+			if asset_type.mesh_slot_label_category.name == self.old_name:
+				asset_type.mesh_slot_label_category.name = self.name
 
 			if asset_type.material_label_category.name == self.old_name:
 				asset_type.material_label_category.name = self.name
 
-			if asset_type.material_variation_label_category.name == self.old_name:
-				asset_type.material_variation_label_category.name = self.name
+			if asset_type.material_variation_label_categories.name == self.old_name:
+				asset_type.material_variation_label_categories.name = self.name
 
 
 class UI_AddLabelCategory(bpy.types.Operator):

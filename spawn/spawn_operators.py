@@ -442,8 +442,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 							valid_mesh = False
 
 							for lc, l in mesh_labels.items():
-								asset_id_label_categories = [category.name for category in asset.asset_type.asset_type.asset_label_categories]
-								if lc in asset_id_label_categories:
+								asset_id_label_category = asset.asset_type.asset_type.asset_label_category.name
+								if lc == asset_id_label_category:
 									continue
 								if len(l) > 0:
 									break
