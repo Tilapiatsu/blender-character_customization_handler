@@ -38,8 +38,10 @@ def do_update_label_category_definition(context, prop, prop_source):
 	
 def update_label_category_definition(self, context):
 	do_update_label_category_definition(context, context.object.custo_label_definition, context.object.custo_label_category_definition)
-	if context.object.active_material:
-		do_update_label_category_definition(context, context.object.active_material.custo_label_definition, context.object.active_material.custo_label_category_definition)
+	for s in context.object.material_slots:
+		if s.material is None:
+			continue
+		do_update_label_category_definition(context, s.material.custo_label_definition, s.material.custo_label_category_definition)
 
 def is_customization_tree(self, context):
 	return context.bl_idname == TREE_NAME
@@ -78,7 +80,7 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_spawn_max_per_row : bpy.props.IntProperty(name='Max Spawn per Row', default=10, min=1)
 	exclude_incomplete_mesh_combinaison : bpy.props.BoolProperty(name='Exclude Incomplete Combinaison', default=True)
 	
-    # Spawn
+	# Spawn
 	spawned_mesh_instance : bpy.props.CollectionProperty(type=CustoObjectProperties)
 
 classes = (CustoObjectProperties, CustoHandlerSettings, )

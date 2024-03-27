@@ -139,6 +139,18 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def poll(cls, context):
 		return context.scene.custo_handler_settings.custo_spawn_root is not None and context.scene.custo_handler_settings.custo_spawn_tree is not None and context.scene.custo_handler_settings.custo_spawn_count
 	
+	def print_init_spawn_message(self, index):
+		print('')
+		print('========================================================')
+		print(f'Spawn New Assembly {str(index).zfill(3)}')
+		print(f'--------------------------------------------------------')
+
+	def print_end_message(self):
+		print('')
+		print('========================================================')
+		print(f'Spawn Completed')
+		print(f'--------------------------------------------------------')
+
 	def get_indexed_name(self, prefix, index):
 		return f'{prefix}_{str(index).zfill(3)}'
 
@@ -207,12 +219,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for i in range(self.spawn_count):
 			self.init_spawn(context)
 			self.collection = self.create_spawn_collection(index=i)
-			print('')
-			print('========================================================')
-			print(f'Spawn New Assembly {str(i).zfill(3)}')
-			print(f'--------------------------------------------------------')
+			self.print_init_spawn_message(i)
 			self.spawn_assembly()
 		
+		self.print_end_message()
 		return {'FINISHED'}
 	
 	def create_spawn_collection(self, index=0):
@@ -325,12 +335,13 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 		if len(object_instance.material_slots):
 			# Pick Material
-			materials = mesh.custo_attributes.materials(asset.asset_type)
+			materials = mesh.custo_attributes.materials(asset.asset_type, variation=self.mesh_variation)
 			if len(materials):
 				material = random.choice(materials)
 				# Asstign Material
 				print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
-				object_instance.material_slots[0].material = material
+				for m in object_instance.material_slots:
+					m.material = material
 
 		self.collection.objects.link(object_instance)
 		return True
@@ -411,13 +422,17 @@ class SpawnCustomizationTree(bpy.types.Operator):
 							break
 
 						picked_label = random.choice(valid_labels)
+						
+						if mesh_category.label_category.valid_any is not None:
+							if mesh_category.label_category.valid_any.name == picked_label.name:
+								picked_label = random.choice(mesh_category.label_category.not_valid_any)
 
 						if len(mesh_labels[mesh_category.name]) > 0:
 							if picked_label in mesh_labels[mesh_category.name]:
 								mesh_labels[mesh_category.name].remove(picked_label)
 
 						valid_mesh = True
-						self.mesh_variation.set_label(category=mesh_category.name, label=picked_label.name, value=True, replace=False)
+						self.mesh_variation.set_label(category=mesh_category.name, name=picked_label.name, value=True, replace=False)
 
 					# Check if other slots have at least one valid mesh that matches the previously picked label combinaison
 					if self.exclude_incomplete_mesh_combinaison:

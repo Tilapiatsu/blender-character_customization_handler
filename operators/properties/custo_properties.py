@@ -4,6 +4,10 @@ class CustoProperty:
     def is_compatible_label_combinaison(self, label_combinaison1, label_combinaison2):
         scene_label_category = bpy.context.scene.custo_handler_settings.custo_label_categories
         compatible = {}
+        
+        if label_combinaison1 is None or label_combinaison2 is None:
+            return True
+
         for lc, l in label_combinaison1.items():
             compatible[lc] = False
             if lc not in label_combinaison2.keys():

@@ -20,23 +20,26 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 			else:
 				self.edit_label_category(context.object.custo_label_category_definition, lc)
 			
-			if not context.object.active_material:
-				continue
-			for m in context.object.data.materials:
-				if lc.name not in m.custo_label_category_definition:
-					self.add_label_category(m.custo_label_category_definition, lc)
+			for s in context.object.material_slots:
+				if s.material is None:
+					continue
+				
+				if lc.name not in s.material.custo_label_category_definition:
+					self.add_label_category(s.material.custo_label_category_definition, lc)
 				else:
-					self.edit_label_category(m.custo_label_category_definition, lc)
+					self.edit_label_category(s.material.custo_label_category_definition, lc)
 		
 		self.clean_label_category(context.object.custo_label_category_definition)
-		if context.object.active_material:
-			for m in context.object.data.materials:
-				self.clean_label_category(context.object.active_material.custo_label_category_definition)
+		for s in context.object.material_slots:
+			if s.material is None:
+				continue
+			self.clean_label_category(s.material.custo_label_category_definition)
 		
 		self.reorder_label_category(context, context.object.custo_label_category_definition)
-		if context.object.active_material:
-			for m in context.object.data.materials:
-				self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
+		for s in context.object.material_slots:
+			if s.material is None:
+				continue
+			self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
 
 		update_label_category_definition(self, context)
 		return {'FINISHED'}

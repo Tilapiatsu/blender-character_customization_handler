@@ -6,12 +6,12 @@ import random
 
 @dataclass
 class NodeBinaryLabel:
-	label: str
+	name: str
 	value: bool = True
 	valid_any: bool = False
 	
 	def __str__(self):
-		return f'{self.label} : {self.positive}'
+		return f'{self.name} : {self.positive}'
 
 
 @dataclass
@@ -21,11 +21,11 @@ class LabelCombinaison:
 	def set_invalid_label(self):
 		self.labels['__invalid__'] = None
 
-	def set_label(self, category:str, label:str, value:bool, replace=True, valid_any=False):
+	def set_label(self, category:str, name:str, value:bool, replace=True, valid_any=False):
 		if not replace and category in self.labels:
 			return
 		
-		self.labels[category] = NodeBinaryLabel(label=label, value=value, valid_any=valid_any)
+		self.labels[category] = NodeBinaryLabel(name=name, value=value, valid_any=valid_any)
 
 	def set_binary_label(self, category:str, binary_label:NodeBinaryLabel, replace=True):
 		if not replace and category in self.labels:
@@ -42,30 +42,39 @@ class LabelCombinaison:
 	def values(self):
 		return self.labels.values()
 	
+	def as_dict(self):
+		return_dict = {}
+
+		for lc, l in self.labels.items():
+			return_dict[lc] = [l]
+
+		return return_dict
+	
 	def __getitem__(self, key):
 		return self.labels[key]
 	
 	def __len__(self):
 		return len(self.labels)
 	
+	
 
 @dataclass
 class NodeAttributes:
 	labels : dict = field(default_factory=dict)
 	
-	def add_label(self, category:str, label:str, value:bool, valid_any=False):
+	def add_label(self, category:str, name:str, value:bool, valid_any=False):
 		if category not in self.labels.keys():
-			self.labels[category] = [NodeBinaryLabel(label=label, value=value, valid_any=valid_any)]
+			self.labels[category] = [NodeBinaryLabel(name=name, value=value, valid_any=valid_any)]
 		else:
-			self.labels[category].append(NodeBinaryLabel(label=label, value=value, valid_any=valid_any))
+			self.labels[category].append(NodeBinaryLabel(name=name, value=value, valid_any=valid_any))
 
 	def add_labels(self, labels:dict):
 		for lc, l in labels.items():
-			self.add_label(lc, label=l.label, value=l.value, valid_any=l.valid_any)
+			self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any)
 
 	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
-			self.add_label(lc, l.label, True, valid_any=l.valid_any)
+			self.add_label(lc, l.name, True, valid_any=l.valid_any)
 	
 	def get_label_combinaison(self):
 		label_combinaison = LabelCombinaison()

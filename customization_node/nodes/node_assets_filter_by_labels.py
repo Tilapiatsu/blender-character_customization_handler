@@ -91,7 +91,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 						if label.name.lower() not in l.name.lower():
 							continue
 						
-						labels.set_label(category=lc.name, label=label.name, value=not label.invert)
+						labels.set_label(category=lc.name, name=label.name, value=not label.invert)
 						found = True
 						
 				if not found:

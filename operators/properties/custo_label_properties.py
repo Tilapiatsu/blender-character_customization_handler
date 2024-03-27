@@ -95,6 +95,13 @@ class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 
 		return valid
 
+	@property
+	def not_valid_any(self):
+		valid_any = self.valid_any
+		if valid_any is None:
+			return self.labels
+		else:
+			return [l for l in self.labels if l != valid_any]
 
 class CustoLabelDefinitionObjectProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')

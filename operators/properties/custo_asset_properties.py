@@ -269,14 +269,14 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			ob_category = ob.custo_label_category_definition[c]
 			ch_category = ch_settings.custo_label_categories[c]
 
-			if l.label not in ob_category.labels.keys() or l.label not in ch_category.labels.keys():
+			if l.name not in ob_category.labels.keys() or l.name not in ch_category.labels.keys():
 				valid = False
 				break
 			
-			if ch_category.labels[l.label].valid_any:
+			if ch_category.labels[l.name].valid_any:
 				continue
 
-			if ob_category.labels[l.label].checked != l.value:
+			if ob_category.labels[l.name].checked != l.value:
 				valid_any_label = ch_category.valid_any
 				if valid_any_label is not None:
 					if ob_category.labels[valid_any_label.name].checked:

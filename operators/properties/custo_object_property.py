@@ -10,12 +10,25 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		path = repr(self).rsplit(".", 1)[0]
 		return eval(path)
 
-	def materials(self, asset_type)->list:
+	def materials(self, asset_type, variation:dict=None)->list:
 		materials = []
+		ch_settings = bpy.context.scene.custo_handler_settings
+
+		mesh_variations_labels = self.valid_mesh_variations(asset_type, self.object)
+		if not isinstance(variation, dict):
+			variation = variation.as_dict()
+
+		for lc in asset_type.asset_type.asset_label_categories:
+			variation[lc.name] = [l for l in self.object.custo_label_category_definition[lc.name].labels if l.checked]
+
+		if not self.is_compatible_label_combinaison(mesh_variations_labels, variation):
+			return materials
 
 		for m in bpy.data.materials:
-			mesh_variations_labels = self.valid_mesh_variations(asset_type, self.object)
 			materials_variations_labels = self.valid_mesh_variations(asset_type, m)
+
+			if not self.is_compatible_label_combinaison(materials_variations_labels, variation):
+				continue
 
 			if self.is_compatible_label_combinaison(mesh_variations_labels, materials_variations_labels):
 				materials.append(m)
