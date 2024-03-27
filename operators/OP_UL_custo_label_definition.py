@@ -1,5 +1,4 @@
 import bpy
-from ..settings.custo_handler_settings import update_label_category_definition
 
 class UI_RefreshLabelDefinition(bpy.types.Operator):
 	bl_idname = "object.refresh_label_definition"
@@ -41,7 +40,6 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 				continue
 			self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
 
-		update_label_category_definition(self, context)
 		return {'FINISHED'}
 	
 	def add_label_category(self, prop, label_category):

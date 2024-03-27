@@ -31,8 +31,7 @@ def obj_selected_callback():
 
 def mat_selected_callback():
     bpy.ops.object.refresh_label_definition('INVOKE_DEFAULT')
-    settings.custo_handler_settings.update_label_category_definition(None, bpy.context)
-
+    
 @persistent
 def register_object_selected_callback(dummy):
     subscribe_to = bpy.types.LayerObjects, "active"

@@ -11,6 +11,7 @@ class PT_MATERIAL_CustoLabelDefinitionSetup(bpy.types.Panel):
 		layout = self.layout
 		scn = context.scene
 		mat = context.object.active_material
+		lc_idx = scn.custo_handler_settings.custo_label_category_definition_idx
 		if mat is None:
 			return
 		
@@ -25,8 +26,8 @@ class PT_MATERIAL_CustoLabelDefinitionSetup(bpy.types.Panel):
 		b = main_row.box()
 		b.label(text='Labels')
 		row = b.row()
-		rows = 20 if len(scn.custo_handler_settings.custo_labels) > 20 else len(scn.custo_handler_settings.custo_labels) + 1
-		row.template_list('OBJECT_UL_CustoLabelDefinition', '', mat, 'custo_label_definition', mat, 'custo_label_definition_idx', rows=rows)
+		rows = 20 if len(scn.custo_handler_settings.custo_label_categories[lc_idx].labels) > 20 else len(scn.custo_handler_settings.custo_label_categories[lc_idx].labels) + 1
+		row.template_list('OBJECT_UL_CustoLabelDefinition', '', mat.custo_label_category_definition[lc_idx], 'labels', mat, 'custo_label_definition_idx', rows=rows)
 		
 
 classes = (PT_MATERIAL_CustoLabelDefinitionSetup,)

@@ -5,20 +5,24 @@ def in_range(ui_list, index):
 
 def update_label_definition_object(self, context):
 	ch_settings = context.scene.custo_handler_settings
+	
 	for o in context.selected_objects:
-		for i, l in enumerate(o.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
-			if i > len(context.object.custo_label_definition) - 1:
-				return
-			l.checked = context.object.custo_label_definition[i].checked
+		if o.custo_label_definition_updated:
+			o.custo_label_definition_updated = False
+	
+			for i, l in enumerate(o.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
+				if i > len(context.object.custo_label_definition) - 1:
+					return
+				l.checked = context.object.custo_label_category_definition[i].checked
+			
+			o.custo_label_definition_updated = True
 
 def update_label_definition_material(self, context):
 	ch_settings = context.scene.custo_handler_settings
-	if context.object.active_material is None:
-		return
-	for i, l in enumerate(context.object.active_material.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
-		if i > len(context.object.active_material.custo_label_definition) - 1:
+	for i, l in enumerate(context.object.material_slots[context.object.active_material_index].material.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
+		if i > len(context.object.material_slots[context.object.active_material_index].material.custo_label_definition) - 1:
 			return
-		l.checked = context.object.active_material.custo_label_definition[i].checked
+		l.checked = context.object.material_slots[context.object.active_material_index].material.custo_label_definition[i].checked
 
 def label_categories_enum(self, context):
 	ch_settings = context.scene.custo_handler_settings
@@ -187,22 +191,22 @@ def register():
 	for cls in classes:
 		register_class(cls)
 
-	bpy.types.Object.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionObjectProperties)
 	bpy.types.Object.custo_label_definition_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Object.custo_label_definition_updated = bpy.props.BoolProperty(default=True)
 	bpy.types.Object.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 
-	bpy.types.Material.custo_label_definition = bpy.props.CollectionProperty(type=CustoLabelDefinitionMaterialProperties)
 	bpy.types.Material.custo_label_definition_idx = bpy.props.IntProperty(default=0)
+	bpy.types.Material.custo_label_definition_updated = bpy.props.BoolProperty(default=True)
 	bpy.types.Material.custo_label_category_definition = bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 	
 
 def unregister():
-	del bpy.types.Material.custo_label_definition
 	del bpy.types.Material.custo_label_definition_idx
+	del bpy.types.Material.custo_label_definition_updated
 	del bpy.types.Material.custo_label_category_definition
 
-	del bpy.types.Object.custo_label_definition
 	del bpy.types.Object.custo_label_definition_idx
+	del bpy.types.Object.custo_label_definition_updated
 	del bpy.types.Object.custo_label_category_definition
 	
 	from bpy.utils import unregister_class

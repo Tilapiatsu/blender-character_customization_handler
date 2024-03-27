@@ -10,38 +10,6 @@ def update_label_category(self, context):
 		label = context.scene.custo_handler_settings.custo_labels.add()
 		label.name = l.name
 		label.valid_any = l.valid_any
-		
-def do_update_label_category_definition(context, prop, prop_source):
-	prop.clear()
-	
-	if not len(prop_source):
-		return
-	
-	label_to_remove=[]
-	category_name = prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].name
-
-	for i,l in enumerate(prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels):
-		for c in context.scene.custo_handler_settings.custo_label_categories:
-			if c.name != category_name:
-				continue
-
-			if l.name not in c.labels:
-				label_to_remove.append(i)
-
-	for l in label_to_remove:
-		prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels.remove(l)
-
-	for l in prop_source[context.scene.custo_handler_settings.custo_label_category_definition_idx].labels:
-		label = prop.add()
-		label.name = l.name
-		label.checked = l.checked
-	
-def update_label_category_definition(self, context):
-	do_update_label_category_definition(context, context.object.custo_label_definition, context.object.custo_label_category_definition)
-	for s in context.object.material_slots:
-		if s.material is None:
-			continue
-		do_update_label_category_definition(context, s.material.custo_label_definition, s.material.custo_label_category_definition)
 
 def is_customization_tree(self, context):
 	return context.bl_idname == TREE_NAME
@@ -70,7 +38,7 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_labels_idx : bpy.props.IntProperty(default=0)
 	custo_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	custo_label_categories_idx : bpy.props.IntProperty(default=0, update=update_label_category)
-	custo_label_category_definition_idx : bpy.props.IntProperty(default=0, update=update_label_category_definition)
+	custo_label_category_definition_idx : bpy.props.IntProperty(default=0, min=0)
 	
 	# Custo Tree
 	custo_spawn_tree : bpy.props.PointerProperty(name='Spawn Tree', type=bpy.types.NodeTree, poll=is_customization_tree)

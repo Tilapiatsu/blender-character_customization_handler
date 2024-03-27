@@ -12,8 +12,6 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 
 	def materials(self, asset_type, variation:dict=None)->list:
 		materials = []
-		ch_settings = bpy.context.scene.custo_handler_settings
-
 		mesh_variations_labels = self.valid_mesh_variations(asset_type, self.object)
 		if not isinstance(variation, dict):
 			variation = variation.as_dict()
