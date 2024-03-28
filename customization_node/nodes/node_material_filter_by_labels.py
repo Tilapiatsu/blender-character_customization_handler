@@ -79,7 +79,6 @@ class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:
-			labels = LabelCombinaison()
 			label_categories = [a.asset.asset_type.asset_type.material_label_category.name] + [lc.name for lc in a.asset.asset_type.asset_type.material_variation_label_categories]
 			for label in self.labels:
 				if not len(label.name):
