@@ -412,6 +412,19 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				
 
 				while not valid_mesh_variation:
+					valid_mesh_labels = False
+					for mesh_category in asset.asset_type.asset_type.mesh_variation_label_categories:
+						if not len(mesh_labels[mesh_category.name]):
+							continue
+						else:
+							valid_mesh_labels = True
+							break
+					else:
+						if not valid_mesh_labels:
+							print(f'Incomplete variation :\n{self.mesh_variation}. skipping...')
+							valid_mesh_variation = False
+							break
+					
 					# Get asset label attribute
 					self.mesh_variation = copy.deepcopy(asset_label_combinaison)
 
