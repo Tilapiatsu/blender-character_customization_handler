@@ -28,6 +28,10 @@ node_categories = [
         NodeItem("AssetsFilterByLabelsNodeType"),
         NodeItem("AssetsSelectorNodeType")
     ]),
+    CustomizationCategory('MATERIALS', "Materials", items=[
+        NodeItem("MaterialsFilterByLabelsNodeType"),
+    ]),
+    
     CustomizationCategory('OTHERNODES', "Other Nodes", items=[
         # the node item can have additional settings,
         # which are applied to new nodes

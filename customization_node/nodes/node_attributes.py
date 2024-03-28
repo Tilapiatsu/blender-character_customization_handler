@@ -76,14 +76,28 @@ class NodeAttributes:
 		for lc, l in label_combinaison.items():
 			self.add_label(lc, l.name, True, valid_any=l.valid_any)
 	
-	def get_label_combinaison(self):
+	def get_label_combinaison(self, label_categories:list=None):
 		label_combinaison = LabelCombinaison()
-
+		
 		for lc in self.labels.keys():
+			if label_categories is not None:
+				if lc not in label_categories:
+					continue
 			label = random.choice(self.labels[lc])
 			label_combinaison.set_binary_label(lc, binary_label=label)
 
 		return label_combinaison
+	
+	def get_labels(self, label_categories:list=None):
+		labels = {}
+		
+		for lc in self.labels.keys():
+			if label_categories is not None:
+				if lc not in label_categories:
+					continue
+			labels[lc] = self.labels[lc]
+
+		return labels
 
 
 @dataclass

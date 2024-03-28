@@ -42,7 +42,9 @@ class CustoProperty:
     
     def filter_by_label_combinaison(self, data_list:list, label_combinaison:dict)->list:
         result_list = []
-
+        if not len(label_combinaison.keys()):
+            return data_list
+        
         for lc, l in label_combinaison.items():
             for label in l:
                 for d in data_list:

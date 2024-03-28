@@ -75,6 +75,14 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 		ch_settings = bpy.context.scene.custo_handler_settings
 		return [s.name for s in ch_settings.custo_label_categories[self.mesh_slot_label_category.label_category.name].labels]
 	
+	@property
+	def mesh_variation_categories(self):
+		return [ self.mesh_slot_label_category.name ] + [ lc for lc in self.mesh_variation_label_categories.keys() ]
+	
+	@property
+	def material_variation_categories(self):
+		return [ self.material_label_category.name ] + [ lc for lc in self.material_variation_label_categories.keys() ]
+	
 	def get_assets_per_slot(self, slot:str)->list:
 		"""Returns a list of asset that covers the slot inputed given
 
@@ -116,7 +124,6 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 				break
 
 		return valid
-	
 
 class CustoAssetProperties(bpy.types.PropertyGroup):
 	asset_type : bpy.props.PointerProperty(type=CustoAssetTypePointer)
@@ -259,10 +266,13 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		'''
 		valid = True
 		ch_settings = bpy.context.scene.custo_handler_settings
+		
 		for c,l in variations.items():
 			if c not in ob.custo_label_category_definition.keys() or c not in ch_settings.custo_label_categories.keys():
 				valid = False
 				break
+			if c in self.asset_type.asset_type.material_variation_categories:
+				continue
 
 			ob_category = ob.custo_label_category_definition[c]
 			ch_category = ch_settings.custo_label_categories[c]
