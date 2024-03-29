@@ -56,7 +56,7 @@ class LabelCombinaison:
 	def __len__(self):
 		return len(self.labels)
 	
-	
+
 
 @dataclass
 class NodeAttributes:
@@ -77,7 +77,7 @@ class NodeAttributes:
 			if unique and lc in self.labels.keys():
 				continue
 			else:
-				self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any,)
+				self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any)
 
 	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
