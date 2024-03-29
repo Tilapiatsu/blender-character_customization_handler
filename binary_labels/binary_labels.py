@@ -128,50 +128,78 @@ class LabelCategory:
 		return False
 
 	def __str__(self):
-		return f'LabelCategory : {self.name} = [{", ".join([str(l) for l in self.labels])}]'
+		return f'LabelCategory : {self.name} = [{", ".join([str(l.name)+"="+str(l.value) for l in self.labels.values()])}]'
 
 @dataclass
 class LabelCombinaison:
-	labels : dict = field(default_factory=dict)
+	categories : dict = field(default_factory=dict)
 
 	def set_invalid_label(self):
-		self.labels['__invalid__'] = None
+		self.categories['__invalid__'] = None
 
-	def set_label(self, category:str, name:str, value:bool, valid_any=False, replace=True):
-		if not replace and category in self.labels:
+	def add_label(self, category:str, name:str, value:bool, valid_any=False, unique=False):
+		if category not in self.categories:
+			self.set_label(category, name, value, valid_any)
+		else:
+			label_category = self.categories[category]
+			label_category.add_label(name, value, valid_any, unique=unique)
+
+	def add_binary_label(self, category:str, label:NodeBinaryLabel, unique=False):
+		if category not in self.categories:
+			self.set_binary_label(category, label)
+		else:
+			label_category = self.categories[category]
+			label_category.add_binary_label(label, unique=unique)
+
+	def set_label(self, category:str, name:str, value:bool, valid_any=False, unique=False):
+		if unique and category in self.categories:
 			return
 		
-		self.labels[category] = NodeBinaryLabel(name=name, value=value, valid_any=valid_any)
+		label_category = LabelCategory(category)
+		label_category.add_label(name=name, value=value, valid_any=valid_any)
+		self.categories[category] = label_category
 
-	def set_binary_label(self, category:str, binary_label:NodeBinaryLabel, replace=True):
-		if not replace and category in self.labels:
+	def set_binary_label(self, category:str, label:NodeBinaryLabel, unique=False):
+		if unique and category in self.categories:
 			return
 		
-		self.labels[category] = binary_label
+		label_category = LabelCategory(category)
+		label_category.add_binary_label(label=label)
+		self.categories[category] = label_category
 
 	def items(self):
-		return self.labels.items()
+		return self.categories.items()
 	
 	def keys(self):
-		return self.labels.keys()
+		return self.categories.keys()
 	
 	def values(self):
-		return self.labels.values()
+		return self.categories.values()
 	
 	def as_dict(self):
-		return_dict = {}
-
-		for lc, l in self.labels.items():
-			return_dict[lc] = [l]
-
-		return return_dict
-	
-	
-	def __getitem__(self, key):
-		return self.labels[key]
+		return self.categories	
 	
 	def __len__(self):
-		return len(self.labels)
+		return len(self.categories.keys())
+	
+	def __iter__(self):
+		yield len(self.categories.values())
+		yield from self.categories.values()
+
+	def __getitem__(self, key):
+		return self.categories[key]
+	
+	def __setitem__(self, key, value):
+		self.categories[key] = value
+	
+	def __contains__(self, item:str):
+		for l in self.categories.values():
+			if l.name == item:
+				return True
+		return False
+
+	def __str__(self):
+		return f'LabelCombinaison : {", ".join([str(l) for l in self.categories.values()])}]'
 
 
 if __name__ == '__main__':
@@ -188,3 +216,10 @@ if __name__ == '__main__':
 	lc_in.add_label('tata', True)
 
 	print(ref.resolve(lc_in))
+
+	combi = LabelCombinaison()
+
+	combi['ref'] = ref
+	combi['input'] = lc_in
+
+	print(combi)
