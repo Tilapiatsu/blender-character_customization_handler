@@ -22,7 +22,7 @@ class AssetTypesSocket(CustomizationSocket, NodeSocket):
 	# Optional function for drawing the socket input value
 	def draw(self, context, layout, node, text):
 		# if self.is_output or self.is_linked:
-		layout.prop(self, 'input_value', text=text)
+		layout.prop_search(self, "input_value", context.scene.custo_handler_settings, "custo_asset_types", text='')
 		# else:
 		#     layout.prop(self, "input_value", text=text)
 

@@ -239,8 +239,21 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		mesh_variation_label_category = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories]
 		return self.valid_labels_from_mesh(mesh, include_label_category=mesh_variation_label_category)
 	
-	def valid_label_catgory_labels_from_mesh(self, mesh, category):
-		return [l for l in mesh.custo_label_category_definition[category.name].labels if l.checked]
+	def valid_label_catgory_labels_from_mesh(self, mesh, category, split_any=True):
+		ch_settings = bpy.context.scene.custo_handler_settings
+		scene_category = ch_settings.custo_label_categories[category.name]
+		valid = [l for l in mesh.custo_label_category_definition[category.name].labels if l.checked]
+		if split_any:
+			new_valid = []
+			for l in valid:
+				if scene_category.valid_any is None or l.name != scene_category.valid_any.name:
+					new_valid.append(l)
+				else:
+					for ll in scene_category.not_valid_any:
+						new_valid.append(ll)
+					
+			valid = new_valid
+		return valid
 
 	def mesh_variations(self, variations:dict, exclude=[]):
 		'''
@@ -331,6 +344,7 @@ class UL_CustoAsset(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
+		row.label(text=f'{item.asset_type.name} : ')
 		row.label(text=f'{item.asset_name}')
 		row.separator()
 		row.label(text=f'|  layer={item.layer}')

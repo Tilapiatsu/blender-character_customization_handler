@@ -17,8 +17,7 @@ class CustomizationCategory(NodeCategory):
 # all categories in a list
 node_categories = [
     CustomizationCategory('INPUTS', "Input", items=[
-        NodeItem("AssetsGetByTypeNodeType"),
-        NodeItem("AssetsGetFromCollectionNodeType"),
+        NodeItem("AssetsGet"),
     ]),
     # identifier, label, items list
     CustomizationCategory('ASSETS', "Assets", items=[
@@ -31,6 +30,10 @@ node_categories = [
     CustomizationCategory('MATERIALS', "Materials", items=[
         NodeItem("MaterialsFilterByLabelsNodeType"),
     ]),
+    CustomizationCategory('LABELS', "Labels", items=[
+        NodeItem("AddOverrideLabelNodeType"),
+    ]),
+    
     
     CustomizationCategory('OTHERNODES', "Other Nodes", items=[
         # the node item can have additional settings,

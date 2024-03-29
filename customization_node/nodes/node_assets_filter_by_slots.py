@@ -16,6 +16,7 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 	
 	labels: bpy.props.CollectionProperty(name="Slots", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+	label_type = 'MESH_SLOT' 
 	
 	@property
 	def label_names(self):
@@ -52,20 +53,19 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 		filtered = []
 		assets = super().get_assets()
 		
-        # skip node if muted
+		# skip node if muted
 		if self.mute:
 			return assets
 
 		for a in assets:
 			valid_labels = []
+			slots = [s.name for s in a.slots if s.checked]
 			for i, label in enumerate(self.labels):
 				if not len(label.name):
 					continue
-				for l in a.slots:
-					if label.name.lower() not in l.name.lower():
-						continue
-					if l.checked and not label.invert or not l.checked and label.invert:
-						valid_labels.append(label.name)
+				
+				if label.name in slots and not label.invert or label.name not in slots and label.invert:
+					valid_labels.append(label.name)
 			
 			valid_object = True
 			for l in self.label_names:

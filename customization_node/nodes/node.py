@@ -21,6 +21,7 @@ def update_values(self, context):
 
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
+	label_type = 'DEFAULT'
 
 	@property
 	def spawned_assets(self):
@@ -35,8 +36,16 @@ class CustomizationTreeNode:
 		return ntree.bl_idname == TREE_NAME
 	
 	def node_tree(self, context):
+		ch_settings = bpy.context.scene.custo_handler_settings
 		space = context.space_data
-		node_tree = space.node_tree
+		node_tree = getattr(space, 'node_tree', None)
+
+		if node_tree is None:
+			if ch_settings.custo_spawn_tree is None:
+				return None
+			else:
+				node_tree = ch_settings.custo_spawn_tree
+				
 		return node_tree
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
@@ -100,7 +109,6 @@ class CustomizationTreeNode:
 
 		return transfer
 	
-	# @transfer_attributes
 	def get_assets(self):
 		input_assets = []
 		for input in self.inputs:
@@ -125,6 +133,7 @@ class CustomizationTreeNode:
 		print('---------------------------------------')
 		for a in assets:
 			print(a.name)
+			print(a.attributes)
 		print('---------------------------------------')
 
 	# Follows through reroutes

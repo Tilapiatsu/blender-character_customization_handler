@@ -1,17 +1,16 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .node_attributes import LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 
-class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
+class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Labels node'''
+	'''Add/Override Labels node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByLabelsNodeType'
+	bl_idname = 'AddOverrideLabelNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Labels"
+	bl_label = "Add/Override Labels"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
@@ -42,15 +41,13 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Labels"
+		return "Add/Override Labels node"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		pass
 	
 	def get_assets(self):		
-		# filtering by label
-		filtered = []
 		assets = super().get_assets()
 		
 		# skip node if muted
@@ -60,29 +57,16 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:
-			labels = LabelCombinaison()
+
 			for label in self.labels:
 				if not len(label.name):
 					continue
-				found=False
 				
-				for l in ch_settings.custo_label_categories[label.label_category].labels:
-					if label.name.lower() not in l.name.lower():
-						continue
-					
-					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert)
-					found = True
-						
-				if not found:
-					labels.set_invalid_label()
-					
-			if a.has_mesh_with_labels(variations=labels):
-				a.attributes.add_labels(labels, unique=True)
-				filtered.append(a)
+				a.attributes.add_label(category=label.label_category, name=label.name, value= not label.invert)
 
-		return filtered
+		return assets
 
-classes = (AssetsFilterByLabelsNode,)
+classes = (AddOverrideLabelsNode,)
 
 def register():
 	from bpy.utils import register_class

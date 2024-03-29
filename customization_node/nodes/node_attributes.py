@@ -11,7 +11,7 @@ class NodeBinaryLabel:
 	valid_any: bool = False
 	
 	def __str__(self):
-		return f'{self.name} : {self.positive}'
+		return f'{self.name} : {self.value}'
 
 
 @dataclass
@@ -66,11 +66,18 @@ class NodeAttributes:
 		if category not in self.labels.keys():
 			self.labels[category] = [NodeBinaryLabel(name=name, value=value, valid_any=valid_any)]
 		else:
+			label = NodeBinaryLabel(name=name, value=value, valid_any=valid_any)
+			if label in self.labels[category]:
+				return
+			
 			self.labels[category].append(NodeBinaryLabel(name=name, value=value, valid_any=valid_any))
 
-	def add_labels(self, labels:dict):
+	def add_labels(self, labels:dict, unique=False):
 		for lc, l in labels.items():
-			self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any)
+			if unique and lc in self.labels.keys():
+				continue
+			else:
+				self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any,)
 
 	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
@@ -98,6 +105,9 @@ class NodeAttributes:
 			labels[lc] = self.labels[lc]
 
 		return labels
+	
+	def __str__(self):
+		return f'Attributes : {self.labels}'
 
 
 @dataclass

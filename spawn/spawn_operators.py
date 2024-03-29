@@ -404,7 +404,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			asset_label_combinaison = asset_attributes.get_label_combinaison()
 			asset_meshes = asset.asset.mesh_variations(asset_label_combinaison)
 			
-			if not len(asset_meshes):
+			if asset_meshes is None or not len(asset_meshes):
 				return False
 			
 			self.first_asset = False
@@ -452,7 +452,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 						
 						if mesh_category.label_category.valid_any is not None:
 							if mesh_category.label_category.valid_any.name == picked_label.name:
-								picked_label = random.choice(mesh_category.label_category.not_valid_any)
+								not_any = mesh_category.label_category.not_valid_any
+								mesh_labels[mesh_category.name] = not_any
+								picked_label = random.choice(not_any)
+								
 
 						if len(mesh_labels[mesh_category.name]) > 0:
 							if picked_label in mesh_labels[mesh_category.name]:
