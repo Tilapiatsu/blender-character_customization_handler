@@ -1,20 +1,12 @@
 import bpy
 
-def draw_label_search(layout, label_category_name, property_name, text='', label=''):
-	row = layout.split(align=True, factor=0.2)
-
-	row.label(text=label)
-	op = row.operator('scene.search_label', text=text)
-	op.label_category_name = label_category_name
-	op.property_name = property_name
-
-def draw_label_category_search(layout, property_name:str, text='', label=''):
-	# row = layout.split(align=True, factor=0.2)
-	row = layout.row(align=True)
-
-	row.label(text=label)
-	op = row.operator('scene.search_label_category', text=text)
-	op.property_name = property_name
+def get_label_category_labels(asset_type, prop_name):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	category_name = getattr(ch_settings.custo_asset_types[asset_type], prop_name , None)
+	if category_name is None:
+		return None
+	category_name = category_name.name
+	return ch_settings.custo_label_categories[category_name]
 
 def in_range(ui_list, index):
 	return index > -1 and len(ui_list) and len(ui_list) < index

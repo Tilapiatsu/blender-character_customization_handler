@@ -181,32 +181,13 @@ class UI_AddLabelCategory(bpy.types.Operator):
 		s.name = self.name
 		bpy.ops.object.refresh_label_definition('EXEC_DEFAULT')
 		return {'FINISHED'}
-
-class UI_SearchLabelCategory(bpy.types.Operator):
-	bl_idname = "scene.search_label_category"
-	bl_label = "Search LabelCategory"
-	bl_property = "enum"
-
-	property_name : bpy.props.StringProperty(name='Property Name')
-	enum: bpy.props.EnumProperty(name="Label", description="", items=label_categories_enum)
-
-	def execute(self, context):
-		command = f'{self.property_name} = "{self.enum}"'
-		exec(command, {'context':context})
-		return {'FINISHED'}
-
-	def invoke(self, context, event):
-		wm = context.window_manager
-		wm.invoke_search_popup(self)
-		return {'FINISHED'}
-
+	
 classes = ( UI_MoveLabelCategory, 
 			UI_EditLabelCategory, 
 			UI_ClearLabelCategories, 
 			UI_AddLabelCategory, 
 			UI_RemoveLabelCategory,
-			UI_DuplicateLabelCategory,
-			UI_SearchLabelCategory)
+			UI_DuplicateLabelCategory)
 
 def register():
 	from bpy.utils import register_class

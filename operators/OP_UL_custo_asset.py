@@ -1,7 +1,6 @@
 import bpy
-from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
-from .properties.custo_label_properties import draw_label_search
-from .properties.custo_asset_properties import draw_asset_type_search
+from .properties.custo_asset_properties import update_current_asset_properties
+from .properties.custo_label_properties import get_label_category_labels
 
 def update_custo_slot(self, context):
 	print(self.asset_type.name)
@@ -44,7 +43,7 @@ def set_current_label_category(self, context):
 	context.scene.custo_handler_settings.current_label_category.clear()
 
 	category = context.scene.custo_handler_settings.current_label_category.add()
-	category.name = context.scene.custo_handler_settings.custo_asset_types[self.asset_type.name].mesh_slot_label_category.name
+	category.name = context.scene.custo_handler_settings.custo_asset_types[self.asset_type].mesh_slot_label_category.name
 	for l in context.scene.custo_handler_settings.custo_label_categories[category.name].labels:
 		if l.name in context.scene.custo_handler_settings.custo_assets[self.index].slots:
 			l = context.scene.custo_handler_settings.custo_assets[self.index].slots[l.name]
@@ -53,7 +52,6 @@ def set_current_label_category(self, context):
 		label.name = l.name
 		label.checked = l.checked
 		label.keep_lower_layer_slot = l.keep_lower_layer_slot
-	
 
 class UI_MoveAsset(bpy.types.Operator):
 	bl_idname = "scene.move_customization_asset"
@@ -158,7 +156,8 @@ class UI_EditAsset(bpy.types.Operator):
 	bl_description = "Edit current customization asset type"
 
 	index : bpy.props.IntProperty(name="Asset Index", default=0)
-	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
+	asset_type : bpy.props.StringProperty(name="Asset Type", default='Label Category')
+	asset_id : bpy.props.StringProperty(name="Asset ID", default='Label Category')
 	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
 
 	def separator(self, layout, iter):
@@ -166,11 +165,13 @@ class UI_EditAsset(bpy.types.Operator):
 			layout.separator()
 
 	def draw(self, context):
+		ch_settings=context.scene.custo_handler_settings
 		layout = self.layout
-		ch_settings = context.scene.custo_handler_settings
 		col = layout.column()
-		draw_asset_type_search(col, 'context.scene.custo_handler_settings.current_asset_type.name', text=ch_settings.current_asset_type.name, label='Asset Types : ')	
-		draw_label_search(col, ch_settings.custo_asset_types[self.asset_type.name].asset_label_category.name, 'context.scene.custo_handler_settings.current_asset_id.name', text=ch_settings.current_asset_id.name, label='Asset ID : ')
+		col.prop_search(self, "asset_type", ch_settings, "custo_asset_types", text='Asset Type')
+		
+		asset_id_labels = get_label_category_labels(self.asset_type, 'asset_label_category')
+		col.prop_search(self, "asset_id", asset_id_labels, "labels", text='Asset ID')
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -179,8 +180,8 @@ class UI_EditAsset(bpy.types.Operator):
 		b.label(text='Slots')
 		row = b.row()
 
-		rows = 20 if len(context.scene.custo_handler_settings.current_edited_asset_slots) > 20 else len(context.scene.custo_handler_settings.current_edited_asset_slots) + 1
-		row.template_list('OBJECT_UL_CustoPartSlots', '', context.scene.custo_handler_settings, 'current_edited_asset_slots', context.scene.custo_handler_settings, 'current_edited_asset_slots_idx', rows=rows)
+		rows = 20 if len(ch_settings.current_edited_asset_slots) > 20 else len(ch_settings.current_edited_asset_slots) + 1
+		row.template_list('OBJECT_UL_CustoPartSlots', '', ch_settings, 'current_edited_asset_slots', ch_settings, 'current_edited_asset_slots_idx', rows=rows)
 
 	def invoke(self, context, event):
 		wm = context.window_manager
@@ -188,12 +189,13 @@ class UI_EditAsset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		s = context.scene.custo_handler_settings.custo_assets[self.index]
+		ch_settings=context.scene.custo_handler_settings
+		s = ch_settings.custo_assets[self.index]
 			
-		s.asset_type.name = context.scene.custo_handler_settings.current_asset_type.name
+		s.asset_type.name = self.asset_type
 		s.layer = self.layer
 
-		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
+		s.asset_id.name = self.asset_id
 		s.asset_id.label_category_name = context.scene.custo_handler_settings.current_asset_id.label_category_name
 		
 		s.slots.clear()
@@ -209,10 +211,20 @@ class UI_EditAsset(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
-		self.layer = context.scene.custo_handler_settings.custo_assets[self.index].layer
-		context.scene.custo_handler_settings.current_asset_name = context.scene.custo_handler_settings.custo_assets[self.index].asset_id.name
+		ch_settings = context.scene.custo_handler_settings
+		
+		self.layer = ch_settings.custo_assets[self.index].layer
+		self.asset_id = context.scene.custo_handler_settings.custo_assets[self.index].asset_id.name
+		
+		asset_types = ch_settings.custo_asset_types.keys()
+		if not len(asset_types):
+			self.report({'ERROR'}, "No Asset Types")
+			return {'CANCELLED'}
+		elif self.asset_type not in asset_types:
+			self.asset_type = asset_types[0]
+
 		set_current_label_category(self, context)
-		update_current_asset_properties(self.asset_type, context)
+		update_current_asset_properties(self, context)
 
 class UI_AddAsset(bpy.types.Operator):
 	bl_idname = "scene.add_customization_asset"
@@ -220,7 +232,8 @@ class UI_AddAsset(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 	bl_description = "Add a customization asset type"
 
-	asset_type : bpy.props.PointerProperty(name="Asset Type", type=CustoAssetTypeEnumProperties)
+	asset_type : bpy.props.StringProperty(name="Asset Type", default='Label Category')
+	asset_id : bpy.props.StringProperty(name="Asset ID", default='Label Category')
 	layer : bpy.props.IntProperty(name="Layer", default=0, min=0)
 
 	def separator(self, layout, iter):
@@ -228,12 +241,13 @@ class UI_AddAsset(bpy.types.Operator):
 			layout.separator()
 
 	def draw(self, context):
+		ch_settings=context.scene.custo_handler_settings
 		layout = self.layout
-		ch_settings = context.scene.custo_handler_settings
 		col = layout.column()
-		draw_asset_type_search(col, 'context.scene.custo_handler_settings.current_asset_type.name', text=ch_settings.current_asset_type.name, label='Asset Types : ')	
-		draw_label_search(col, ch_settings.custo_asset_types[self.asset_type.name].asset_label_category.name, 'context.scene.custo_handler_settings.current_asset_id.name', text=ch_settings.current_asset_id.name, label='Asset ID : ')
-
+		col.prop_search(self, "asset_type", ch_settings, "custo_asset_types", text='Asset Type')
+	
+		asset_id_labels = get_label_category_labels(self.asset_type, 'asset_label_category')
+		col.prop_search(self, "asset_id", asset_id_labels, "labels", text='Asset ID')
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -251,10 +265,9 @@ class UI_AddAsset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
-		ch_settings = context.scene.custo_handler_settings
 		s = context.scene.custo_handler_settings.custo_assets.add()
 
-		s.asset_type.name = ch_settings.current_asset_type.name
+		s.asset_type.name = self.asset_type
 		s.layer = self.layer
 
 		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
@@ -271,9 +284,16 @@ class UI_AddAsset(bpy.types.Operator):
 		return {'FINISHED'}
 	
 	def init_parameters(self, context):
+		ch_settings=context.scene.custo_handler_settings
+		asset_types = ch_settings.custo_asset_types.keys()
 		self.layer = 0
+		if not len(asset_types):
+			self.report({'ERROR'}, "No Asset Types")
+			return {'CANCELLED'}
+		elif self.asset_type not in asset_types:
+			self.asset_type = asset_types[0]
 		self.set_current_label_category(context)
-		update_current_asset_properties(self.asset_type, context)
+		update_current_asset_properties(self, context)
 	
 	def set_current_label_category(self, context):
 		context.scene.custo_handler_settings.current_label_category.clear()

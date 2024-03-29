@@ -27,12 +27,6 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	current_asset_type : bpy.props.PointerProperty(type=CustoAssetTypeEnumProperties)
 	current_asset_name : bpy.props.StringProperty()
 	current_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
-	current_asset_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryEnumProperties)
-	current_mesh_slot_label_category : bpy.props.PointerProperty(name="Mesh Slot Label Category", type=CustoLabelCategoryEnumProperties)
-	current_mesh_variation_label_categories : bpy.props.PointerProperty(name="Mesh Variation Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
-	current_material_slot_label_category : bpy.props.PointerProperty(name="Material Slot Label Category", type=CustoLabelCategoryEnumProperties)
-	current_material_label_category : bpy.props.PointerProperty(name="Material Label Category", type=CustoLabelCategoryEnumProperties)
-	current_material_variation_label_categories : bpy.props.PointerProperty(name="Material Variation Label Category", type=CustoLabelCategoryEnumCollectionProperties)
 
 	# Slot Property ?
 	custo_slots : bpy.props.CollectionProperty(type=CustoSlotProperties)

@@ -38,7 +38,7 @@ def update_current_asset_properties(self, context):
 	ch_settings = context.scene.custo_handler_settings
 	asset_names = [a.asset_name for a in ch_settings.custo_assets]
 	# update Asset ID
-	lc = ch_settings.custo_asset_types[self.name].asset_label_category
+	lc = ch_settings.custo_asset_types[self.asset_type].asset_label_category
 	ch_settings.current_asset_id.label_category_name = lc.name
 	if ch_settings.current_asset_name in asset_names:
 		asset_id = ch_settings.custo_assets[ch_settings.current_asset_name].asset_id
@@ -47,7 +47,7 @@ def update_current_asset_properties(self, context):
 		
 	# Update Slots
 	ch_settings.current_edited_asset_slots.clear()
-	for s in ch_settings.current_label_category[ch_settings.custo_asset_types[self.name].mesh_slot_label_category.name].labels:
+	for s in ch_settings.current_label_category[ch_settings.custo_asset_types[self.asset_type].mesh_slot_label_category.name].labels:
 		slot = ch_settings.current_edited_asset_slots.add()
 		slot.name = s.name
 		slot.checked = s.checked

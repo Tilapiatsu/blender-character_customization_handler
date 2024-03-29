@@ -222,25 +222,6 @@ class UI_AddLabel(bpy.types.Operator):
 		s.name = self.name
 		bpy.ops.object.refresh_label_definition()
 		return {'FINISHED'}
-
-class UI_SearchLabel(bpy.types.Operator):
-	bl_idname = "scene.search_label"
-	bl_label = "Search Label"
-	bl_property = "enum"
-
-	label_category_name: bpy.props.StringProperty(name='Label Category Name')
-	property_name : bpy.props.StringProperty(name='Property Name')
-	enum: bpy.props.EnumProperty(name="Label", description="", items=label_enum)
-
-	def execute(self, context):
-		command = f'{self.property_name} = "{self.enum}"'
-		exec(command, {'context':context})
-		return {'FINISHED'}
-
-	def invoke(self, context, event):
-		wm = context.window_manager
-		wm.invoke_search_popup(self)
-		return {'FINISHED'}
 	
 
 classes = ( UI_MoveLabel, 
@@ -248,8 +229,7 @@ classes = ( UI_MoveLabel,
 			UI_ClearLabels, 
 			UI_AddLabel,
 			UI_RemoveLabel,
-			UI_DuplicateLabel,
-			UI_SearchLabel)
+			UI_DuplicateLabel)
 
 def register():
 	from bpy.utils import register_class
