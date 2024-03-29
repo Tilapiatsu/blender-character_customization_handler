@@ -21,6 +21,7 @@ bl_info = {
     "author" : "Tilapiatsu",
     "description" : "",
     "blender" : (4, 0, 0),
+    "version": (0, 1, 0),
     "location" : "",
     "warning" : "",
     "category" : "Object"

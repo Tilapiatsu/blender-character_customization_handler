@@ -39,27 +39,6 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context)
 		self.draw_labels(layout)
-	
-	def draw_labels(self, layout):
-		row = layout.row(align=True)
-		rows = 20 if len(self.labels) > 20 else len(self.labels) + 3
-		row.template_list('NODE_UL_AssetLabelNode', '', self, 'labels', self, 'labels_idx', rows=rows)
-		row.separator()
-		col = row.column(align=True)
-		col.operator('node.add_asset_label', text="", icon='ADD').node_name = self.name
-
-		col.separator()
-		d = col.operator("node.move_asset_label", text="", icon='TRIA_UP')
-		d.node_name = self.name
-		d.direction = "UP"
-
-		d = col.operator("node.move_asset_label", text="", icon='TRIA_DOWN')
-		d.node_name = self.name
-		d.direction = "DOWN"
-
-		col.separator()
-		d = col.operator("node.clear_asset_labels", text="", icon='TRASH')
-		d.node_name = self.name
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):

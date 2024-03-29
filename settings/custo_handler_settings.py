@@ -1,7 +1,7 @@
 import bpy
-from ..operators.properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
+from ..operators.properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties, CustoAssetTypeEnumProperties
 from ..operators.properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
-from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties
+from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties, CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
 from ..customization_node import TREE_NAME
 
 def update_label_category(self, context):
@@ -24,8 +24,15 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_assets : bpy.props.CollectionProperty(type=CustoAssetProperties)
 	custo_assets_idx : bpy.props.IntProperty(default=0, min=0)
 	current_asset_id : bpy.props.PointerProperty(type=CustoLabelEnumProperties)
+	current_asset_type : bpy.props.PointerProperty(type=CustoAssetTypeEnumProperties)
 	current_asset_name : bpy.props.StringProperty()
 	current_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	current_asset_label_category : bpy.props.PointerProperty(type=CustoLabelCategoryEnumProperties)
+	current_mesh_slot_label_category : bpy.props.PointerProperty(name="Mesh Slot Label Category", type=CustoLabelCategoryEnumProperties)
+	current_mesh_variation_label_categories : bpy.props.PointerProperty(name="Mesh Variation Label Categories", type=CustoLabelCategoryEnumCollectionProperties)
+	current_material_slot_label_category : bpy.props.PointerProperty(name="Material Slot Label Category", type=CustoLabelCategoryEnumProperties)
+	current_material_label_category : bpy.props.PointerProperty(name="Material Label Category", type=CustoLabelCategoryEnumProperties)
+	current_material_variation_label_categories : bpy.props.PointerProperty(name="Material Variation Label Category", type=CustoLabelCategoryEnumCollectionProperties)
 
 	# Slot Property ?
 	custo_slots : bpy.props.CollectionProperty(type=CustoSlotProperties)

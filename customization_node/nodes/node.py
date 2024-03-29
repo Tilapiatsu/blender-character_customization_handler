@@ -110,7 +110,6 @@ class CustomizationTreeNode:
 			if not input.is_linked or not len(input.links):
 				continue
 			
-            
 			input_node = follow_input_link(input.links[0]).from_node
 			if input_node.mute:
 				return input_node.get_assets()
@@ -178,3 +177,24 @@ class CustomizationTreeNode:
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
 		op.node_name = self.name
 		layout.separator()
+
+	def draw_labels(self, layout):
+		row = layout.row(align=True)
+		rows = 20 if len(self.labels) > 20 else len(self.labels) + 3
+		row.template_list('NODE_UL_AssetLabelNode', '', self, 'labels', self, 'labels_idx', rows=rows)
+		row.separator()
+		col = row.column(align=True)
+		col.operator('node.add_asset_label', text="", icon='ADD').node_name = self.name
+
+		col.separator()
+		d = col.operator("node.move_asset_label", text="", icon='TRIA_UP')
+		d.node_name = self.name
+		d.direction = "UP"
+
+		d = col.operator("node.move_asset_label", text="", icon='TRIA_DOWN')
+		d.node_name = self.name
+		d.direction = "DOWN"
+
+		col.separator()
+		d = col.operator("node.clear_asset_labels", text="", icon='TRASH')
+		d.node_name = self.name

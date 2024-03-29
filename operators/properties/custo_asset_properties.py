@@ -3,6 +3,13 @@ import random
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
 
+def draw_asset_type_search(layout, property_name, text='', label=''):
+	row = layout.split(align=True, factor=0.2)
+
+	row.label(text=label)
+	op = row.operator('scene.search_asset_type', text=text)
+	op.property_name = property_name
+
 class CustoAssetTypePointer(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Asset Type', default='')
 	

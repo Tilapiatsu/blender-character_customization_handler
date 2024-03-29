@@ -1,5 +1,7 @@
 import bpy
 from .properties.custo_asset_properties import CustoAssetTypeEnumProperties, update_current_asset_properties, get_asset_name
+from .properties.custo_label_properties import draw_label_search
+from .properties.custo_asset_properties import draw_asset_type_search
 
 def update_custo_slot(self, context):
 	print(self.asset_type.name)
@@ -165,10 +167,10 @@ class UI_EditAsset(bpy.types.Operator):
 
 	def draw(self, context):
 		layout = self.layout
+		ch_settings = context.scene.custo_handler_settings
 		col = layout.column()
-		col.prop(self.asset_type, 'name', text='Asset Type')
-		
-		col.prop(context.scene.custo_handler_settings.current_asset_id, 'name', text='Asset ID')
+		draw_asset_type_search(col, 'context.scene.custo_handler_settings.current_asset_type.name', text=ch_settings.current_asset_type.name, label='Asset Types : ')	
+		draw_label_search(col, ch_settings.custo_asset_types[self.asset_type.name].asset_label_category.name, 'context.scene.custo_handler_settings.current_asset_id.name', text=ch_settings.current_asset_id.name, label='Asset ID : ')
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -188,7 +190,7 @@ class UI_EditAsset(bpy.types.Operator):
 	def execute(self, context):
 		s = context.scene.custo_handler_settings.custo_assets[self.index]
 			
-		s.asset_type.name = self.asset_type.name
+		s.asset_type.name = context.scene.custo_handler_settings.current_asset_type.name
 		s.layer = self.layer
 
 		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
@@ -227,10 +229,11 @@ class UI_AddAsset(bpy.types.Operator):
 
 	def draw(self, context):
 		layout = self.layout
+		ch_settings = context.scene.custo_handler_settings
 		col = layout.column()
-		col.prop(self.asset_type, 'name', text='Asset Type')
-	
-		col.prop(context.scene.custo_handler_settings.current_asset_id, 'name', text='Asset ID')
+		draw_asset_type_search(col, 'context.scene.custo_handler_settings.current_asset_type.name', text=ch_settings.current_asset_type.name, label='Asset Types : ')	
+		draw_label_search(col, ch_settings.custo_asset_types[self.asset_type.name].asset_label_category.name, 'context.scene.custo_handler_settings.current_asset_id.name', text=ch_settings.current_asset_id.name, label='Asset ID : ')
+
 
 		col.separator()
 		col.prop(self, 'layer', text='Layer')
@@ -248,9 +251,10 @@ class UI_AddAsset(bpy.types.Operator):
 		return wm.invoke_props_dialog(self, width=500)
 
 	def execute(self, context):
+		ch_settings = context.scene.custo_handler_settings
 		s = context.scene.custo_handler_settings.custo_assets.add()
 
-		s.asset_type.name = self.asset_type.name
+		s.asset_type.name = ch_settings.current_asset_type.name
 		s.layer = self.layer
 
 		s.asset_id.name = context.scene.custo_handler_settings.current_asset_id.name
