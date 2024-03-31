@@ -17,11 +17,11 @@ class UL_AssetLabelNode(bpy.types.UIList):
 		row.alignment = 'EXPAND'
 		
 		if data.label_type == 'MESH_SLOT':
-			row.prop_search(item, "name", context.scene.custo_handler_settings.custo_asset_types[data.node_tree(context).asset_type].mesh_slot_label_category.label_category, "labels", text='')
+			row.prop_search(item, "name", context.scene.custo_handler_settings.custo_asset_types[data.node_tree.asset_type].mesh_slot_label_category.label_category, "labels", text='')
 		elif data.label_type == 'MATERIAL_SLOT':
-			row.prop_search(item, "name", context.scene.custo_handler_settings.custo_asset_types[data.node_tree(context).asset_type].material_slot_label_category.label_category, "labels", text='')
+			row.prop_search(item, "name", context.scene.custo_handler_settings.custo_asset_types[data.node_tree.asset_type].material_slot_label_category.label_category, "labels", text='')
 		else:
-			row.prop_search(item, "label_category", context.scene.custo_handler_settings, "custo_label_categories", text='')
+			row.prop_search(item, "label_category", context.scene.custo_handler_settings.custo_asset_types_label_categories[data.node_tree.asset_type], data.category_name, text='')
 			if item.label_category in context.scene.custo_handler_settings.custo_label_categories.keys():
 				row.prop_search(item, "name", context.scene.custo_handler_settings.custo_label_categories[item.label_category], "labels", text='')
 			else:

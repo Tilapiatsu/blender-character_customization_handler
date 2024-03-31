@@ -1,7 +1,7 @@
 import bpy
 from ..operators.properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties, CustoAssetTypeEnumProperties
 from ..operators.properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
-from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties, CustoLabelCategoryEnumProperties, CustoLabelCategoryEnumCollectionProperties
+from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties, NodeAssetTypeLabelCategories
 from ..customization_node import TREE_NAME
 
 def update_label_category(self, context):
@@ -47,6 +47,9 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_spawn_count : bpy.props.IntProperty(name='Spawn Count', default=1, min=1)
 	custo_spawn_max_per_row : bpy.props.IntProperty(name='Max Spawn per Row', default=10, min=1)
 	exclude_incomplete_mesh_combinaison : bpy.props.BoolProperty(name='Exclude Incomplete Combinaison', default=True)
+	
+    # Node
+	custo_asset_types_label_categories : bpy.props.CollectionProperty(type=NodeAssetTypeLabelCategories)
 	
 	# Spawn
 	spawned_mesh_instance : bpy.props.CollectionProperty(type=CustoObjectProperties)

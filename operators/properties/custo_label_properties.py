@@ -55,6 +55,74 @@ def update_label_category(self, context):
 			l.valid_any = False
 			ch_settings.custo_label_categories[ch_settings.custo_label_categories_idx].labels[l.name].valid_any = False
 
+def update_node_label_categories(asset_type):
+	update_mesh_slot_label_categories(asset_type)
+	update_materials_label_categories(asset_type)
+	update_asset_name_label_categories(asset_type)
+	update_other_label_categories(asset_type)
+
+def init_asset_type_label_category(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	if asset_type not in ch_settings.custo_asset_types_label_categories.keys():
+		lc = ch_settings.custo_asset_types_label_categories.add()
+		lc.name = asset_type
+		return lc
+	else:
+		return ch_settings.custo_asset_types_label_categories[asset_type]
+
+def update_mesh_slot_label_categories(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	lc = init_asset_type_label_category(asset_type)
+	lc.mesh_slot_label_category.clear()
+	asset_type = ch_settings.custo_asset_types[asset_type]
+	category_names = [asset_type.mesh_slot_label_category.name]
+
+	for c in category_names:
+		cat = lc.mesh_slot_label_category.add()
+		cat.name = c
+
+def update_materials_label_categories(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	lc = init_asset_type_label_category(asset_type)
+	lc.materials_label_category.clear()
+
+	asset_type = ch_settings.custo_asset_types[asset_type]
+	category_names = [asset_type.material_label_category.name] + [lc for lc in asset_type.material_variation_label_categories.keys()]
+
+	for c in category_names:
+		cat = lc.materials_label_category.add()
+		cat.name = c
+
+def update_asset_name_label_categories(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	lc = init_asset_type_label_category(asset_type)
+	lc.asset_label_category.clear()
+
+	asset_type = ch_settings.custo_asset_types[asset_type]
+	category_names = [asset_type.asset_label_category.name]
+
+	for c in category_names:
+		cat = lc.asset_label_category.add()
+		cat.name = c
+		
+def update_other_label_categories(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	lc = init_asset_type_label_category(asset_type)
+	lc.other_label_category.clear()
+
+	names = ch_settings.custo_label_categories.keys()
+	asset_type = ch_settings.custo_asset_types[asset_type]
+	exclude_label_category_name = [	asset_type.asset_label_category.name, 
+							asset_type.mesh_slot_label_category.name, 
+							asset_type.material_slot_label_category.name, 
+							asset_type.material_label_category.name] + [lc for lc in asset_type.material_variation_label_categories.keys()]
+	
+	filtered = filter(lambda lc:lc not in exclude_label_category_name, names)
+
+	for c in filtered:
+		cat = lc.other_label_category.add()
+		cat.name = c
+
 
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
 	name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
@@ -127,6 +195,13 @@ class CustoLabelCategoryDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
 	labels : bpy.props.CollectionProperty(type=CustoLabelProperties)
 
+class NodeAssetTypeLabelCategories(bpy.types.PropertyGroup):
+	name : bpy.props.StringProperty(name='Asset Type')
+	asset_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	mesh_slot_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	materials_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	other_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+
 class UL_CustoLabel(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoLabels"
 
@@ -188,6 +263,7 @@ classes = ( CustoLabelProperties,
 			CustoLabelCategoryDefinitionProperties,
 			CustoLabelCategoryEnumProperties,
 			CustoLabelCategoryEnumCollectionProperties,
+			NodeAssetTypeLabelCategories,
 			UL_CustoLabel, 
 			UL_CustoLabelCategory,
 			UL_CustoLabelDefinition,

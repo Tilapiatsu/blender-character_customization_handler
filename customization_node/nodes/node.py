@@ -2,6 +2,7 @@ import bpy
 from ..sockets import node_socket_asset
 from .node_const import SPAWN_COLOR, INVALID_COLOR
 from ..node_const import TREE_NAME
+from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
 
 # Follow an input link through any reroutes
@@ -22,6 +23,10 @@ def update_values(self, context):
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
 	label_type = 'DEFAULT'
+	
+	@property
+	def category_name(self):
+		return ''
 
 	@property
 	def spawned_assets(self):
@@ -35,9 +40,10 @@ class CustomizationTreeNode:
 	def poll(cls, ntree):
 		return ntree.bl_idname == TREE_NAME
 	
-	def node_tree(self, context):
+	@property
+	def node_tree(self):
 		ch_settings = bpy.context.scene.custo_handler_settings
-		space = context.space_data
+		space = bpy.context.space_data
 		node_tree = getattr(space, 'node_tree', None)
 
 		if node_tree is None:

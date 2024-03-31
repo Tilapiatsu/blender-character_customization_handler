@@ -24,7 +24,7 @@ node_categories = [
         NodeItem("AssetsAppendNodeType"),
         NodeItem("AssetsFilterByNameNodeType"),
         NodeItem("AssetsFilterByLayerNodeType"),
-        NodeItem("AssetsFilterBySlotsNodeType"),
+        NodeItem("AssetsFilterByMeshSlotsNodeType"),
         NodeItem("AssetsFilterByLabelsNodeType"),
         NodeItem("AssetsSelectorNodeType")
     ]),

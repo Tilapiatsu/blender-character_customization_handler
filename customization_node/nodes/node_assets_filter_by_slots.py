@@ -2,21 +2,26 @@ import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
+from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
 class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Slots node'''
+	'''Assets Filter By Mesh Slots node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterBySlotsNodeType'
+	bl_idname = 'AssetsFilterByMeshSlotsNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Slots"
+	bl_label = "Filter Assets By Mesh Slots"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
 	labels: bpy.props.CollectionProperty(name="Slots", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
-	label_type = 'MESH_SLOT' 
+	label_type = 'MESH_SLOT'
+	
+	@property
+	def category_name(self):
+		return 'mesh_slot_label_category'
 	
 	@property
 	def label_names(self):
@@ -42,7 +47,7 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Slots"
+		return "Filter Assets By Mesh Slots"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):

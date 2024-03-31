@@ -17,7 +17,6 @@ class AssetsFilterByLayerNode(CustomizationTreeNode, Node):
 																('GREATER', 'Greater Than', ''),
 																('LESS', 'Less Than', '')])
 	layer: bpy.props.IntProperty(name="Layer", min=0, default=0)
-	
 
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")

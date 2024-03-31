@@ -3,6 +3,7 @@ from bpy.types import Node
 from .node import CustomizationTreeNode
 from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
+from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
 class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	# === Basics ===
@@ -18,6 +19,10 @@ class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
+	@property
+	def category_name(self):
+		return 'asset_label_category'
+
 	@property
 	def label_names(self):
 		return [l.name for l in self.labels]

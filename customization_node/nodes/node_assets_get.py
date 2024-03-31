@@ -37,7 +37,7 @@ class AssetsGet(CustomizationTreeNode, Node):
 		
 		ch_settings = bpy.context.scene.custo_handler_settings
 		
-		node_tree = self.node_tree(bpy.context)
+		node_tree = self.node_tree
 		if node_tree is None:
 			return []
 		

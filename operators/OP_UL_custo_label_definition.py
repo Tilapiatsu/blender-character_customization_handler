@@ -1,4 +1,5 @@
 import bpy
+from .properties.custo_label_properties import update_node_label_categories
 
 class UI_RefreshLabelDefinition(bpy.types.Operator):
 	bl_idname = "object.refresh_label_definition"
@@ -40,6 +41,10 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 				continue
 			self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
 
+        # Update Node Label Category
+		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
+			update_node_label_categories(asset_type.name)
+			
 		return {'FINISHED'}
 	
 	def add_label_category(self, prop, label_category):
