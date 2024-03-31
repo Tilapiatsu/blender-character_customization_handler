@@ -22,6 +22,7 @@ node_categories = [
     # identifier, label, items list
     CustomizationCategory('ASSETS', "Assets", items=[
         NodeItem("AssetsAppendNodeType"),
+        NodeItem("AssetsFilterByNameNodeType"),
         NodeItem("AssetsFilterByLayerNodeType"),
         NodeItem("AssetsFilterBySlotsNodeType"),
         NodeItem("AssetsFilterByLabelsNodeType"),

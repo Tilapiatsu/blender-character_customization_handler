@@ -24,7 +24,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if self._assets is None:
 			self._assets = []
 			for node in self.spawn_tree.custo_nodes:
-				self._assets += [a for a in node.assets if node.spawn and a not in self._assets]
+				self._assets += [a for a in node.assets if node.spawn and not node.mute and a not in self._assets]
 		
 		return self._assets
 	
@@ -113,7 +113,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			else:
 				is_available = True
 				for a in assets:
-					if a.slots[slot].checked and not a.slots[slot].keep_lower_layer_slot:
+					if a.slots[slot].value and not a.slots[slot].keep_lower_layer_slot:
 						is_available = False
 						break
 				if is_available:
@@ -162,7 +162,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		for asset in self.assets:
 			if not len(asset.all_mesh_variations):
 				continue
-			slots = [s for s in asset.slots if s.checked]
+			slots = [s for s in asset.slots if s.value]
 			for slot in slots:
 				if slot.name not in self._assets_per_slot.keys():
 					self._assets_per_slot[slot.name] = [asset]
@@ -347,7 +347,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				# Asstign the proper material to each slots
 				for s in object_instance.material_slots:
 					# Filter by Slots
-					materials_slot_filtered = mesh.custo_attributes.filter_by_label_combinaison(materials_attribute_filtered, mesh.custo_attributes.valid_labels(s.material, include_label_category=[asset.asset_type.asset_type.material_slot_label_category.name]))
+					slot_labels = mesh.custo_attributes.valid_labels(s.material, include_label_category=[asset.asset_type.asset_type.material_slot_label_category.name])
+					materials_slot_filtered = mesh.custo_attributes.filter_by_label_combinaison(materials_attribute_filtered, slot_labels)
 					print(f'Slot Filtered Material List :', materials_slot_filtered)
 					if not len(materials_slot_filtered):
 						continue
@@ -401,8 +402,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if self.first_asset:
 			# Lock Mesh Variation
 			asset_attributes = asset.attributes
-			asset_label_combinaison = asset_attributes.get_label_combinaison()
-			asset_meshes = asset.asset.mesh_variations(asset_label_combinaison)
+			asset_label_combinaison = asset_attributes.labels
+			asset_meshes = asset.asset.mesh_variations(asset_label_combinaison.variation)
 			
 			if asset_meshes is None or not len(asset_meshes):
 				return False
@@ -464,6 +465,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 						valid_mesh = True
 						self.mesh_variation.set_label(category=mesh_category.name, name=picked_label.name, value=True, replace=False)
 
+					# Convert to Variation
+					self.mesh_variation = self.mesh_variation.variation
+		
 					# Check if other slots have at least one valid mesh that matches the previously picked label combinaison
 					if self.exclude_incomplete_mesh_combinaison:
 						viable = asset.asset_type.asset_type.is_viable_mesh_variation(self.mesh_variation)

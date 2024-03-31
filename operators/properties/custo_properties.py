@@ -48,7 +48,7 @@ class CustoProperty:
         for lc, l in label_combinaison.items():
             for label in l:
                 for d in data_list:
-                    if d.custo_label_category_definition[lc].labels[label.name].checked:
+                    if d.custo_label_category_definition[lc].labels[label.name].value:
                         result_list.append(d)
 
         return result_list

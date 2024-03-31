@@ -4,14 +4,14 @@ from .node import CustomizationTreeNode
 from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 
-class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
+class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Labels node'''
+	'''Assets Filter By Name node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByLabelsNodeType'
+	bl_idname = 'AssetsFilterByNameNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Labels"
+	bl_label = "Filter Assets By Name"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
@@ -48,42 +48,26 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	def update_inputs(self):
 		pass
 	
-	def get_assets(self):		
-		# filtering by label
-		filtered = []
+	def get_assets(self):	
+		filtered = []	
+
 		assets = super().get_assets()
 		
 		# skip node if muted
-		if self.mute:
+		if self.mute or not len(self.labels):
 			return assets
 		
-		ch_settings = bpy.context.scene.custo_handler_settings
-
 		for a in assets:
-			labels = LabelCombinaison()
 			for label in self.labels:
 				if not len(label.name):
 					continue
-				found=False
 				
-				for l in ch_settings.custo_label_categories[label.label_category].labels:
-					if label.name.lower() not in l.name.lower():
-						continue
-					
-					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert)
-					found = True
-						
-				if not found:
-					labels.set_invalid_label()
-			
-			variation = labels.variation
-			if a.has_mesh_with_labels(variations=variation):
-				a.attributes.add_labels(variation, unique=True)
-				filtered.append(a)
+				if a not in filtered and ((a.name == label.name and not label.invert) or (a.name != label.name and label.invert)):
+					filtered.append(a)
 
 		return filtered
 
-classes = (AssetsFilterByLabelsNode,)
+classes = (AssetsFilterByNameNode,)
 
 def register():
 	from bpy.utils import register_class

@@ -7,7 +7,8 @@ from . import   (node_assets_append,
                 node_assets_filter_by_slots,
                 node_material_filter_by_labels,
                 node_add_override_labels,
-                node_assets_get)
+                node_assets_get,
+                node_assets_filter_by_name)
 from . import operators
 
 def register():
@@ -22,9 +23,11 @@ def register():
     node_material_filter_by_labels.register()
     node_add_override_labels.register()
     node_assets_get.register()
+    node_assets_filter_by_name.register()
 
 
 def unregister():
+    node_assets_filter_by_name.unregister()
     node_assets_get.unregister()
     node_add_override_labels.unregister()
     node_material_filter_by_labels.unregister()

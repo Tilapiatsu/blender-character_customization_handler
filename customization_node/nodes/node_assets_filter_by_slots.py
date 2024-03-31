@@ -59,7 +59,7 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 
 		for a in assets:
 			valid_labels = []
-			slots = [s.name for s in a.slots if s.checked]
+			slots = [s.name for s in a.slots if s.value]
 			for i, label in enumerate(self.labels):
 				if not len(label.name):
 					continue

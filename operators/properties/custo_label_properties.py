@@ -21,7 +21,7 @@ def update_label_definition_object(self, context):
 			for i, l in enumerate(o.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
 				if i > len(context.object.custo_label_definition) - 1:
 					return
-				l.checked = context.object.custo_label_category_definition[i].checked
+				l.value = context.object.custo_label_category_definition[i].value
 			
 			o.custo_label_definition_updated = True
 
@@ -30,7 +30,7 @@ def update_label_definition_material(self, context):
 	for i, l in enumerate(context.object.material_slots[context.object.active_material_index].material.custo_label_category_definition[ch_settings.custo_label_category_definition_idx].labels):
 		if i > len(context.object.material_slots[context.object.active_material_index].material.custo_label_definition) - 1:
 			return
-		l.checked = context.object.material_slots[context.object.active_material_index].material.custo_label_definition[i].checked
+		l.value = context.object.material_slots[context.object.active_material_index].material.custo_label_definition[i].value
 
 def label_categories_enum(self, context):
 	ch_settings = context.scene.custo_handler_settings
@@ -71,13 +71,13 @@ class CustoLabelCategoryEnumCollectionProperties(bpy.types.PropertyGroup):
 
 class CustoLabelProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False)
+	value : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False)
 
 class CustoLabelPropertiesDisplay(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False)
+	value : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False, update=update_label_category)
 
@@ -117,11 +117,11 @@ class CustoLabelCategoryProperties(bpy.types.PropertyGroup):
 
 class CustoLabelDefinitionObjectProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False, update=update_label_definition_object)
+	value : bpy.props.BoolProperty(default=False, update=update_label_definition_object)
 
 class CustoLabelDefinitionMaterialProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
-	checked : bpy.props.BoolProperty(default=False, update=update_label_definition_material)
+	value : bpy.props.BoolProperty(default=False, update=update_label_definition_material)
 
 class CustoLabelCategoryDefinitionProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Category', default='')
@@ -164,7 +164,7 @@ class UL_CustoLabelDefinition(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
-		row.prop(item, 'checked', text='')
+		row.prop(item, 'value', text='')
 		row.separator()
 		row.label(text=f'{item.name}')
 		

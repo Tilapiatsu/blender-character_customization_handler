@@ -50,7 +50,7 @@ def set_current_label_category(self, context):
 
 		label = category.labels.add()
 		label.name = l.name
-		label.checked = l.checked
+		label.value = l.value
 		label.keep_lower_layer_slot = l.keep_lower_layer_slot
 
 class UI_MoveAsset(bpy.types.Operator):
@@ -202,7 +202,7 @@ class UI_EditAsset(bpy.types.Operator):
 		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
 			current_slot = s.slots.add()
 			current_slot.name = slot.name
-			current_slot.checked = slot.checked
+			current_slot.value = slot.value
 			current_slot.keep_lower_layer_slot = slot.keep_lower_layer_slot
 
 		s.name = s.asset_id.name
@@ -276,7 +276,7 @@ class UI_AddAsset(bpy.types.Operator):
 		for slot in context.scene.custo_handler_settings.current_edited_asset_slots:
 			current_slot = s.slots.add()
 			current_slot.name = slot.name
-			current_slot.checked = slot.checked
+			current_slot.value = slot.value
 			current_slot.keep_lower_layer_slot = slot.keep_lower_layer_slot
 
 		s.name = s.asset_id.name
@@ -304,7 +304,7 @@ class UI_AddAsset(bpy.types.Operator):
 			for l in lc.labels:
 				label = category.labels.add()
 				label.name = l.name
-				label.checked = l.checked
+				label.value = l.value
 				label.keep_lower_layer_slot = l.keep_lower_layer_slot
 
 

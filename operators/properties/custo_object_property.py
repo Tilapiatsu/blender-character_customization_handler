@@ -1,5 +1,6 @@
 import bpy
 from .custo_properties import CustoProperty
+from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, BinaryLabel, LabelCategory
 
 class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 	name : bpy.props.StringProperty(name='Object Attribute Name', default='')
@@ -10,21 +11,24 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		path = repr(self).rsplit(".", 1)[0]
 		return eval(path)
 
-	def materials(self, asset_type, variation:dict=None)->list:
+	def materials(self, asset_type, variation:LabelVariation=None)->list:
 		materials = []
 		mesh_variations_labels = self.valid_mesh_variations(asset_type, self.object)
-		if not isinstance(variation, dict):
-			variation = variation.as_dict()
 
-		variation[asset_type.asset_type.asset_label_category.name] = [l for l in self.object.custo_label_category_definition[asset_type.asset_type.asset_label_category.name].labels if l.checked]
+		combinaison = variation.combinaison
 
-		if not self.is_compatible_label_combinaison(mesh_variations_labels, variation):
+		for l in self.object.custo_label_category_definition[asset_type.asset_type.asset_label_category.name].labels:
+			if not l.value:
+				continue
+			combinaison.add_binary_label(asset_type.asset_type.asset_label_category.name, BinaryLabel(l.name, l.value, l.valid_any), replace=True)
+
+		if not self.is_compatible_label_combinaison(mesh_variations_labels, combinaison):
 			return materials
 
 		for m in bpy.data.materials:
 			materials_variations_labels = self.valid_mesh_variations(asset_type, m)
 
-			if not self.is_compatible_label_combinaison(materials_variations_labels, variation):
+			if not self.is_compatible_label_combinaison(materials_variations_labels, combinaison):
 				continue
 
 			if self.is_compatible_label_combinaison(mesh_variations_labels, materials_variations_labels):
@@ -33,7 +37,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		return materials
 	
 	def valid_labels(self, data, include_label_category:list=None):
-		valid_labels = {}
+		valid_labels = LabelCombinaison()
 		for lc in data.custo_label_category_definition:
 			if include_label_category is not None:
 				if lc.name in include_label_category:
@@ -49,7 +53,10 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		return self.valid_labels(data, include_label_category=mesh_variation_label_category)
 
 	def valid_label_category_labels(self, data, category:str):
-		return [l for l in data.custo_label_category_definition[category].labels if l.checked]
+		label_category = LabelCategory()
+		labels = [l for l in data.custo_label_category_definition[category].labels if l.value]
+		label_category.add_labels(labels)
+		return label_category
 
 classes = (CustoObjectAttributesProperties, )
 

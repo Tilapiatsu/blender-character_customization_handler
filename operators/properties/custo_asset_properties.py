@@ -2,6 +2,7 @@ import bpy
 import random
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
+from ...binary_labels.binary_labels import LabelVariation
 
 def draw_asset_type_search(layout, property_name, text='', label=''):
 	row = layout.split(align=True, factor=0.2)
@@ -50,7 +51,7 @@ def update_current_asset_properties(self, context):
 	for s in ch_settings.current_label_category[ch_settings.custo_asset_types[self.asset_type].mesh_slot_label_category.name].labels:
 		slot = ch_settings.current_edited_asset_slots.add()
 		slot.name = s.name
-		slot.checked = s.checked
+		slot.value = s.value
 		slot.keep_lower_layer_slot = s.keep_lower_layer_slot
 
 class CustoAssetTypeEnumProperties(bpy.types.PropertyGroup):
@@ -106,7 +107,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 			if a.asset_type.name != self.name:
 				continue
 
-			slots = [s.name for s in a.slots if s.checked]
+			slots = [s.name for s in a.slots if s.value]
 
 			if slot not in slots:
 				continue
@@ -115,7 +116,7 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 
 		return assets
 
-	def is_viable_mesh_variation(self, variation:dict)->True:
+	def is_viable_mesh_variation(self, variation:LabelVariation)->True:
 		valid = True
 		for s in self.slots:
 			assets = self.get_assets_per_slot(s)
@@ -159,7 +160,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 					meshes.remove(o)
 				continue
 
-			if not o.custo_label_category_definition[self.asset_id.label_category_name].labels[self.asset_id.name].checked:
+			if not o.custo_label_category_definition[self.asset_id.label_category_name].labels[self.asset_id.name].value:
 				if o in meshes:
 					meshes.remove(o)
 				continue
@@ -175,7 +176,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		def add_valid_mesh_label(label_set, mesh, label_category, exclude:dict={}):
 			labels = []
 			for l in mesh.custo_label_category_definition[label_category].labels:
-				if not l.checked:
+				if not l.value:
 					continue
 				
 				if label_category in exclude.keys():
@@ -196,7 +197,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		# Adding Slot
 		slot_category = self.asset_type.asset_type.mesh_slot_label_category.label_category.name
 		for slot in self.slots:
-			if not slot.checked:
+			if not slot.value:
 				continue
 			
 			if slot_category in exclude.keys():
@@ -242,7 +243,7 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 	def valid_label_catgory_labels_from_mesh(self, mesh, category, split_any=True):
 		ch_settings = bpy.context.scene.custo_handler_settings
 		scene_category = ch_settings.custo_label_categories[category.name]
-		valid = [l for l in mesh.custo_label_category_definition[category.name].labels if l.checked]
+		valid = [l for l in mesh.custo_label_category_definition[category.name].labels if l.value]
 		if split_any:
 			new_valid = []
 			for l in valid:
@@ -255,24 +256,24 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			valid = new_valid
 		return valid
 
-	def mesh_variations(self, variations:dict, exclude=[]):
+	def mesh_variations(self, variation:LabelVariation, exclude=[]):
 		'''
 		Returns all valid meshs matching the inputed label combinaison
 		'''
 		all_variations = self.all_mesh_variations
 
-		valid_meshes = [m for m in all_variations if m not in exclude and self.is_valid_mesh(m, variations)]
+		valid_meshes = [m for m in all_variations if m not in exclude and self.is_valid_mesh(m, variation)]
 
 		if not len(valid_meshes):
 			return None
 		else:
 			return valid_meshes
 	
-	def mesh_variation(self, variations:dict, exclude=[]):
+	def mesh_variation(self, variation:LabelVariation, exclude=[]):
 		'''
 		Returns one valid mesh matching the inputed label combinaison
 		'''
-		valid_variations = self.mesh_variations(variations, exclude=exclude)
+		valid_variations = self.mesh_variations(variation, exclude=exclude)
 		if valid_variations is None:
 			return None
 		elif not len(valid_variations):
@@ -280,14 +281,14 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		else:
 			return random.choice(valid_variations)
 	
-	def is_valid_mesh(self, ob, variations:dict):
+	def is_valid_mesh(self, ob, variation:LabelVariation):
 		'''
 		Check that the mesh matches the inputed label combinaison.
 		'''
 		valid = True
 		ch_settings = bpy.context.scene.custo_handler_settings
 		
-		for c,l in variations.items():
+		for c,l in variation.items():
 			if c not in ob.custo_label_category_definition.keys() or c not in ch_settings.custo_label_categories.keys():
 				valid = False
 				break
@@ -304,23 +305,23 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			if ch_category.labels[l.name].valid_any:
 				continue
 
-			if ob_category.labels[l.name].checked != l.value:
+			if ob_category.labels[l.name].value != l.value:
 				valid_any_label = ch_category.valid_any
 				if valid_any_label is not None:
-					if ob_category.labels[valid_any_label.name].checked:
+					if ob_category.labels[valid_any_label.name].value:
 						continue
 				valid = False
 				break
 
 		return valid
 
-	def has_mesh_with_labels(self, variations:dict):
+	def has_mesh_with_labels(self, variation:LabelVariation):
 		'''
 		Returns True if the asset contains at least one mesh with given variation combinaison
 		'''
 		all_variations = self.all_mesh_variations
 
-		valid_meshes = [m for m in all_variations if self.is_valid_mesh(m, variations)]
+		valid_meshes = [m for m in all_variations if self.is_valid_mesh(m, variation)]
 		
 		return True if len(valid_meshes) else False
 

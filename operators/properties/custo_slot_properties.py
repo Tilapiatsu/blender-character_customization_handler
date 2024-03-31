@@ -4,7 +4,7 @@ def update_keep_lower_part_slots(self, context):
 	for s in context.object.custo_part_slots:
 		# print(s.name)
 		if s.name not in context.object.custo_part_keep_lower_slots:
-			if s.checked:
+			if s.value:
 				print(f'adding {s.name}')
 				oslot = context.object.custo_part_keep_lower_slots.add()
 				oslot.name = s.name
@@ -14,7 +14,7 @@ def update_keep_lower_part_slots(self, context):
 		if s.name not in context.object.custo_part_slots:
 			context.object.custo_part_keep_lower_slots.remove(i)
 		else:
-			if not context.object.custo_part_slots[s.name].checked:
+			if not context.object.custo_part_slots[s.name].value:
 				context.object.custo_part_keep_lower_slots.remove(i)
 		i += 1
 
@@ -23,12 +23,12 @@ class CustoSlotProperties(bpy.types.PropertyGroup):
 	
 class CustoPartSlotsProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Slot Name', default='')
-	checked : bpy.props.BoolProperty(default=False)
+	value : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 
 class CustoPartSlotsKeepLowerLayerProperties(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Slot Name', default='')
-	checked : bpy.props.BoolProperty(default=False)
+	value : bpy.props.BoolProperty(default=False)
 	
 class CustoPartSlotCollectionProperties(bpy.types.PropertyGroup):
 	slots : bpy.props.CollectionProperty(name='Slots', type=CustoPartSlotsProperties)
@@ -52,11 +52,11 @@ class UL_CustoPartSlots(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		row = layout.row(align=True)
 		row.alignment = 'LEFT'
-		row.prop(item, 'checked', text='')
+		row.prop(item, 'value', text='')
 		row.separator()
 		row.label(text=f'{item.name}')
 
-		if item.checked:
+		if item.value:
 			row = layout.row(align=True)
 			row.separator()
 			row.label(text="|")
