@@ -17,7 +17,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
-	
+
 	@property
 	def category_name(self):
 		return 'other_label_category'
@@ -71,7 +71,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 				found=False
 				
 				for l in ch_settings.custo_label_categories[label.label_category].labels:
-					if label.name.lower() not in l.name.lower():
+					if label.name.lower() != l.name.lower():
 						continue
 					
 					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert, weight=label.weight)

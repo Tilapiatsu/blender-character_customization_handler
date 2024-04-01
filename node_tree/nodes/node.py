@@ -17,13 +17,14 @@ def follow_input_link(link):
 
 
 def update_values(self, context):
-	# self._assets = self.get_assets()
 	self.update_color()
 
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
+	asset_count : bpy.props.IntProperty(default=0)
 	label_type = 'DEFAULT'
-	
+	_assets = []
+
 	@property
 	def category_name(self):
 		return ''
@@ -34,7 +35,9 @@ class CustomizationTreeNode:
 	
 	@property
 	def assets(self):
-		return self.get_assets()
+		self._assets = self.get_assets()
+		self.update_asset_count()
+		return self._assets
 	
 	@classmethod
 	def poll(cls, ntree):
@@ -92,10 +95,15 @@ class CustomizationTreeNode:
 	def update(self):
 		self.update_color()
 		self.update_inputs()
+		# Update _assets variable
+		self.assets
 		# Links can get inserted without calling insert_link, but update is called.
 		for socket in self.inputs:
 			if socket.is_linked:
 				self.insert_link(socket.links[0])
+
+	def update_asset_count(self):
+		self.asset_count = len(self._assets)
 
 	# Validate incoming links
 	def insert_link(self, link):
@@ -137,10 +145,9 @@ class CustomizationTreeNode:
 		return input_assets
 	
 	def print_assets(self):
-		assets = self.get_assets()
-		print(f'{len(assets)} asset(s) found')
+		print(f'{len(self._assets)} asset(s) found')
 		print('---------------------------------------')
-		for a in assets:
+		for a in self._assets:
 			print(a.name)
 			print(a.attributes)
 		print('---------------------------------------')
@@ -189,7 +196,7 @@ class CustomizationTreeNode:
 		layout.prop(self, 'spawn')
 		row = layout.row(align = True)
 		if asset_count:
-			row.label(text=f'{len(self.assets)} asset(s) found')
+			row.label(text=f'{self.asset_count} asset(s) found')
 		else:
 			row.label(text='')
 		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
