@@ -142,12 +142,14 @@ class CustoLabelProperties(bpy.types.PropertyGroup):
 	value : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False)
+	weight : bpy.props.FloatProperty(default=1.0, min=0)
 
 class CustoLabelPropertiesDisplay(bpy.types.PropertyGroup):
 	name : bpy.props.StringProperty(name='Label Name', default='')
 	value : bpy.props.BoolProperty(default=False)
 	keep_lower_layer_slot : bpy.props.BoolProperty(default=False)
 	valid_any : bpy.props.BoolProperty(name='Valid Any', default=False, update=update_label_category)
+	weight : bpy.props.FloatProperty(default=1.0, min=0)
 
 class CustoLabelPropertiesPointer(bpy.types.PropertyGroup):
 	label_category_name : bpy.props.StringProperty(name='Label Category Name', default='')

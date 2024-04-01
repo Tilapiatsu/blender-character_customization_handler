@@ -128,6 +128,9 @@ class CustomizationTreeNode:
 			if input_node.mute:
 				return input_node.get_assets()
 			
+			if 'get_assets' not in dir(input_node):
+				continue
+			
 			current_input_assets = input_node.get_assets()
 			input_assets += current_input_assets
 		

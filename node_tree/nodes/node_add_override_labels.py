@@ -18,6 +18,10 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
 	@property
+	def category_name(self):
+		return 'other_label_category'
+	
+	@property
 	def label_names(self):
 		return [l.name for l in self.labels]
 

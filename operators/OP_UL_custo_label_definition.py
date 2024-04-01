@@ -39,7 +39,7 @@ class UI_RefreshLabelDefinition(bpy.types.Operator):
 		for s in context.object.material_slots:
 			if s.material is None:
 				continue
-			self.reorder_label_category(context, context.object.active_material.custo_label_category_definition)
+			self.reorder_label_category(context,s.material.custo_label_category_definition)
 
         # Update Node Label Category
 		for asset_type in context.scene.custo_handler_settings.custo_asset_types:

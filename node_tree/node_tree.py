@@ -20,7 +20,7 @@ class CustomizationTree(NodeTree):
 		return [n for n in self.nodes if n.bl_static_type not in ['REROUTE']]
 	
 	def draw(self, context):
-		if bpy.context.space_data.edit_tree is None:
+		if bpy.context.space_data.tree_type != TREE_NAME or bpy.context.space_data.edit_tree is None:
 			return
 		self.layout.prop_search(bpy.context.space_data.edit_tree, "asset_type", context.scene.custo_handler_settings, "custo_asset_types", text='')
 

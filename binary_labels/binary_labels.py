@@ -72,7 +72,7 @@ class LabelCategory:
 		self.labels[name] = label
 	
 	def add_binary_label(self, label:BinaryLabel, replace:bool=True, unique:bool=False)->None:
-		self.add_label(label.name, label.value, label.valid_any, weight=label.weight, replace=replace, unique=unique)
+		self.add_label(label.name, label.value, valid_any=label.valid_any, weight=label.weight, replace=replace, unique=unique)
 
 	def remove_label(self, label:BinaryLabel)->None:
 		if label.name in self.labels.keys():
@@ -167,6 +167,13 @@ class LabelCombinaison:
 			variation[lc] = random.choice(list(l.labels.values()))
 		
 		return variation
+	
+	@property
+	def weights(self)->tuple:
+		weights = tuple()
+		for l in self.categories.values():
+			weights += (l.weight,)
+		return weights
 	
 	def from_dict(self, input_dict:dict):
 		for lc, l in input_dict.items():

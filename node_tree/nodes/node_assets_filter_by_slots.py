@@ -2,7 +2,6 @@ import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
-from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
 class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 	# === Basics ===
