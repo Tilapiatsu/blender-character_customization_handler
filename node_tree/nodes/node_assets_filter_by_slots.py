@@ -1,28 +1,28 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
-class AssetsFilterByNameNode(CustomizationTreeNode, Node):
+class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Name node'''
+	'''Assets Filter By Mesh Slots node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByNameNodeType'
+	bl_idname = 'AssetsFilterByMeshSlotsNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Name"
+	bl_label = "Filter Assets By Mesh Slots"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
-	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
+	labels: bpy.props.CollectionProperty(name="Slots", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+	label_type = 'MESH_SLOT'
 	
 	@property
 	def category_name(self):
-		return 'asset_label_category'
-
+		return 'mesh_slot_label_category'
+	
 	@property
 	def label_names(self):
 		return [l.name for l in self.labels]
@@ -31,7 +31,7 @@ class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 		self.labels.add()
-
+		
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
 		print("Copying from node ", node)
@@ -47,32 +47,45 @@ class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Name"
+		return "Filter Assets By Mesh Slots"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		pass
 	
-	def get_assets(self):	
-		filtered = []	
-
+	def get_assets(self):
+		# filtering by label
+		filtered = []
 		assets = super().get_assets()
 		
 		# skip node if muted
-		if self.mute or not len(self.labels):
+		if self.mute:
 			return assets
-		
+
 		for a in assets:
-			for label in self.labels:
+			valid_labels = []
+			slots = [s.name for s in a.slots if s.value]
+			for i, label in enumerate(self.labels):
 				if not len(label.name):
 					continue
 				
-				if a not in filtered and ((a.name == label.name and not label.invert) or (a.name != label.name and label.invert)):
-					filtered.append(a)
+				if label.weight and (label.name in slots and not label.invert or label.name not in slots and label.invert):
+					valid_labels.append(label.name)
+			
+			valid_object = True
+			for l in self.label_names:
+				if not len(l):
+					continue
+				if l not in valid_labels:
+					valid_object = False
+					break
+			if valid_object:
+				filtered.append(a)
 
 		return filtered
 
-classes = (AssetsFilterByNameNode,)
+
+classes = (AssetsFilterBySlotsNode,)
 
 def register():
 	from bpy.utils import register_class

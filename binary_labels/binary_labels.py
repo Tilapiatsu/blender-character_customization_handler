@@ -7,6 +7,7 @@ class BinaryLabel:
 	name: str = ''
 	value: bool = True
 	valid_any: bool = False
+	weight: float = 1.0
 	
 	def __str__(self):
 		return f'BinaryLabel( name={self.name}, value={self.value}, valid_any={self.valid_any} )'
@@ -20,7 +21,7 @@ class LabelCategory:
 		enabled = LabelCategory()
 
 		for l in self.labels.values():
-			if not l.value:
+			if not l.value or not l.weight:
 				continue
 			enabled.add_binary_label(l)
 
@@ -29,15 +30,15 @@ class LabelCategory:
 	@property
 	def valid_any(self)->BinaryLabel:
 		for l in self.labels.values():
-			if l.valid_any:
+			if l.valid_any and l.weight:
 				return l
 		return None
 	
 	@property
-	def not_valid_any(self):
+	def not_valid_any(self)->list[BinaryLabel]:
 		labels = []
 		for l in self.labels.values():
-			if not l.valid_any:
+			if not l.valid_any and l.weight:
 				labels.append(l)
 		label_category = LabelCategory()
 		label_category.add_labels(labels)
@@ -50,10 +51,10 @@ class LabelCategory:
 		
 		return self.valid_any.value
 	
-	def set_invalid_label(self):
+	def set_invalid_label(self)->None:
 		self.categories['__invalid__'] = None
 
-	def add_label(self, name:str, value:bool, valid_any=False, replace=True, unique=False)->None:
+	def add_label(self, name:str, value:bool, weight:float=1.0, valid_any:bool=False, replace:bool=True, unique:bool=False)->None:
 		if not replace and name in self.labels.keys():
 			return
 		
@@ -66,29 +67,29 @@ class LabelCategory:
 		elif valid_any and self.valid_any is not None:
 			self.valid_any.valid_any = False
 
-		label = BinaryLabel(name=name, value=value, valid_any=valid_any)
+		label = BinaryLabel(name=name, value=value, valid_any=valid_any, weight=weight)
 		
 		self.labels[name] = label
 	
-	def add_binary_label(self, label, replace=True, unique=False)->None:
-		self.add_label(label.name, label.value, label.valid_any, replace=replace, unique=unique)
+	def add_binary_label(self, label:BinaryLabel, replace:bool=True, unique:bool=False)->None:
+		self.add_label(label.name, label.value, label.valid_any, weight=label.weight, replace=replace, unique=unique)
 
-	def remove_label(self, label)->None:
+	def remove_label(self, label:BinaryLabel)->None:
 		if label.name in self.labels.keys():
 			del self.labels[label.name][label]
 
-	def add_labels(self, labels, replace=True, unique=False)->None:
+	def add_labels(self, labels:list, replace:bool=True, unique:bool=False)->None:
 		for l in labels:
-			self.add_label(name=l.name, value=l.value, valid_any=l.valid_any, replace=replace, unique=unique)
+			self.add_label(name=l.name, value=l.value, valid_any=l.valid_any, weight=l.weight, replace=replace, unique=unique)
 		
-	def labels_intersection(self, label1, label2):
+	def labels_intersection(self, label1:list[BinaryLabel], label2:list[BinaryLabel]):
 		"""
 		Args:
 			label1 (list)
 			label2 (list)
 
 		Returns:
-			list[NodeBinaryLabel]: return the list of labels that are Identical in both inputed label list
+			list[BinaryLabel]: return the list of labels that are Identical in both inputed label list
 		"""
 		result = LabelCategory()
 		for l in label1.values():
@@ -102,7 +103,7 @@ class LabelCategory:
 
 		return result
 
-	def resolve(self, labels):
+	def resolve(self, labels:list[BinaryLabel]):
 		valid_labels = self.not_valid_any
 		if self.is_valid_any:
 			for l in valid_labels.values():
@@ -183,12 +184,12 @@ class LabelCombinaison:
 	def set_invalid_label(self):
 		self.categories['__invalid__'] = None
 
-	def add_label(self, category:str, name:str, value:bool, valid_any=False, replace=True, unique=False):
+	def add_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any=False, replace=True, unique=False):
 		if category not in self.categories.keys():
-			LabelCombinaison.set_label(self, category, name, value, valid_any=valid_any, replace=replace, unique=unique)
+			LabelCombinaison.set_label(self, category, name, value, weight=weight, valid_any=valid_any, replace=replace, unique=unique)
 		else:
 			label_category = self.categories[category]
-			label_category.add_label(name, value, valid_any=valid_any, replace=replace, unique=unique)
+			label_category.add_label(name, value, weight=weight, valid_any=valid_any, replace=replace, unique=unique)
 
 	def add_binary_label(self, category:str, label:BinaryLabel, replace=True, unique=False):
 		if category not in self.categories.keys():
@@ -197,12 +198,12 @@ class LabelCombinaison:
 			label_category = self.categories[category]
 			label_category.add_binary_label(label, replace=replace, unique=unique)
 
-	def set_label(self, category:str, name:str, value:bool, valid_any=False, replace=True, unique=False):
+	def set_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any=False, replace=True, unique=False):
 		if not replace and category in self.categories.keys():
 			return
 		
 		label_category = LabelCategory()
-		label_category.add_label(name=name, value=value, valid_any=valid_any, replace=replace, unique=unique)
+		label_category.add_label(name=name, value=value, weight=weight, valid_any=valid_any, replace=replace, unique=unique)
 		self.categories[category] = label_category
 
 	def set_binary_label(self, category:str, label:BinaryLabel, replace=True, unique=False):
@@ -278,16 +279,16 @@ class LabelVariation(LabelCombinaison):
 	def set_invalid_label(self):
 		self.categories['__invalid__'] = None
 
-	def add_label(self, category:str, name:str, value:bool, valid_any=False, replace=False):
-		super().add_label(category, name, value, valid_any=valid_any, replace=replace, unique=True)
+	def add_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any:bool=False, replace:bool=False):
+		super().add_label(category, name, value, weight=weight, valid_any=valid_any, replace=replace, unique=True)
 
-	def add_binary_label(self, category:str, label:BinaryLabel, replace=False):
+	def add_binary_label(self, category:str, label:BinaryLabel, replace:bool=False):
 		super().add_binary_label(category, label, replace=replace, unique=True)
 
-	def set_label(self, category:str, name:str, value:bool, valid_any=False, replace=False):
-		super().set_label(category, name, value, valid_any=valid_any, replace=replace, unique=True)
+	def set_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any:bool=False, replace:bool=False):
+		super().set_label(category, name, value, weight=weight,valid_any=valid_any, replace=replace, unique=True)
 
-	def set_binary_label(self, category:str, label:BinaryLabel, replace=False):
+	def set_binary_label(self, category:str, label:BinaryLabel, replace:bool=False):
 		super().set_binary_label(category, label, replace=replace, unique=True)
 	
 	def items(self):

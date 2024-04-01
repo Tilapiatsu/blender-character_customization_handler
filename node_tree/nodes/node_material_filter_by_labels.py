@@ -1,18 +1,17 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
-class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
+class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Labels node'''
+	'''Materials Filter By Labels node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByLabelsNodeType'
+	bl_idname = 'MaterialsFilterByLabelsNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Labels"
+	bl_label = "Filter Materials By Labels"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
@@ -21,8 +20,8 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	
 	@property
 	def category_name(self):
-		return 'other_label_category'
-
+		return 'materials_label_category'
+	
 	@property
 	def label_names(self):
 		return [l.name for l in self.labels]
@@ -47,15 +46,13 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Labels"
+		return "Filter Materials By Labels"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		pass
 	
 	def get_assets(self):		
-		# filtering by label
-		filtered = []
 		assets = super().get_assets()
 		
 		# skip node if muted
@@ -65,30 +62,18 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:
-			labels = LabelCombinaison()
+			label_categories = [a.asset.asset_type.asset_type.material_label_category.name] + [lc.name for lc in a.asset.asset_type.asset_type.material_variation_label_categories]
 			for label in self.labels:
 				if not len(label.name):
 					continue
-				found=False
-				
-				for l in ch_settings.custo_label_categories[label.label_category].labels:
-					if label.name.lower() not in l.name.lower():
+				for lc in label_categories:
+					if label.name not in ch_settings.custo_label_categories[lc].labels:
 						continue
-					
-					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert)
-					found = True
-						
-				if not found:
-					labels.set_invalid_label()
-			
-			variation = labels.variation
-			if a.has_mesh_with_labels(variations=variation):
-				a.attributes.add_labels(variation, unique=True)
-				filtered.append(a)
+					a.attributes.add_label(category=lc, name=label.name, value= not label.invert, weight=label.weight)
 
-		return filtered
+		return assets
 
-classes = (AssetsFilterByLabelsNode,)
+classes = (MaterialsFilterByLabelsNode,)
 
 def register():
 	from bpy.utils import register_class

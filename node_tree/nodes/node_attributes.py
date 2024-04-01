@@ -1,18 +1,16 @@
 import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
-from ...binary_labels.binary_labels import LabelCategory, LabelCombinaison, LabelVariation
+from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation
 from dataclasses import dataclass, field
-import random
 
 @dataclass
 class NodeAttributes:
 	labels : LabelCombinaison = field(default_factory=LabelCombinaison)
 	
-	def add_label(self, category:str, name:str, value:bool, valid_any=False, unique=False):
-		self.labels.add_label(category=category, name=name, value=value, valid_any=valid_any, replace=unique)
+	def add_label(self, category:str, name:str, value:bool, weight:bool=1.0, valid_any:bool=False, unique:bool=False):
+		self.labels.add_label(category=category, name=name, value=value, weight=weight, valid_any=valid_any, replace=unique)
 
-
-	def add_labels(self, labels:dict, unique=False):
+	def add_labels(self, labels:dict, unique:bool=False):
 		for lc, l in labels.items():
 			self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any, unique=unique)
 

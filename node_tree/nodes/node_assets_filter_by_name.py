@@ -1,22 +1,28 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
+from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
+from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
-class AddOverrideLabelsNode(CustomizationTreeNode, Node):
+class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Add/Override Labels node'''
+	'''Assets Filter By Name node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AddOverrideLabelNodeType'
+	bl_idname = 'AssetsFilterByNameNodeType'
 	# Label for nice name display
-	bl_label = "Add/Override Labels"
+	bl_label = "Filter Assets By Name"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
+	@property
+	def category_name(self):
+		return 'asset_label_category'
+
 	@property
 	def label_names(self):
 		return [l.name for l in self.labels]
@@ -41,32 +47,32 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Add/Override Labels node"
+		return "Filter Assets By Name"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		pass
 	
-	def get_assets(self):		
+	def get_assets(self):	
+		filtered = []	
+
 		assets = super().get_assets()
 		
 		# skip node if muted
-		if self.mute:
+		if self.mute or not len(self.labels):
 			return assets
 		
-		ch_settings = bpy.context.scene.custo_handler_settings
-
 		for a in assets:
-
 			for label in self.labels:
 				if not len(label.name):
 					continue
 				
-				a.attributes.add_label(category=label.label_category, name=label.name, value= not label.invert)
+				if a not in filtered and ( label.weight and ((a.name == label.name and not label.invert) or (a.name != label.name and label.invert))):
+					filtered.append(a)
 
-		return assets
+		return filtered
 
-classes = (AddOverrideLabelsNode,)
+classes = (AssetsFilterByNameNode,)
 
 def register():
 	from bpy.utils import register_class

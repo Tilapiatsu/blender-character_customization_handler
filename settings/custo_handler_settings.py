@@ -2,7 +2,7 @@ import bpy
 from ..operators.properties.custo_asset_properties import CustoAssetTypeProperties, CustoAssetProperties, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties, CustoAssetTypeEnumProperties
 from ..operators.properties.custo_slot_properties import CustoSlotProperties, CustoPartSlotsProperties
 from ..operators.properties.custo_label_properties import CustoLabelPropertiesDisplay, CustoLabelCategoryProperties, NodeAssetTypeLabelCategories
-from ..customization_node import TREE_NAME
+from ..node_tree import TREE_NAME
 
 def update_label_category(self, context):
 	context.scene.custo_handler_settings.custo_labels.clear()

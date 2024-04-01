@@ -1,28 +1,28 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
+from .node_attributes import LabelVariation, LabelCombinaison
 from .operators.properties.node_label_properties import NodeAssetLabelProperties
 from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
 
-class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
+class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Assets Filter By Mesh Slots node'''
+	'''Assets Filter By Labels node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'AssetsFilterByMeshSlotsNodeType'
+	bl_idname = 'AssetsFilterByLabelsNodeType'
 	# Label for nice name display
-	bl_label = "Filter Assets By Mesh Slots"
+	bl_label = "Filter Assets By Labels"
 	# Icon identifier
 	bl_icon = 'NODETREE'
 	
-	labels: bpy.props.CollectionProperty(name="Slots", type=NodeAssetLabelProperties)
+	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
-	label_type = 'MESH_SLOT'
 	
 	@property
 	def category_name(self):
-		return 'mesh_slot_label_category'
-	
+		return 'other_label_category'
+
 	@property
 	def label_names(self):
 		return [l.name for l in self.labels]
@@ -31,7 +31,7 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
 		self.labels.add()
-		
+
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
 		print("Copying from node ", node)
@@ -47,13 +47,13 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Mesh Slots"
+		return "Filter Assets By Labels"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
 		pass
 	
-	def get_assets(self):
+	def get_assets(self):		
 		# filtering by label
 		filtered = []
 		assets = super().get_assets()
@@ -61,31 +61,34 @@ class AssetsFilterBySlotsNode(CustomizationTreeNode, Node):
 		# skip node if muted
 		if self.mute:
 			return assets
+		
+		ch_settings = bpy.context.scene.custo_handler_settings
 
 		for a in assets:
-			valid_labels = []
-			slots = [s.name for s in a.slots if s.value]
-			for i, label in enumerate(self.labels):
+			labels = LabelCombinaison()
+			for label in self.labels:
 				if not len(label.name):
 					continue
+				found=False
 				
-				if label.name in slots and not label.invert or label.name not in slots and label.invert:
-					valid_labels.append(label.name)
+				for l in ch_settings.custo_label_categories[label.label_category].labels:
+					if label.name.lower() not in l.name.lower():
+						continue
+					
+					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert, weight=label.weight)
+					found = True
+						
+				if not found:
+					labels.set_invalid_label()
 			
-			valid_object = True
-			for l in self.label_names:
-				if not len(l):
-					continue
-				if l not in valid_labels:
-					valid_object = False
-					break
-			if valid_object:
+			variation = labels.variation
+			if a.has_mesh_with_labels(variations=variation):
+				a.attributes.add_labels(variation, unique=True)
 				filtered.append(a)
 
 		return filtered
 
-
-classes = (AssetsFilterBySlotsNode,)
+classes = (AssetsFilterByLabelsNode,)
 
 def register():
 	from bpy.utils import register_class
