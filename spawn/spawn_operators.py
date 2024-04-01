@@ -188,6 +188,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
 		self.exclude_incomplete_mesh_combinaison = self.ch_settings.exclude_incomplete_mesh_combinaison
 
+		self.spawn_complete = False
+		self.i = 0
+		self.collection = None
+
 		self._assets = None
 		self._nodes = None
 		self.layer_collection_root = context.view_layer.layer_collection
@@ -209,22 +213,18 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.init_assets_per_slot(context)
 		self._spawned_assets_per_slot = None
 		self.init_spawned_assets_per_slot(context)
-
-	def execute(self, context):
+	
+	def invoke(self, context, event):
 		self.init(context)
 
 		for node in self.nodes:
 			node.print_assets()
 		
-		for i in range(self.spawn_count):
-			self.init_spawn(context)
-			self.collection = self.create_spawn_collection(index=i)
-			self.print_init_spawn_message(i)
-			self.spawn_assembly()
-		
-		self.print_end_message()
-		return {'FINISHED'}
-	
+		wm = context.window_manager
+		self._timer = wm.event_timer_add(0.01, window=context.window)
+		wm.modal_handler_add(self)
+		return {'RUNNING_MODAL'}
+
 	def create_spawn_collection(self, index=0):
 		'''
 		Creates a new collection to instance assets into. Reuse existing one if found
@@ -505,6 +505,36 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			if found:
 				return found
 
+	def cancel(self, context):
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+		context.window_manager.event_timer_remove(self._timer)
+		return {'CANCELLED'}
+
+	def modal(self, context, event):
+		if not self.spawn_complete and event.type in {'ESC'} and event.value == 'PRESS':
+			return self.cancel(context)
+		
+		if self.spawn_complete:
+			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+			self.print_end_message()
+			return {"FINISHED"}
+		
+		if self.i >= self.spawn_count:
+			self.spawn_complete = True
+			return {'RUNNING_MODAL'}
+
+		if event.type == 'TIMER':
+			if self.collection :
+				self.spawn_assembly()
+				self.collection = None
+				self.i += 1
+
+			elif self.collection is None:
+				self.init_spawn(context)
+				self.collection = self.create_spawn_collection(index=self.i)
+				self.print_init_spawn_message(self.i)
+
+		return {'PASS_THROUGH'}
 classes = ( SpawnCustomizationTree,
 			)
 
