@@ -1,6 +1,7 @@
 import bpy
 import random, math, copy
 from .spawn_const import SPAWN_COLLECTION, SPAWN_INSTANCE
+from time import perf_counter
 
 class AssetsPerSlot:
 	def __init__(self):
@@ -215,13 +216,14 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.init_spawned_assets_per_slot(context)
 	
 	def invoke(self, context, event):
+		self.start_time = perf_counter()
 		self.init(context)
 
 		for node in self.nodes:
 			node.print_assets()
 		
 		wm = context.window_manager
-		self._timer = wm.event_timer_add(0.01, window=context.window)
+		self._timer = wm.event_timer_add(0.001, window=context.window)
 		wm.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
 
@@ -508,6 +510,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def cancel(self, context):
 		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 		context.window_manager.event_timer_remove(self._timer)
+		self.end()
 		return {'CANCELLED'}
 
 	def modal(self, context, event):
@@ -517,6 +520,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if self.spawn_complete:
 			bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 			self.print_end_message()
+			self.end()
 			return {"FINISHED"}
 		
 		if self.i >= self.spawn_count:
@@ -535,6 +539,12 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				self.print_init_spawn_message(self.i)
 
 		return {'PASS_THROUGH'}
+	
+	def end(self):
+		end = perf_counter()
+		elapsed = end - self.start_time
+		print(f'Generation toked {round(elapsed, 4)} s' )
+
 classes = ( SpawnCustomizationTree,
 			)
 
