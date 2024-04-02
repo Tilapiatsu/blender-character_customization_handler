@@ -145,9 +145,9 @@ class CustomizationTreeNode:
 		return input_assets
 	
 	def print_assets(self):
-		print(f'{len(self._assets)} asset(s) found')
+		print(f'{len(self.assets)} asset(s) found')
 		print('---------------------------------------')
-		for a in self._assets:
+		for a in self.assets:
 			print(a.name)
 			print(a.attributes)
 		print('---------------------------------------')

@@ -1,6 +1,6 @@
 import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
-from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation
+from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, LabelCategory, BinaryLabel
 from dataclasses import dataclass, field
 
 @dataclass
@@ -19,28 +19,75 @@ class NodeAttributes:
 			self.add_label(lc, l.name, l.value, valid_any=l.valid_any, unique=True)
 	
 	def get_labels(self, label_categories:list=None):
-		labels = {}
+		labels = LabelCombinaison()
 		
 		for lc in self.labels.keys():
 			if label_categories is not None:
 				if lc not in label_categories:
 					continue
-			labels[lc] = self.labels[lc]
+			labels.add_binary_labels(lc, self.labels[lc].values())
 
 		return labels
 	
 	def __str__(self):
 		return f'Attributes : {self.labels}'
+	
+	def items(self):
+		items = self.labels.items()
+		return items
+	
+	def keys(self):
+		return self.labels.keys()
+	
+	def values(self):
+		return self.labels.values()
+	
+	def __len__(self):
+		return len(self.labels.keys())
+	
+	def __iter__(self):
+		yield len(self.labels.values())
+		yield from self.labels.values()
+
+	def __getitem__(self, key):
+		return self.labels[key]
+	
+	def __setitem__(self, key, value):
+		if isinstance(value, LabelCategory):
+			self.categories[key] = value
+		elif isinstance(value, BinaryLabel):
+			self.add_binary_label(key, value, replace=True)
+		else:
+			print('Wrong Format Inputed')
+		
+	def __contains__(self, item:str):
+		for l in self.labels.values():
+			if l.name == item:
+				return True
+		return False
+
 
 
 @dataclass
 class NodeAsset:
 	asset : CustoAssetProperties
 	attributes : NodeAttributes = field(default_factory=NodeAttributes)
+	
+	def inject_attributes(func):
+		def inject(self):
+			res = func(self)
+			res.add_label_combinaison(self.attributes)
+			return res
+
+		return inject
 
 	@property
 	def name(self):
 		return self.asset.name
+	
+	@property
+	def is_empty(self):
+		return self.asset.is_empty
 	
 	@property
 	def asset_type(self):
@@ -63,6 +110,7 @@ class NodeAsset:
 		return self.asset.asset_name
 	
 	@property
+	@inject_attributes
 	def valid_labels(self):
 		return self.asset.valid_labels
 	

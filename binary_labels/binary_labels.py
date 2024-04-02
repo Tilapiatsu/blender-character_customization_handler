@@ -10,7 +10,7 @@ class BinaryLabel:
 	weight: float = 1.0
 	
 	def __str__(self):
-		return f'BinaryLabel( name={self.name}, value={self.value}, valid_any={self.valid_any} )'
+		return f'BinaryLabel( name={self.name}, value={self.value}, valid_any={self.valid_any}, weight={self.weight} )'
 
 @dataclass
 class LabelCategory:
@@ -50,6 +50,13 @@ class LabelCategory:
 			return False
 		
 		return self.valid_any.value
+	
+	@property
+	def weights(self)->tuple:
+		weights = tuple()
+		for l in self.labels.values():
+			weights = weights + (l.weight,)
+		return weights
 	
 	def set_invalid_label(self)->None:
 		self.categories['__invalid__'] = None
@@ -114,14 +121,17 @@ class LabelCategory:
 		return self.labels_intersection(valid_labels, labels)
 	
 	def keys(self):
-		return self.labels.keys()
+		return list(self.labels.keys())
 	
 	def values(self):
-		return self.labels.values()
+		return list(self.labels.values())
 	
 	def items(self):
 		return self.labels.items()
 	
+	def remove(self, name):
+		del self.labels[name]
+
 	def __len__(self):
 		return len(self.labels.keys())
 	
@@ -164,16 +174,12 @@ class LabelCombinaison:
 		variation = LabelVariation()
 
 		for lc, l in self.categories.items():
-			variation[lc] = random.choice(list(l.labels.values()))
+			valid = l.valid_labels
+			if not len(valid.values()):
+				continue
+			variation[lc] = random.choices(valid.values(), weights=valid.weights)[0]
 		
 		return variation
-	
-	@property
-	def weights(self)->tuple:
-		weights = tuple()
-		for l in self.categories.values():
-			weights += (l.weight,)
-		return weights
 	
 	def from_dict(self, input_dict:dict):
 		for lc, l in input_dict.items():
@@ -204,6 +210,18 @@ class LabelCombinaison:
 		else:
 			label_category = self.categories[category]
 			label_category.add_binary_label(label, replace=replace, unique=unique)
+	
+	def add_binary_labels(self, category:str, labels:list, replace=True, unique=False):
+		for label in labels:
+			if category not in self.categories.keys():
+				LabelCombinaison.set_binary_label(self, category, label, replace=replace, unique=unique)
+			else:
+				label_category = self.categories[category]
+				label_category.add_binary_label(label, replace=replace, unique=unique)
+
+	def add_label_combinaison(self, label_combinaison:dict, replace=True, unique=False):
+		for lc, l in label_combinaison.items():
+			self.add_binary_labels(lc, l, replace=replace, unique=unique)
 
 	def set_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any=False, replace=True, unique=False):
 		if not replace and category in self.categories.keys():
@@ -226,7 +244,7 @@ class LabelCombinaison:
 		return items
 	
 	def keys(self):
-		return self.categories.keys()
+		return list(self.categories.keys())
 	
 	def values(self):
 		return [l.values() for l in self.categories.values()]
@@ -239,7 +257,7 @@ class LabelCombinaison:
 		yield from self.categories.values()
 
 	def __getitem__(self, key):
-		return self.categories[key].labels.values()
+		return self.categories[key]
 	
 	def __setitem__(self, key, value):
 		if isinstance(value, LabelCategory):
@@ -303,7 +321,7 @@ class LabelVariation(LabelCombinaison):
 		return items
 	
 	def keys(self):
-		return self.categories.keys()
+		return list(self.categories.keys())
 	
 	def values(self):
 		return [list(l.values())[0] for l in self.categories.values()]

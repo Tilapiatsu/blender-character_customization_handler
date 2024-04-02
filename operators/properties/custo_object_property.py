@@ -4,6 +4,7 @@ from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, Bin
 
 class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 	name : bpy.props.StringProperty(name='Object Attribute Name', default='')
+	is_asset : bpy.props.BoolProperty(default=True)
 	
 	@property
 	def object(self):

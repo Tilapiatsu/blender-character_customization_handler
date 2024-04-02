@@ -2,7 +2,7 @@ import bpy
 import random
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
-from ...binary_labels.binary_labels import LabelVariation
+from ...binary_labels.binary_labels import LabelVariation, LabelCombinaison, BinaryLabel
 
 def draw_asset_type_search(layout, property_name, text='', label=''):
 	row = layout.split(align=True, factor=0.2)
@@ -106,13 +106,9 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 		for a in ch_settings.custo_assets:
 			if a.asset_type.name != self.name:
 				continue
-
-			slots = [s.name for s in a.slots if s.value]
-
-			if slot not in slots:
-				continue
-
-			assets.append(a)
+			
+			if a.slots[slot].value:
+				assets.append(a)
 
 		return assets
 
@@ -144,11 +140,15 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		return self.asset_id.name
 	
 	@property
+	def is_empty(self):
+		return not len(self.all_mesh_variations)
+
+	@property
 	def all_mesh_variations(self):
 		'''
 		Returns the list of all mesh variations in the current asset
 		'''
-		meshes = [o for o in bpy.data.objects]
+		meshes = [o for o in bpy.data.objects if o.type == 'MESH' and o.custo_attributes.is_asset]
 		for o in bpy.data.objects:
 			if self.asset_id.label_category_name not in o.custo_label_category_definition:
 				if o in meshes:
@@ -173,71 +173,28 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 		Returns a list of labels enabled in all mesh variations contains in this asset.
 		In other terms picking one of this label will give you at least one valid mesh to spawn.
 		'''
-		def add_valid_mesh_label(label_set, mesh, label_category, exclude:dict={}):
-			labels = []
-			for l in mesh.custo_label_category_definition[label_category].labels:
-				if not l.value:
-					continue
-				
-				if label_category in exclude.keys():
-					if l.name in exclude[label_category]:
-						continue
-				
-				labels.append(l.name)
-
-			if label_category not in label_set.keys():
-				label_set[label_category] = set(labels)
-			else:
-				for l in labels:
-					label_set[label_category].add(l)
-
-		valid_labels = {}
-		ch_settings = bpy.context.scene.custo_handler_settings
-
-		# Adding Slot
-		slot_category = self.asset_type.asset_type.mesh_slot_label_category.label_category.name
-		for slot in self.slots:
-			if not slot.value:
-				continue
-			
-			if slot_category in exclude.keys():
-				if slot.name in exclude[slot_category]:
-					continue
-
-			if slot_category not in valid_labels.keys():
-				valid_labels[slot_category] = set([slot.name])
-			else:
-				valid_labels[slot_category].add(slot.name)
-
+		valid_labels = LabelCombinaison()
 		all_meshes_variations = self.all_mesh_variations
-		asset_label_category = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories] + [slot_category]
-
-		other_label_category = [lc.name for lc in ch_settings.custo_label_categories if lc not in asset_label_category]
 
 		for m in all_meshes_variations:
-			# Adding Mesh variation Label Categories
-			for mesh_category in self.asset_type.asset_type.mesh_variation_label_categories:
-				add_valid_mesh_label(valid_labels, m, mesh_category.name, exclude = exclude)
-
-			# Add all other labels
-			for lc in other_label_category:
-				add_valid_mesh_label(valid_labels, m, lc, exclude = exclude)
+			labels = self.valid_mesh_variations_from_mesh(m, exclude)
+			valid_labels.add_label_combinaison(labels)
 
 		return valid_labels
 
 	def valid_labels_from_mesh(self, mesh, include_label_category:list=None):
-		valid_labels = {}
+		valid_labels = LabelCombinaison()
 		for lc in mesh.custo_label_category_definition:
 			if include_label_category is not None:
 				if lc.name in include_label_category:
-					valid_labels[lc.name] = self.valid_label_catgory_labels_from_mesh(mesh, lc)
+					valid_labels.add_binary_labels(lc.name, self.valid_label_catgory_labels_from_mesh(mesh, lc))
 			else:
-				valid_labels[lc.name] = self.valid_label_catgory_labels_from_mesh(mesh, lc)
+				valid_labels.add_binary_labels(lc.name, self.valid_label_catgory_labels_from_mesh(mesh, lc))
 
 		return valid_labels
 	
-	def valid_mesh_variations_from_mesh(self, mesh):
-		mesh_variation_label_category = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories]
+	def valid_mesh_variations_from_mesh(self, mesh, exclude:dict={}):
+		mesh_variation_label_category = [lc.name for lc in self.asset_type.asset_type.mesh_variation_label_categories if lc not in exclude.keys()]
 		return self.valid_labels_from_mesh(mesh, include_label_category=mesh_variation_label_category)
 	
 	def valid_label_catgory_labels_from_mesh(self, mesh, category, split_any=True):
@@ -248,10 +205,10 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			new_valid = []
 			for l in valid:
 				if scene_category.valid_any is None or l.name != scene_category.valid_any.name:
-					new_valid.append(l)
+					new_valid.append(BinaryLabel(l.name, l.value, l.valid_any, l.weight))
 				else:
 					for ll in scene_category.not_valid_any:
-						new_valid.append(ll)
+						new_valid.append(BinaryLabel(ll.name, True, ll.valid_any, ll.weight))
 					
 			valid = new_valid
 		return valid
@@ -304,6 +261,9 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 			
 			if ch_category.labels[l.name].valid_any:
 				continue
+			
+			# print(ob_category.labels[l.name].name, l.name)
+			# print(ob_category.labels[l.name].value, l.value)
 
 			if ob_category.labels[l.name].value != l.value:
 				valid_any_label = ch_category.valid_any

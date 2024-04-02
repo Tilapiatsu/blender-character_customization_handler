@@ -19,7 +19,7 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 	
 	@property
 	def category_name(self):
-		return 'other_label_category'
+		return 'override_label_category'
 	
 	@property
 	def label_names(self):

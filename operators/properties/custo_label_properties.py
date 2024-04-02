@@ -60,6 +60,7 @@ def update_node_label_categories(asset_type):
 	update_materials_label_categories(asset_type)
 	update_asset_name_label_categories(asset_type)
 	update_other_label_categories(asset_type)
+	update_override_label_category(asset_type)
 
 def init_asset_type_label_category(asset_type):
 	ch_settings = bpy.context.scene.custo_handler_settings
@@ -122,7 +123,17 @@ def update_other_label_categories(asset_type):
 	for c in filtered:
 		cat = lc.other_label_category.add()
 		cat.name = c
-
+		
+def update_override_label_category(asset_type):
+	ch_settings = bpy.context.scene.custo_handler_settings
+	lc = init_asset_type_label_category(asset_type)
+	lc.override_label_category.clear()
+	
+	category_names = [l.name for l in ch_settings.custo_asset_types_label_categories[asset_type].other_label_category.values()] + [l.name for l in ch_settings.custo_asset_types_label_categories[asset_type].materials_label_category.values()]
+	
+	for c in category_names:
+		cat = lc.override_label_category.add()
+		cat.name = c
 
 class CustoLabelCategoryEnumProperties(bpy.types.PropertyGroup):
 	name : bpy.props.EnumProperty(name="Label Category Name", items=label_categories_enum)
@@ -203,6 +214,7 @@ class NodeAssetTypeLabelCategories(bpy.types.PropertyGroup):
 	mesh_slot_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 	materials_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 	other_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
+	override_label_category : bpy.props.CollectionProperty(type=CustoLabelCategoryDefinitionProperties)
 
 class UL_CustoLabel(bpy.types.UIList):
 	bl_idname = "SCENE_UL_CustoLabels"

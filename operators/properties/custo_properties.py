@@ -14,8 +14,8 @@ class CustoProperty:
                 compatible[lc] = False
                 break
             else:
-                combinaison1_labels = [ll.name for ll in label_combinaison1[lc]]
-                combinaison2_labels = [ll.name for ll in label_combinaison2[lc]]
+                combinaison1_labels = [ll.name for ll in label_combinaison1[lc].values()]
+                combinaison2_labels = [ll.name for ll in label_combinaison2[lc].values()]
 
                 # Skipping if valid_any
                 if scene_label_category[lc].valid_any is not None:
@@ -23,13 +23,13 @@ class CustoProperty:
                         compatible[lc] = True
                         continue
 
-                if l == label_combinaison2[lc]:
+                if l == label_combinaison2[lc].values():
                     compatible[lc] = True
                     continue
 
                 for label in l:
 
-                    for label2 in label_combinaison2[lc]:
+                    for label2 in label_combinaison2[lc].values():
                         if label.name == label2.name:
                             compatible[lc] = True
                             continue
