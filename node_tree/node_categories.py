@@ -34,8 +34,9 @@ node_categories = [
     CustomizationCategory('LABELS', "Labels", items=[
         NodeItem("AddOverrideLabelNodeType"),
     ]),
-    
-    
+    CustomizationCategory('OVERRIDE', "Override", items=[
+        NodeItem("OverridePropertyNodeType"),
+    ]),
     CustomizationCategory('OTHERNODES', "Other Nodes", items=[
         # the node item can have additional settings,
         # which are applied to new nodes

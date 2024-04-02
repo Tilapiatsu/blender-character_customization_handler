@@ -12,6 +12,7 @@ class AssetsAppendNode(CustomizationTreeNode, Node):
 	bl_label = "Append Assets"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	bl_width_default = 400
 
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")

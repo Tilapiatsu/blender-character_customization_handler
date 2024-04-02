@@ -1,6 +1,7 @@
 import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
 from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, LabelCategory, BinaryLabel
+from ...property_override.property_override import PropertyOverride
 from dataclasses import dataclass, field
 
 @dataclass
@@ -66,12 +67,15 @@ class NodeAttributes:
 				return True
 		return False
 
-
+@dataclass
+class NodeOverride():
+	override : PropertyOverride = field(default_factory=PropertyOverride)
 
 @dataclass
 class NodeAsset:
 	asset : CustoAssetProperties
 	attributes : NodeAttributes = field(default_factory=NodeAttributes)
+	overrides : NodeOverride = field(default_factory=NodeOverride)
 	
 	def inject_attributes(func):
 		def inject(self):

@@ -14,6 +14,8 @@ class AssetsGet(CustomizationTreeNode, Node):
 	bl_label = "Get Assets"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	
+	bl_width_default = 200
 
 	def init(self, context):
 		# Outputs

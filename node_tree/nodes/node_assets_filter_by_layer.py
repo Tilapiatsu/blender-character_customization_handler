@@ -12,6 +12,7 @@ class AssetsFilterByLayerNode(CustomizationTreeNode, Node):
 	bl_label = "Filter Assets By Layer"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	bl_width_default = 400
 	
 	operation: bpy.props.EnumProperty(name='operation', items=[('EQUAL', 'Equal', ''),
 																('GREATER', 'Greater Than', ''),

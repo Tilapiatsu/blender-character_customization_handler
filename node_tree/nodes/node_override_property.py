@@ -1,22 +1,23 @@
 import bpy
 from bpy.types import Node
 from .node import CustomizationTreeNode
-from .operators.properties.node_label_properties import NodeAssetLabelProperties
+from .operators.properties.node_override_properties import NodeAssetOverrideProperties
 
-class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
+class OverridePropertyNode(CustomizationTreeNode, Node):
 	# === Basics ===
 	# Description string
-	'''Materials Filter By Labels node'''
+	'''Override Property node'''
 	# Optional identifier string. If not explicitly defined, the python class name is used.
-	bl_idname = 'MaterialsFilterByLabelsNodeType'
+	bl_idname = 'OverridePropertyNodeType'
 	# Label for nice name display
-	bl_label = "Filter Materials By Labels"
+	bl_label = "Override Property"
 	# Icon identifier
 	bl_icon = 'NODETREE'
-	bl_width_default = 400
 	
-	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
-	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+	bl_width_default = 500
+	
+	properties: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetOverrideProperties)
+	properties_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
 	@property
 	def category_name(self):
@@ -29,7 +30,7 @@ class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 	def init(self, context):
 		self.inputs.new('AssetsSocketType', "Assets")
 		self.outputs.new('AssetsSocketType', "Assets")
-		self.labels.add()
+		self.properties.add()
 
 	# Copy function to initialize a copied node from an existing one.
 	def copy(self, node):
@@ -42,11 +43,11 @@ class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context)
-		self.draw_labels(layout)
+		self.draw_override(layout)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Materials By Labels"
+		return "Override Property"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
@@ -61,19 +62,9 @@ class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 		
 		ch_settings = bpy.context.scene.custo_handler_settings
 
-		for a in assets:
-			label_categories = [a.asset.asset_type.asset_type.material_label_category.name] + [lc.name for lc in a.asset.asset_type.asset_type.material_variation_label_categories]
-			for label in self.labels:
-				if not len(label.name):
-					continue
-				for lc in label_categories:
-					if label.name not in ch_settings.custo_label_categories[lc].labels:
-						continue
-					a.attributes.add_label(category=lc, name=label.name, value= not label.invert, weight=label.weight)
-
 		return assets
 
-classes = (MaterialsFilterByLabelsNode,)
+classes = (OverridePropertyNode,)
 
 def register():
 	from bpy.utils import register_class

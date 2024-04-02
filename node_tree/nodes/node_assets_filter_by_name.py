@@ -14,6 +14,7 @@ class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	bl_label = "Filter Assets By Name"
 	# Icon identifier
 	bl_icon = 'NODETREE'
+	bl_width_default = 400
 	
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)

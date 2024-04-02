@@ -13,3 +13,12 @@ class NodeOperator:
         active = labels[idx] if len(labels) else None
 
         return idx, labels, active
+    
+    @property
+    def props(self):
+        idx = self.node.properties_idx
+        properties = self.node.properties
+
+        active = properties[idx] if len(properties) else None
+
+        return idx, properties, active

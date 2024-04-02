@@ -223,3 +223,24 @@ class CustomizationTreeNode:
 		col.separator()
 		d = col.operator("node.clear_asset_labels", text="", icon='TRASH')
 		d.node_name = self.name
+		
+	def draw_override(self, layout):
+		row = layout.row(align=True)
+		rows = 20 if len(self.properties) > 20 else len(self.properties) + 3
+		row.template_list('NODE_UL_AssetOverrideNode', '', self, 'properties', self, 'properties_idx', rows=rows)
+		row.separator()
+		col = row.column(align=True)
+		col.operator('node.add_asset_property', text="", icon='ADD').node_name = self.name
+
+		col.separator()
+		d = col.operator("node.move_asset_property", text="", icon='TRIA_UP')
+		d.node_name = self.name
+		d.direction = "UP"
+
+		d = col.operator("node.move_asset_property", text="", icon='TRIA_DOWN')
+		d.node_name = self.name
+		d.direction = "DOWN"
+
+		col.separator()
+		d = col.operator("node.clear_asset_properties", text="", icon='TRASH')
+		d.node_name = self.name
