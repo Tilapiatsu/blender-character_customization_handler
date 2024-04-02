@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 @dataclass
 class NodeAttributes:
 	labels : LabelCombinaison = field(default_factory=LabelCombinaison)
-	
+
 	def add_label(self, category:str, name:str, value:bool, weight:bool=1.0, valid_any:bool=False, unique:bool=False):
 		self.labels.add_label(category=category, name=name, value=value, weight=weight, valid_any=valid_any, replace=unique)
 
@@ -28,7 +28,7 @@ class NodeAttributes:
 			labels.add_binary_labels(lc, self.labels[lc].values())
 
 		return labels
-	
+
 	def __str__(self):
 		return f'Attributes : {self.labels}'
 	
@@ -121,6 +121,18 @@ class NodeAsset:
 	@property
 	def materials(self)->dict:
 		return self.asset.materials
+	
+	@property
+	def material_combinaison(self):
+		combinaison = LabelCombinaison()
+		
+		for lc, l in self.attributes.labels.items():
+			if lc not in bpy.context.scene.custo_handler_settings.custo_asset_types_label_categories[self.asset_type.name].materials_label_category:
+				continue
+
+			combinaison.add_binary_labels(lc, l)
+
+		return combinaison
 	
 	def mesh_variation(self, variations:LabelVariation, exclude=[]):
 		return self.asset.mesh_variation(variations, exclude=exclude)

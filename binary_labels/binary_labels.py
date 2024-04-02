@@ -155,7 +155,7 @@ class LabelCategory:
 			text += r'{ ' + f'"{l}" : '
 			text += f'{self.labels[l]}'
 			if i < len(self.labels.keys()) - 1:
-				text += '}, '
+				text += '},\n'
 			
 			i += 1
 		text += '}]'
@@ -228,7 +228,7 @@ class LabelCombinaison:
 			if lc in self.categories.keys():
 				self.categories[lc] = LabelCategory()
 			for ll in l:
-				self.add_binary_label(lc, ll, replace=replace, unique=False)
+				self.add_binary_label(lc, ll, replace=replace)
 
 	def set_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any=False, replace=True, unique=False):
 		if not replace and category in self.categories.keys():

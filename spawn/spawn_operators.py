@@ -335,9 +335,12 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		instance.object = object_instance
 
 		if len(object_instance.material_slots):
-			
 			# get all materials for Mesh Variations
-			materials = mesh.custo_attributes.materials(asset.asset_type, variation=self.mesh_variation)
+			material_variation = copy.deepcopy(self.mesh_variation)
+			material_variation.set_label_combinaison(asset.attributes.labels)
+			# material_variation.set_label_combinaison(asset.material_combinaison)
+			print(material_variation)
+			materials = mesh.custo_attributes.materials(asset.asset_type, variation=material_variation)
 			print('Material List :', materials)
 			if len(materials):
 				# filter by attributes
