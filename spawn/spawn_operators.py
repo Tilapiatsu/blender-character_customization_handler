@@ -315,11 +315,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				pick_new_slot = False
 
 	def spawn_asset(self, asset):
-		# Lock mesh variation : pick one mesh and store mesh variation combinaison for all future asset spawn
-		# if not self.lock_mesh_variation_combinaison(asset):
-		# 	# if no valid mesh found, pick another asset
-		# 	return None
-		
 		mesh = asset.mesh_variation(self.mesh_variation, self.spawned_meshes)
 		
 		self.remove_asset_per_slot(asset)
@@ -397,6 +392,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 				if self.mesh_variation is None:
 					labels = a.valid_labels
+					attributes = a.attributes
+					attribute_labels = attributes.labels
+					labels.set_label_combinaison(attribute_labels)
 					self.mesh_variation = labels.variation
 
 				if self.exclude_incomplete_mesh_combinaison:

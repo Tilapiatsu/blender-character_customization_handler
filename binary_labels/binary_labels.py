@@ -223,6 +223,13 @@ class LabelCombinaison:
 		for lc, l in label_combinaison.items():
 			self.add_binary_labels(lc, l, replace=replace, unique=unique)
 
+	def set_label_combinaison(self, label_combinaison:dict, replace=True):
+		for lc, l in label_combinaison.items():
+			if lc in self.categories.keys():
+				self.categories[lc] = LabelCategory()
+			for ll in l:
+				self.add_binary_label(lc, ll, replace=replace, unique=False)
+
 	def set_label(self, category:str, name:str, value:bool, weight:float=1.0, valid_any=False, replace=True, unique=False):
 		if not replace and category in self.categories.keys():
 			return
