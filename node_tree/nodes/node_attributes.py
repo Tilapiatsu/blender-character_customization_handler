@@ -77,6 +77,10 @@ class NodeOverride():
 	def __str__(self):
 		return f'Overrides : {self.overrides}'
 	
+	def remove(self, name):
+		self.overrides.remove(name)
+
+
 	def items(self):
 		items = self.overrides.properties.items()
 		return items

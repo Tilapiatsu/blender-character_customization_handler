@@ -132,6 +132,10 @@ class Properties():
 		else:
 			self.properties[name].append(prop)
 
+	def set_property(self, target:str, value_type:str, label:str, name:str, value:any, weight:float=1.0):
+		if name in self.properties:
+			prop = eval(PROPERTY_TYPE[value_type])(target=target, label=label, name=name, value=value, weight=weight)
+			self.properties[name] = [prop]
 
 	def keys(self):
 		return list(self.properties.keys())
@@ -189,6 +193,10 @@ class PropertyOverride():
 			self.properties[target] = prop
 		else:
 			self.properties[target].add_property(target=target, value_type=value_type, label=label, name=name, value=value, weight=weight)
+
+	def set_property(self, target:str, value_type:str, label:str, name:str, value:any, weight:float=1.0):
+		prop = eval(PROPERTY_TYPE[value_type])(target=target, label=label, name=name, value=value, weight=weight)
+		self.properties[name] = [prop]
 
 
 	def keys(self):

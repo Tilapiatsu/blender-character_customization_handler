@@ -18,6 +18,7 @@ class OverridePropertyNode(CustomizationTreeNode, Node):
 	
 	properties: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetOverrideProperties)
 	properties_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+	overrride_previous: bpy.props.BoolProperty(name='Override Previous', default=True)
 	
 	@property
 	def category_name(self):
@@ -43,6 +44,7 @@ class OverridePropertyNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context)
+		layout.prop(self, 'overrride_previous')
 		self.draw_override(layout)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
@@ -61,6 +63,12 @@ class OverridePropertyNode(CustomizationTreeNode, Node):
 			return assets
 	
 		for a in assets:
+			if self.overrride_previous:
+				for p in self.properties:
+					if p.target in a.overrides.keys():
+						if p.name in a.overrides[p.target].keys():
+							a.overrides.remove(p.target)
+
 			for p in self.properties:
 				a.overrides.add_override(target=p.target, value_type=p.value_type, label=p.label, name=p.name, value=p.value, weight=p.weight)
 
