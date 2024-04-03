@@ -73,12 +73,12 @@ class NodeOverride():
 
 	def add_override(self, target:str, value_type:str, label:str, name:str, value:any, weight:float=1.0, replace:bool=True):
 		self.overrides.add_property(target=target, value_type=value_type, label=label, name=name, value=value, weight=weight, replace=replace)
-	
+
 	def __str__(self):
 		return f'Overrides : {self.overrides}'
 	
 	def items(self):
-		items = self.overrides.items()
+		items = self.overrides.properties.items()
 		return items
 	
 	def keys(self):

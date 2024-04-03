@@ -17,6 +17,9 @@ def is_customization_tree(self, context):
 class CustoObjectProperties(bpy.types.PropertyGroup):
 	object : bpy.props.PointerProperty(name='Object', type=bpy.types.Object)
 
+class CustoMaterialProperties(bpy.types.PropertyGroup):
+	material : bpy.props.PointerProperty(name='Material', type=bpy.types.Material)
+
 class CustoHandlerSettings(bpy.types.PropertyGroup):
 	# Asset Properties
 	custo_asset_types : bpy.props.CollectionProperty(type=CustoAssetTypeProperties)
@@ -53,8 +56,9 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	
 	# Spawn
 	spawned_mesh_instance : bpy.props.CollectionProperty(type=CustoObjectProperties)
+	spawned_material_instance  : bpy.props.CollectionProperty(type=CustoMaterialProperties)
 
-classes = (CustoObjectProperties, CustoHandlerSettings, )
+classes = (CustoObjectProperties, CustoMaterialProperties, CustoHandlerSettings)
 
 def register():
 	from bpy.utils import register_class

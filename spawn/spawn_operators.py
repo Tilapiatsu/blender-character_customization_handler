@@ -187,6 +187,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawn_tree = self.ch_settings.custo_spawn_tree
 		self.spawn_count = self.ch_settings.custo_spawn_count
 		self.spawned_mesh_instance = self.ch_settings.spawned_mesh_instance
+		self.spawned_material_instance = self.ch_settings.spawned_material_instance
 		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
 		self.exclude_incomplete_mesh_combinaison = self.ch_settings.exclude_incomplete_mesh_combinaison
 
@@ -203,6 +204,11 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def clean_previous_generation(self):
 		for o in self.spawned_mesh_instance:
 			bpy.data.objects.remove(o.object, do_unlink=True)
+
+		for m in self.spawned_material_instance:
+			if m.material is None:
+				continue
+			bpy.data.materials.remove(m.material)
 		
 		self.spawned_mesh_instance.clear()
 		previous_generation = [o for o in bpy.data.objects if o.name.startswith(SPAWN_INSTANCE)]
@@ -355,8 +361,28 @@ class SpawnCustomizationTree(bpy.types.Operator):
 					if not len(materials_slot_filtered):
 						continue
 					material = materials_slot_filtered.pick.material
-					print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
-					s.material = material
+					
+					if not len(asset.overrides):
+						print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
+						s.material = material
+					else:
+						material_instance = material.copy()
+						instance = self.spawned_material_instance.add()
+						instance.material = material_instance
+
+						print(f'Assigning material "{material_instance.name}" to "{object_instance.name}" object')
+						s.material = material_instance
+
+						bsdf = material_instance.node_tree.nodes.get("Principled BSDF")
+						assert(bsdf)
+
+						properties = asset.overrides['MATERIAL'].pick
+
+						for op in properties:
+							if op.name not in bsdf.inputs:
+								continue
+							bsdf.inputs[op.index].default_value = op.value
+							
 		else:
 			print(f'No Materials found of "{object_instance.name}" object')
 

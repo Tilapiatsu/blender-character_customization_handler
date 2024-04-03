@@ -19,7 +19,7 @@ class NodeAssetOverrideProperties(bpy.types.PropertyGroup):
 	int_value: bpy.props.IntProperty(name='value', default=0)
 	bool_value: bpy.props.BoolProperty(name='value', default=False)
 	string_value: bpy.props.StringProperty(name='value', default='')
-	color_value: bpy.props.FloatVectorProperty(name='value', default=[0.0,0.0,0.0], subtype='COLOR')
+	color_value: bpy.props.FloatVectorProperty(name='value', default=[0.0,0.0,0.0,1.0], subtype='COLOR', size=4, max=1.0, min=0.0)
 	vector_value: bpy.props.FloatVectorProperty(name='value', default=[0.0,0.0,0.0], subtype='XYZ')
 	weight : bpy.props.FloatProperty(default=1.0, min=0)
 	
