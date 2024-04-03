@@ -1,7 +1,7 @@
 import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
-from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, LabelCategory, BinaryLabel
-from ...property_override.property_override import PropertyOverride
+from ...attributes.binary_labels.binary_labels import LabelCombinaison, LabelVariation, LabelCategory, BinaryLabel
+from ...attributes.property_override.property_override import PropertyOverride
 from dataclasses import dataclass, field
 
 @dataclass

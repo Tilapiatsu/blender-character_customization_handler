@@ -112,7 +112,7 @@ class UI_AddProperty(bpy.types.Operator, NodeOperator):
 	bl_description = "Add a label"
 
 	node_name: bpy.props.StringProperty(name='Node Name', default='')
-	name : bpy.props.StringProperty(name="Label Name", default="")
+	name : bpy.props.StringProperty(name="Label Name", default='Property Name')
 
 	def execute(self, context):
 		self.tree = context.space_data.node_tree

@@ -1,7 +1,7 @@
 import bpy
 import random, math, copy
 from .spawn_const import SPAWN_COLLECTION, SPAWN_INSTANCE
-from ..binary_labels.binary_labels import LabelCategory
+from ..attributes.binary_labels.binary_labels import LabelCategory
 from time import perf_counter
 
 class AssetsPerSlot:
@@ -338,25 +338,23 @@ class SpawnCustomizationTree(bpy.types.Operator):
 			# get all materials for Mesh Variations
 			material_variation = copy.deepcopy(self.mesh_variation)
 			material_variation.set_label_combinaison(asset.attributes.labels)
-			# material_variation.set_label_combinaison(asset.material_combinaison)
-			print(material_variation)
 			materials = mesh.custo_attributes.materials(asset.asset_type, variation=material_variation)
 			print('Material List :', materials)
 			if len(materials):
 				# filter by attributes
 				material_label_categories = asset.asset_type.asset_type.material_variation_categories
 				attributes = asset.attributes.get_labels(label_categories = material_label_categories)
-				materials_attribute_filtered = mesh.custo_attributes.filter_by_label_combinaison(materials, attributes)
+				materials_attribute_filtered = materials.filter_by_label_combinaison(attributes)
 				print(f'Attribute Filtered Material List :', materials_attribute_filtered, '\n', attributes)
 				# Asstign the proper material to each slots
 				for s in object_instance.material_slots:
 					# Filter by Slots
 					slot_labels = mesh.custo_attributes.valid_labels(s.material, include_label_category=[asset.asset_type.asset_type.material_slot_label_category.name])
-					materials_slot_filtered = mesh.custo_attributes.filter_by_label_combinaison(materials_attribute_filtered, slot_labels)
+					materials_slot_filtered = materials_attribute_filtered.filter_by_label_combinaison(slot_labels, replace_weight=False)
 					print(f'Slot Filtered Material List :', materials_slot_filtered)
 					if not len(materials_slot_filtered):
 						continue
-					material = random.choice(materials_slot_filtered)
+					material = materials_slot_filtered.pick.material
 					print(f'Assigning material "{material.name}" to "{object_instance.name}" object')
 					s.material = material
 		else:

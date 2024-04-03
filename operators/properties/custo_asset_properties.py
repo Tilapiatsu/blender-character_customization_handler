@@ -2,7 +2,7 @@ import bpy
 import random
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
-from ...binary_labels.binary_labels import LabelVariation, LabelCombinaison, BinaryLabel
+from ...attributes.binary_labels.binary_labels import LabelVariation, LabelCombinaison, BinaryLabel
 
 def draw_asset_type_search(layout, property_name, text='', label=''):
 	row = layout.split(align=True, factor=0.2)

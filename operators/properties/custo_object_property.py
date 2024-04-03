@@ -1,6 +1,7 @@
 import bpy
 from .custo_properties import CustoProperty
-from ...binary_labels.binary_labels import LabelCombinaison, LabelVariation, BinaryLabel, LabelCategory
+from ...attributes.binary_labels.binary_labels import LabelCombinaison, LabelVariation, BinaryLabel, LabelCategory
+from ...attributes.materials.materials import MaterialList
 
 class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 	name : bpy.props.StringProperty(name='Object Attribute Name', default='')
@@ -13,7 +14,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		return eval(path)
 
 	def materials(self, asset_type, variation:LabelVariation=None)->list:
-		materials = []
+		materials = MaterialList()
 		mesh_variations_labels = self.valid_mesh_variations(asset_type, self.object)
 
 		combinaison = variation.combinaison
@@ -21,7 +22,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 		for l in self.object.custo_label_category_definition[asset_type.asset_type.asset_label_category.name].labels:
 			if not l.value:
 				continue
-			combinaison.add_binary_label(asset_type.asset_type.asset_label_category.name, BinaryLabel(l.name, l.value, l.valid_any), replace=True)
+			combinaison.add_binary_label(asset_type.asset_type.asset_label_category.name, BinaryLabel(l.name, l.value, l.valid_any, l.weight), replace=True)
 
 		if not self.is_compatible_label_combinaison(mesh_variations_labels, combinaison):
 			return materials
@@ -33,7 +34,7 @@ class CustoObjectAttributesProperties(bpy.types.PropertyGroup, CustoProperty):
 				continue
 
 			if self.is_compatible_label_combinaison(mesh_variations_labels, materials_variations_labels):
-				materials.append(m)
+				materials.add(m)
 
 		return materials
 	
