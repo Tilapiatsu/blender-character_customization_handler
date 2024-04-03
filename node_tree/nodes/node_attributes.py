@@ -69,7 +69,40 @@ class NodeAttributes:
 
 @dataclass
 class NodeOverride():
-	override : PropertyOverride = field(default_factory=PropertyOverride)
+	overrides : PropertyOverride = field(default_factory=PropertyOverride)
+
+	def add_override(self, target:str, value_type:str, label:str, name:str, value:any, weight:float=1.0, replace:bool=True):
+		self.overrides.add_property(target=target, value_type=value_type, label=label, name=name, value=value, weight=weight, replace=replace)
+	
+	def __str__(self):
+		return f'Overrides : {self.overrides}'
+	
+	def items(self):
+		items = self.overrides.items()
+		return items
+	
+	def keys(self):
+		return self.overrides.keys()
+	
+	def values(self):
+		return self.overrides.values()
+	
+	def __len__(self):
+		return len(self.overrides.keys())
+	
+	def __iter__(self):
+		yield len(self.overrides.values())
+		yield from self.overrides.values()
+
+	def __getitem__(self, key):
+		return self.overrides[key]
+		
+	def __contains__(self, item:str):
+		for o in self.overrides.values():
+			if o.target == item:
+				return True
+		return False
+
 
 @dataclass
 class NodeAsset:
@@ -77,6 +110,7 @@ class NodeAsset:
 	attributes : NodeAttributes = field(default_factory=NodeAttributes)
 	overrides : NodeOverride = field(default_factory=NodeOverride)
 	
+	# Decorator
 	def inject_attributes(func):
 		def inject(self):
 			res = func(self)
@@ -85,6 +119,7 @@ class NodeAsset:
 
 		return inject
 
+	# Properties
 	@property
 	def name(self):
 		return self.asset.name

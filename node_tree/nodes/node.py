@@ -147,11 +147,13 @@ class CustomizationTreeNode:
 	
 	def print_assets(self):
 		print(f'{len(self.assets)} asset(s) found')
-		print('---------------------------------------')
+		print('=================================================')
 		for a in self.assets:
 			print(a.name)
 			print(a.attributes)
-		print('---------------------------------------')
+			print(a.overrides)
+			print('-------------------------------------------------')
+		print('=================================================')
 
 	# Follows through reroutes
 	def islinked(self):

@@ -1,9 +1,19 @@
 import bpy
+from enum import Enum
+
+PROPERTY_TYPE = {
+				'FLOAT' : 'foat_value',
+				'INT' : 'int_value',
+				'BOOL' : 'bool_value',
+				'STRING' : 'string_value',
+				'COLOR' : 'color_value',
+				'VECTOR' : 'vector_value'
+				}
 
 class NodeAssetOverrideProperties(bpy.types.PropertyGroup):
 	target: bpy.props.EnumProperty(name='Override Targer', items=[('MATERIAL', 'Material', '')])
-	type: bpy.props.EnumProperty(name='Type', items=[('FLOAT', 'Float', ''), ('INT', 'Int', ''), ('BOOL', 'Bool', ''), ('STRING', 'String', ''), ('COLOR', 'Color', ''), ('VECTOR', 'Vector', '')])
-	slot: bpy.props.StringProperty(name='Slot', default='Slot')
+	value_type: bpy.props.EnumProperty(name='Type', items=[('FLOAT', 'Float', ''), ('INT', 'Int', ''), ('BOOL', 'Bool', ''), ('STRING', 'String', ''), ('COLOR', 'Color', ''), ('VECTOR', 'Vector', '')])
+	label: bpy.props.StringProperty(name='Slot', default='Slot')
 	name: bpy.props.StringProperty(name='Name', default='Property Name')
 	foat_value: bpy.props.FloatProperty(name='value', default=0.0)
 	int_value: bpy.props.IntProperty(name='value', default=0)
@@ -12,6 +22,10 @@ class NodeAssetOverrideProperties(bpy.types.PropertyGroup):
 	color_value: bpy.props.FloatVectorProperty(name='value', default=[0.0,0.0,0.0], subtype='COLOR')
 	vector_value: bpy.props.FloatVectorProperty(name='value', default=[0.0,0.0,0.0], subtype='XYZ')
 	weight : bpy.props.FloatProperty(default=1.0, min=0)
+	
+	@property
+	def value(self):   
+		return getattr(self, PROPERTY_TYPE[self.value_type])
 
 class UL_AssetOverrideNode(bpy.types.UIList):
 	bl_idname = "NODE_UL_AssetOverrideNode"
@@ -20,20 +34,20 @@ class UL_AssetOverrideNode(bpy.types.UIList):
 		ch_settings = context.scene.custo_handler_settings
 		row = layout.row(align=True)
 		row.prop(item, 'target', text='')
-		row.prop_search(item, "slot", ch_settings.custo_asset_types[data.node_tree.asset_type].material_slot_label_category.label_category, "labels", text='')
-		row.prop(item, 'type', text='')
+		row.prop_search(item, "label", ch_settings.custo_asset_types[data.node_tree.asset_type].material_slot_label_category.label_category, "labels", text='')
+		row.prop(item, 'value_type', text='')
 		row.prop(item, 'name', text='')
-		if item.type == 'FLOAT':
+		if item.value_type == 'FLOAT':
 			row.prop(item, 'foat_value', text='')
-		if item.type == 'INT':
+		if item.value_type == 'INT':
 			row.prop(item, 'int_value', text='')
-		if item.type == 'BOOL':
+		if item.value_type == 'BOOL':
 			row.prop(item, 'bool_value', text='')
-		if item.type == 'STRING':
+		if item.value_type == 'STRING':
 			row.prop(item, 'string_value', text='')
-		if item.type == 'COLOR':
+		if item.value_type == 'COLOR':
 			row.prop(item, 'color_value', text='')
-		if item.type == 'VECTOR':
+		if item.value_type == 'VECTOR':
 			row.prop(item, 'vector_value', text='')
 		row.separator()
 		row.alignment = 'EXPAND'

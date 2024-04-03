@@ -59,8 +59,10 @@ class OverridePropertyNode(CustomizationTreeNode, Node):
 		# skip node if muted
 		if self.mute:
 			return assets
-		
-		ch_settings = bpy.context.scene.custo_handler_settings
+	
+		for a in assets:
+			for p in self.properties:
+				a.overrides.add_override(target=p.target, value_type=p.value_type, label=p.label, name=p.name, value=p.value, weight=p.weight)
 
 		return assets
 
