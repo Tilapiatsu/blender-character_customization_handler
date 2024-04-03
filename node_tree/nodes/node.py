@@ -21,7 +21,8 @@ def update_values(self, context):
 
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
-	asset_count : bpy.props.IntProperty(default=0)
+	asset_count : bpy.props.IntProperty(default=0, min=0)
+	priority: bpy.props.IntProperty(name='p', default=0, min=0)
 	label_type = 'DEFAULT'
 	_assets = []
 
@@ -193,13 +194,22 @@ class CustomizationTreeNode:
 			self.use_custom_color = False
 	
 	def layout_header(self, layout, context, asset_count=True):
-		layout.prop(self, 'spawn')
-		row = layout.row(align = True)
+		row = layout.row(align=True)
+		row.alignment = 'LEFT'
+		row.prop(self, 'spawn')
+		row.prop(self, 'priority')
+		row = layout.row(align = False)
+		col = row.column()
+		col.alignment = 'LEFT'
 		if asset_count:
-			row.label(text=f'{self.asset_count} asset(s) found')
+			col.label(text=f'{self.asset_count} asset(s) found')
 		else:
-			row.label(text='')
-		op = row.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
+			col.label(text='')
+		col = row.column()
+		col.alignment = 'RIGHT'
+		row1 = col.row()
+		row1.alignment = 'RIGHT'
+		op = row1.operator("node.print_asset_list", text='', icon='ALIGN_JUSTIFY')
 		op.node_name = self.name
 		layout.separator()
 
