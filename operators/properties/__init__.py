@@ -10,4 +10,4 @@ def unregister():
     custo_asset_properties.unregister()
     custo_slot_properties.unregister()
     custo_label_properties.unregister()
-    custo_object_property.register()
+    custo_object_property.unregister()

@@ -7,5 +7,5 @@ def register():
 
 
 def unregister():
-    node_label_properties.unregister()
+    node_override_properties.unregister()
     node_label_properties.unregister()
