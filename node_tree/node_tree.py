@@ -19,6 +19,16 @@ class CustomizationTree(NodeTree):
 	def custo_nodes(self):
 		return [n for n in self.nodes if n.bl_static_type not in ['REROUTE']]
 	
+	@property
+	def priority_range(self):
+		r = [0, 0]
+		for n in self.custo_nodes:
+			r[0] = min(n.priority, r[0])
+			r[1] = max(n.priority, r[1])
+
+		return tuple(r)
+
+	
 	def draw(self, context):
 		if bpy.context.space_data.tree_type != TREE_NAME or bpy.context.space_data.edit_tree is None:
 			return

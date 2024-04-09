@@ -22,7 +22,7 @@ def update_values(self, context):
 class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
 	asset_count : bpy.props.IntProperty(default=0, min=0)
-	priority: bpy.props.IntProperty(name='p', default=0, min=0)
+	priority: bpy.props.IntProperty(name='p', default=0)
 	label_type = 'DEFAULT'
 	_assets = []
 

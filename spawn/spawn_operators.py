@@ -17,18 +17,6 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	@property
 	def ch_settings(self):
 		return bpy.context.scene.custo_handler_settings
-
-	@property
-	def assets(self) -> list:
-		'''
-		Returns a list of all assets that can be spawned
-		'''
-		# if self._assets is None:
-		self._assets = []
-		for node in self.spawn_tree.custo_nodes:
-			self._assets += [a for a in node.assets if node.spawn and not node.mute and a not in self._assets and not a.is_empty]
-		
-		return self._assets
 	
 	@property
 	def nodes(self) -> list:
@@ -36,9 +24,45 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		Returns a list of all nodes that can be spawned
 		'''
 		if self._nodes is None:
-			self._nodes = [node for node in self.spawn_tree.custo_nodes if node.spawn]
+			self._nodes = [node for node in self.spawn_tree.custo_nodes if node.spawn and not node.mute]
 		
 		return self._nodes
+	
+	@property
+	def priority_range(self):
+		return self.spawn_tree.priority_range
+
+	def nodes_per_priority(self, priority:int) -> list:
+		'''
+		Returns a list of all nodes that can be spawned of a given priority
+		'''
+		
+		self._nodes_per_priority = [node for node in self.nodes if node.spawn and node.priority == priority]
+		
+		return self._nodes_per_priority
+
+	@property
+	def assets(self) -> list:
+		'''
+		Returns a list of all assets that can be spawned
+		'''
+		if self._assets is None:
+			self._assets = []
+			for node in self.nodes:
+				self._assets += [a for a in node.assets if a not in self._assets and not a.is_empty]
+		
+		return self._assets
+	
+	def assets_per_priority(self, priority:int) -> list:
+		'''
+		Returns a list of all assets that can be spawned
+		'''
+
+		self._assets_per_priority = []
+		for node in self.nodes_per_priority(priority):
+			self._assets_per_priority += [a for a in node.assets if a not in self._assets_per_priority and not a.is_empty]
+		
+		return self._assets_per_priority
 
 	@property
 	def assets_per_layer(self) -> list:
@@ -87,6 +111,34 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	@spawned_assets_per_slot.setter
 	def spawned_assets_per_slot(self, key, value):
 		self._spawned_assets_per_slot[key] = value
+
+	@property
+	def assets_per_slots_per_priorities(self) -> dict:
+		'''
+		Returns a dict containing assets ordered by priority:
+		assets_per_layer[0] -> 'slot1':[asset1, asset2, asset3], 'slot2':[asset4, asset5, asset6]
+		'''
+		if self._assets_per_slots_per_priorities is None:
+			self._assets_per_slots_per_priorities = {}
+			assets = self.assets.copy()
+
+			p = self.priority_range[0]
+
+			while len(assets):
+				p_assets = self.assets_per_priority(p)
+
+				if p not in self._assets_per_slots_per_priorities.keys():
+					self._assets_per_slots_per_priorities[p] = self.init_assets_per_slot(p_assets)
+				else:
+					self._assets_per_priority[p].append(self.init_assets_per_slot(p_assets))
+				
+				for a in p_assets:
+					if a in assets:
+						assets.remove(a)
+				
+				p += 1
+		
+		return self._assets_per_slots_per_priorities 
 
 	@property
 	def is_all_slots_spawned(self) -> bool:
@@ -169,20 +221,23 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def get_indexed_name(self, prefix, index):
 		return f'{prefix}_{str(index).zfill(3)}'
 
-	def init_assets_per_slot(self, context) -> None:
+	def init_assets_per_slot(self, asset_list) -> dict:
 		'''
-		Init value for assets_per_slots
+		Returns a dict where each keys contains a list of asset covering the same slots:
+		assets_per_slots[slot1] -> [asset1, asset2, asset3]
 		'''
-		self._assets_per_slot = {}
-		for asset in self.assets:
+		assets_per_slot = {}
+		for asset in asset_list:
 			if not len(asset.all_mesh_variations):
 				continue
 			slots = [s for s in asset.slots if s.value]
 			for slot in slots:
-				if slot.name not in self._assets_per_slot.keys():
-					self._assets_per_slot[slot.name] = [asset]
+				if slot.name not in assets_per_slot.keys():
+					assets_per_slot[slot.name] = [asset]
 				else:
-					self._assets_per_slot[slot.name].append(asset)
+					assets_per_slot[slot.name].append(asset)
+		
+		return assets_per_slot
 
 	def init_spawned_assets_per_slot(self, context) -> None:
 		'''
@@ -210,6 +265,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 		self._assets = None
 		self._nodes = None
+		self._nodes_per_priority = None
+		self._assets_per_priority = None
+		self._assets_per_slots_per_priorities = None
 		self.layer_collection_root = context.view_layer.layer_collection
 
 		self.clean_previous_generation()
@@ -231,8 +289,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	def init_spawn(self, context):
 		self._assets_per_layer = None
 		self._assets_per_slot = None
-		self.init_assets_per_slot(context)
+		self._assets_per_slot = self.init_assets_per_slot(self.assets.copy())
 		self._spawned_assets_per_slot = None
+		self._assets_per_slots_per_priorities = None
 		self.init_spawned_assets_per_slot(context)
 	
 	def invoke(self, context, event):
@@ -307,6 +366,14 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		"""
 		return (index % self.spawn_max_per_row, math.floor(index / self.spawn_max_per_row), 0)
 
+	def update_priority(self):
+		for p in self.assets_per_slots_per_priorities.keys():
+			if not len(self.assets_per_slots_per_priorities[p].keys()):
+				continue
+
+			self.priority = p
+			return
+
 	def spawn_assembly(self):
 		'''
 		Spawn one model, ensuring the model is complete and is without overlaping
@@ -318,8 +385,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		
 		self.lock_mesh_variation()
 
+		self.update_priority()
+
 		while len(self.available_slots):
-			available_slots = self.available_slots.copy()
+			available_slots = list(self.assets_per_slots_per_priorities[self.priority].keys())
 			
 			# Picking a new Slot
 			if pick_new_slot:
@@ -333,13 +402,35 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				pick_new_slot = True
 				self.spawned_assets_per_slot[self.slot] = False
 				continue
+
 			# Pick one asset for selected slot
 			else:
-				asset = self.get_valid_asset_per_layer(self.assets_per_slot[self.slot])
+				# Pick the asset in the proper priority list
+				for p in range(self.priority_range[0], self.priority_range[1]+1):
+					if p not in self.assets_per_slots_per_priorities.keys():
+						continue
+					
+					if self.slot not in self.assets_per_slots_per_priorities[p].keys():
+						continue
+
+					if not len(self.assets_per_slots_per_priorities[p][self.slot]):
+						continue
+					
+					self.priority = p
+					assets = self.assets_per_slots_per_priorities[p][self.slot]
+					break
+				# No Asset Found
+				else:
+					continue
+
+				
+				asset = self.get_valid_asset_per_layer(assets)
 			
 			# Spawn Mesh
 			if not self.spawn_asset(asset) and len(self.assets_per_slot[self.slot]):
 				pick_new_slot = False
+			
+			self.update_priority()
 
 	def spawn_asset(self, asset):
 		mesh = asset.mesh_variation(self.mesh_variation, self.spawned_meshes)
@@ -411,30 +502,55 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return True
 
 	def remove_asset_per_slot(self, asset):
+		def remove_assets_per_slots_per_priorities(asset):
+			slots_to_remove = {}
+			for p, slots in self.assets_per_slots_per_priorities.items():
+				for slot in slots.keys():
+					if slot not in self.assets_per_slots_per_priorities[p].keys():
+						continue
+					
+					assets = self.assets_per_slots_per_priorities[p][slot]
+					if asset in assets:
+						if asset in self.assets_per_slots_per_priorities[p][slot]:
+							self.assets_per_slots_per_priorities[p][slot].remove(asset)
+							if not len(self.assets_per_slots_per_priorities[p][slot]):
+								if p not in slots_to_remove.keys():
+									slots_to_remove[p] = [slot]
+								else:
+									slots_to_remove[p].append(slot)
+
+			for p, slots in slots_to_remove.items():
+				for s in slots:
+					del self.assets_per_slots_per_priorities[p][s]
+				
 		slots = []
 		for s in self.assets_per_slot.keys():
 			if asset in self.assets_per_slot[s]:
 				self.assets_per_slot[s].remove(asset)
 				slots.append(s)
+
+			remove_assets_per_slots_per_priorities(asset)
 			
 		for s in slots:
 			assets = self.assets_per_slot[s].copy()
 			for a in assets:
 				if a.layer <= asset.layer and s in asset.valid_slots and not asset.slots[s].keep_lower_layer_slot:
 					self.assets_per_slot[s].remove(a)
+					remove_assets_per_slots_per_priorities(a)
 				if a.layer == asset.layer and s in asset.valid_slots and asset.slots[s].keep_lower_layer_slot:
 					self.assets_per_slot[s].remove(a)
+					remove_assets_per_slots_per_priorities(a)
 				if a.layer >= asset.layer and s in a.valid_slots and not a.slots[s].keep_lower_layer_slot:
 					if asset not in self.assets_per_slot[s]:
 						continue
 					self.assets_per_slot[s].remove(asset)
+					remove_assets_per_slots_per_priorities(asset)
 				if a.layer == asset.layer and s in a.valid_slots and a.slots[s].keep_lower_layer_slot:
 					if asset not in self.assets_per_slot[s]:
 						continue
 					self.assets_per_slot[s].remove(asset)
+					remove_assets_per_slots_per_priorities(asset)
 				
-						
-	
 	def update_spawned_assets_per_slot(self, asset):
 		for s in asset.slots:
 			if s.name not in self.spawned_assets_per_slot.keys():
