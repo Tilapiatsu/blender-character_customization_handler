@@ -23,10 +23,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		'''
 		Returns a list of all assets that can be spawned
 		'''
-		if self._assets is None:
-			self._assets = []
-			for node in self.spawn_tree.custo_nodes:
-				self._assets += [a for a in node.assets if node.spawn and not node.mute and a not in self._assets and not a.is_empty]
+		# if self._assets is None:
+		self._assets = []
+		for node in self.spawn_tree.custo_nodes:
+			self._assets += [a for a in node.assets if node.spawn and not node.mute and a not in self._assets and not a.is_empty]
 		
 		return self._assets
 	
@@ -118,6 +118,19 @@ class SpawnCustomizationTree(bpy.types.Operator):
 					if a.slots[slot].value and not a.slots[slot].keep_lower_layer_slot:
 						is_available = False
 						break
+					elif a.slots[slot].value and a.slots[slot].keep_lower_layer_slot:
+						for aa in assets:
+							if aa.name == a.name :
+								continue
+							if aa.layer >= a.layer:
+								is_available = False
+								break
+
+						if is_available:
+							continue
+						else:
+							break
+						
 				if is_available:
 					available.append(slot)
 
@@ -234,6 +247,14 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		wm.modal_handler_add(self)
 		return {'RUNNING_MODAL'}
 
+	def get_valid_asset_per_layer(self, asset_list):
+		# def weights(list)->tuple:
+		# 	weights = tuple()
+		# 	for a in list:
+		# 		weights = weights + (1 if a.layer < ref_asset_list)
+		# 	return weights
+		return random.choice(asset_list)
+
 	def create_spawn_collection(self, index=0):
 		'''
 		Creates a new collection to instance assets into. Reuse existing one if found
@@ -288,7 +309,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 	def spawn_assembly(self):
 		'''
-		Spawn one model, ensuring the model is complete and is without overlapping
+		Spawn one model, ensuring the model is complete and is without overlaping
 		'''
 		self.first_asset = True
 		self.mesh_variation = {}
@@ -314,7 +335,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				continue
 			# Pick one asset for selected slot
 			else:
-				asset = random.choice(self.assets_per_slot[self.slot])
+				asset = self.get_valid_asset_per_layer(self.assets_per_slot[self.slot])
 			
 			# Spawn Mesh
 			if not self.spawn_asset(asset) and len(self.assets_per_slot[self.slot]):
@@ -390,9 +411,29 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		return True
 
 	def remove_asset_per_slot(self, asset):
+		slots = []
 		for s in self.assets_per_slot.keys():
 			if asset in self.assets_per_slot[s]:
 				self.assets_per_slot[s].remove(asset)
+				slots.append(s)
+			
+		for s in slots:
+			assets = self.assets_per_slot[s].copy()
+			for a in assets:
+				if a.layer <= asset.layer and s in asset.valid_slots and not asset.slots[s].keep_lower_layer_slot:
+					self.assets_per_slot[s].remove(a)
+				if a.layer == asset.layer and s in asset.valid_slots and asset.slots[s].keep_lower_layer_slot:
+					self.assets_per_slot[s].remove(a)
+				if a.layer >= asset.layer and s in a.valid_slots and not a.slots[s].keep_lower_layer_slot:
+					if asset not in self.assets_per_slot[s]:
+						continue
+					self.assets_per_slot[s].remove(asset)
+				if a.layer == asset.layer and s in a.valid_slots and a.slots[s].keep_lower_layer_slot:
+					if asset not in self.assets_per_slot[s]:
+						continue
+					self.assets_per_slot[s].remove(asset)
+				
+						
 	
 	def update_spawned_assets_per_slot(self, asset):
 		for s in asset.slots:
@@ -402,7 +443,9 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				self.spawned_assets_per_slot[s.name] = []
 			elif self.spawned_assets_per_slot[s.name] is False:
 				continue
-			self.spawned_assets_per_slot[s.name].append(asset)
+
+			if s.value:
+				self.spawned_assets_per_slot[s.name].append(asset)
 
 	def lock_mesh_variation(self):
 		assets = self.assets.copy()

@@ -149,6 +149,10 @@ class NodeAsset:
 		return self.asset.slots
 	
 	@property
+	def valid_slots(self):
+		return [s.name for s in self.asset.slots if s.value]
+	
+	@property
 	def asset_name(self):
 		return self.asset.asset_name
 	

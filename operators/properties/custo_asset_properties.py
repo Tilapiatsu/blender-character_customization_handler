@@ -182,6 +182,10 @@ class CustoAssetProperties(bpy.types.PropertyGroup):
 
 		return valid_labels
 
+	@property
+	def valid_slots(self):
+		return [s.name for s in self.slots if s.value]
+		
 	def valid_labels_from_mesh(self, mesh, include_label_category:list=None):
 		valid_labels = LabelCombinaison()
 		for lc in mesh.custo_label_category_definition:
