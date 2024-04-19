@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from itertools import product as iter_product
 import random
 
 
@@ -174,9 +175,13 @@ class LabelCombinaison:
 		variation = LabelVariation()
 
 		for lc, l in self.categories.items():
+			# if l is None: continue
 			valid = l.valid_labels
 			if not len(valid.values()):
 				continue
+			if valid.valid_any is not None:
+				valid = valid.resolve
+
 			variation[lc] = random.choices(valid.values(), weights=valid.weights)[0]
 		
 		return variation
@@ -346,7 +351,43 @@ class LabelVariation(LabelCombinaison):
 				return True
 		return False
 	
+	def __eq__(self, other):
+		if len(self.keys()) != len(other.keys()):
+			return False
+		
+		for c, l in self.items():
+			if c not in other.keys():
+				return False
+			oc = other[c]
+			if l.name not in oc.labels.keys():
+				return False
+				
+		return True
 
+@dataclass
+class LabelVariationCombinaison:
+	variations : list = field(default_factory=list)
+
+	def create_variation_combinaison(self, combinaison_list):
+		combinaisons = list(iter_product(*combinaison_list))
+
+		for c in combinaisons:
+			variation = LabelVariation()
+			for l in c:
+				variation.add_label(l['category'], l['name'], value=True)
+
+			self.variations.append(variation)
+
+	def remove(self, variation):
+		for v in self.variations:
+			if v == variation:
+				self.variations.remove(v)
+				return True
+		else:
+			return False
+
+	def __len__(self):
+		return len(self.variations)
 
 if __name__ == '__main__':
 	# ref = LabelCategory()

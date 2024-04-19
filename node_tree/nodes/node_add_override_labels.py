@@ -67,7 +67,7 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 				if not len(label.name):
 					continue
 				
-				a.attributes.add_label(category=label.label_category, name=label.name, value= not label.invert, weight=label.weight)
+				a.attributes.add_label(category=label.label_category, name=label.name, value= not label.invert, weight=label.weight, valid_any=ch_settings.custo_label_categories[label.label_category].labels[label.name].valid_any)
 
 		return assets
 

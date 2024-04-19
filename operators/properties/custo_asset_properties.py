@@ -1,8 +1,9 @@
 import bpy
 import random
+from itertools import product as iter_product
 from .custo_label_properties import CustoLabelPropertiesPointer, CustoLabelEnumProperties, CustoLabelCategoryDefinitionProperties
 from .custo_slot_properties import CustoPartSlotsProperties
-from ...attributes.binary_labels.binary_labels import LabelVariation, LabelCombinaison, BinaryLabel
+from ...attributes.binary_labels.binary_labels import LabelVariationCombinaison, LabelVariation, LabelCombinaison, BinaryLabel
 
 def draw_asset_type_search(layout, property_name, text='', label=''):
 	row = layout.split(align=True, factor=0.2)
@@ -91,6 +92,28 @@ class CustoAssetTypeProperties(bpy.types.PropertyGroup):
 	def material_variation_categories(self):
 		return [ self.material_label_category.name ] + [ lc for lc in self.material_variation_label_categories.keys() ]
 	
+	@property
+	def key_label_categories(self):
+		return [self.asset_label_category.label_category, self.mesh_slot_label_category.label_category, self.material_slot_label_category.label_category, self.material_label_category.label_category] + [lc.label_category for lc in self.mesh_variation_label_categories.label_categories] + [lc.label_category for lc in self.material_variation_label_categories.label_categories]
+
+	@property
+	def secoundary_label_categories(self):
+		ch_settings = bpy.context.scene.custo_handler_settings
+		key_label_categories = self.key_label_categories
+		return [lc for lc in ch_settings.custo_label_categories if lc not in key_label_categories]
+
+	@property
+	def all_mesh_variations(self):
+		all_mesh_variations = LabelVariationCombinaison()
+		label_categories = []
+		for lc in self.mesh_variation_label_categories:
+			lc = lc.label_category
+			label_categories.append([{'name':l.name, 'category':lc.name} for l in lc.labels if not l.valid_any])
+		
+		all_mesh_variations.create_variation_combinaison(label_categories)
+		
+		return all_mesh_variations
+
 	def get_assets_per_slot(self, slot:str)->list:
 		"""Returns a list of asset that covers the slot inputed given
 

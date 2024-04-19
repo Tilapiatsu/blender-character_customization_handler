@@ -76,6 +76,9 @@ def init_asset_type_label_category(asset_type):
 		return ch_settings.custo_asset_types_label_categories[asset_type]
 
 def update_mesh_slot_label_categories(asset_type):
+	'''
+	update the label categories contained in Mesh Slots
+	'''
 	ch_settings = bpy.context.scene.custo_handler_settings
 	lc = init_asset_type_label_category(asset_type)
 	lc.mesh_slot_label_category.clear()
@@ -87,6 +90,9 @@ def update_mesh_slot_label_categories(asset_type):
 		cat.name = c
 
 def update_materials_label_categories(asset_type):
+	'''
+	update the label categories contained in Material Categories and any Materials Variation Categories
+	'''
 	ch_settings = bpy.context.scene.custo_handler_settings
 	lc = init_asset_type_label_category(asset_type)
 	lc.materials_label_category.clear()
@@ -99,6 +105,9 @@ def update_materials_label_categories(asset_type):
 		cat.name = c
 
 def update_asset_name_label_categories(asset_type):
+	'''
+	update the label categories contained in Assets Categories
+	'''
 	ch_settings = bpy.context.scene.custo_handler_settings
 	lc = init_asset_type_label_category(asset_type)
 	lc.asset_label_category.clear()
@@ -111,6 +120,9 @@ def update_asset_name_label_categories(asset_type):
 		cat.name = c
 		
 def update_other_label_categories(asset_type):
+	'''
+	update the label categories contained in any LabelCategory but the Asset, Mesh Slot, Materials Slots, Material and material variations
+	'''
 	ch_settings = bpy.context.scene.custo_handler_settings
 	lc = init_asset_type_label_category(asset_type)
 	lc.other_label_category.clear()
@@ -118,9 +130,9 @@ def update_other_label_categories(asset_type):
 	names = ch_settings.custo_label_categories.keys()
 	asset_type = ch_settings.custo_asset_types[asset_type]
 	exclude_label_category_name = [	asset_type.asset_label_category.name, 
-							asset_type.mesh_slot_label_category.name, 
-							asset_type.material_slot_label_category.name, 
-							asset_type.material_label_category.name] + [lc for lc in asset_type.material_variation_label_categories.keys()]
+									asset_type.mesh_slot_label_category.name, 
+									asset_type.material_slot_label_category.name, 
+									asset_type.material_label_category.name ] + [ lc for lc in asset_type.material_variation_label_categories.keys() ]
 	
 	filtered = filter(lambda lc:lc not in exclude_label_category_name, names)
 

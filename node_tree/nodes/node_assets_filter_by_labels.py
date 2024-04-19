@@ -71,12 +71,22 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 					continue
 				found=False
 				
+				valid_any = None
+				if ch_settings.custo_label_categories[label.label_category].valid_any is not None:
+					valid_any = ch_settings.custo_label_categories[label.label_category].valid_any
+
 				for l in ch_settings.custo_label_categories[label.label_category].labels:
-					if label.name.lower() != l.name.lower():
-						continue
-					
-					labels.set_label(category=ch_settings.custo_label_categories[label.label_category].name, name=label.name, value=not label.invert, weight=label.weight)
-					found = True
+					if valid_any is None or valid_any.name != label.name:
+						if label.name != l.name:
+							continue
+						
+						labels.set_label(category=label.label_category, name=label.name, value=not label.invert, weight=label.weight, valid_any=ch_settings.custo_label_categories[label.label_category].labels[label.name].valid_any)
+						found = True
+					else:
+						if l.name == valid_any.name: continue
+
+						labels.add_label(category=label.label_category, name=l.name, value=True, weight=label.weight, valid_any=False)
+						found = True
 						
 				if not found:
 					labels.set_invalid_label()

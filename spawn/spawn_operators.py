@@ -1,7 +1,7 @@
 import bpy
 import random, math, copy
 from .spawn_const import SPAWN_COLLECTION, SPAWN_INSTANCE
-from ..attributes.binary_labels.binary_labels import LabelCategory
+from ..attributes.binary_labels.binary_labels import LabelCategory, LabelVariationCombinaison
 from time import perf_counter
 
 class AssetsPerSlot:
@@ -37,7 +37,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		Returns a list of all nodes that can be spawned of a given priority
 		'''
 		
-		self._nodes_per_priority = [node for node in self.nodes if node.spawn and node.priority == priority]
+		self._nodes_per_priority = [node for node in self.nodes if node.priority == priority]
 		
 		return self._nodes_per_priority
 
@@ -55,11 +55,12 @@ class SpawnCustomizationTree(bpy.types.Operator):
 	
 	def assets_per_priority(self, priority:int) -> list:
 		'''
-		Returns a list of all assets that can be spawned
+		Returns a list of all assets from a given priority
 		'''
 
 		self._assets_per_priority = []
-		for node in self.nodes_per_priority(priority):
+		node_per_priority = self.nodes_per_priority(priority)
+		for node in node_per_priority:
 			self._assets_per_priority += [a for a in node.assets if a not in self._assets_per_priority and not a.is_empty]
 		
 		return self._assets_per_priority
@@ -132,9 +133,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				else:
 					self._assets_per_priority[p].append(self.init_assets_per_slot(p_assets))
 				
+				asset_names = {a.name:a for a in assets}
 				for a in p_assets:
-					if a in assets:
-						assets.remove(a)
+					if a.name in asset_names.keys():
+						assets.remove(asset_names[a.name])
 				
 				p += 1
 		
@@ -258,6 +260,7 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawned_material_instance = self.ch_settings.spawned_material_instance
 		self.spawn_max_per_row = self.ch_settings.custo_spawn_max_per_row
 		self.exclude_incomplete_mesh_combinaison = self.ch_settings.exclude_incomplete_mesh_combinaison
+		self.all_mesh_variations = self.ch_settings.custo_asset_types[self.spawn_tree.asset_type].all_mesh_variations
 
 		self.spawn_complete = False
 		self.i = 0
@@ -383,7 +386,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		self.spawned_meshes = []
 		pick_new_slot = True
 		
-		self.lock_mesh_variation()
+		if not self.lock_mesh_variation():
+			return
 
 		self.update_priority()
 
@@ -568,6 +572,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		invalid_slots = copy.deepcopy(self.available_slots)
 		is_valid_variation = True
 		self.mesh_variation = None
+		# all_mesh_variations = copy.deepcopy(self.all_mesh_variations)
+		# invalid_variations = LabelVariationCombinaison()
 		while len(invalid_slots):
 			if is_valid_variation:
 				current_slot = invalid_slots.pop()
@@ -583,9 +589,10 @@ class SpawnCustomizationTree(bpy.types.Operator):
 					labels.set_label_combinaison(attribute_labels)
 					self.mesh_variation = labels.variation
 
+
 				if self.exclude_incomplete_mesh_combinaison:
 					viable = a.asset_type.asset_type.is_viable_mesh_variation(self.mesh_variation)
-					if not viable:
+					if not viable:					
 						self.mesh_variation = None
 						is_valid_variation = False
 						invalid_slots = copy.deepcopy(self.available_slots)
@@ -596,9 +603,16 @@ class SpawnCustomizationTree(bpy.types.Operator):
 
 				else:
 					print(f'Current Mesh Variation :\n{self.mesh_variation}')
-					return
+					return True
+			# TODO : Need to exit if all mesh_variation has been tested
+   
+			# else:
+			# 	if not len(all_mesh_variations):
+			# 		print(f'No Viable Mesh Variation Found')
+			# 		return False
 				
 		print(f'Current Mesh Variation :\n{self.mesh_variation}')
+		return True
 
 	def lock_mesh_variation_combinaison(self, asset) -> bool:
 		'''

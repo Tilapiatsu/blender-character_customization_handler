@@ -18,6 +18,8 @@ class AssetsFilterByNameNode(CustomizationTreeNode, Node):
 	
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
+
+	label_type = 'ASSET_NAME'
 	
 	@property
 	def category_name(self):

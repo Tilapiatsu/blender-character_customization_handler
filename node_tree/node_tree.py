@@ -23,6 +23,8 @@ class CustomizationTree(NodeTree):
 	def priority_range(self):
 		r = [0, 0]
 		for n in self.custo_nodes:
+			if n.mute or not len(n.assets):
+				continue
 			r[0] = min(n.priority, r[0])
 			r[1] = max(n.priority, r[1])
 

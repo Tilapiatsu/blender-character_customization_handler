@@ -113,17 +113,7 @@ class CustomizationTreeNode:
 				link.to_socket.valid = True
 			else:
 				link.to_socket.valid = False
-	
-	def transfer_attributes(func):
-		def transfer(self):
-			print('transfering attributes')
-			for input in self.inputs:
-				input_node = follow_input_link(input.links[0]).from_node
-				self.temp_labels += input_node.temp_labels
-			return func(self)
 
-		return transfer
-	
 	def get_assets(self):
 		input_assets = []
 		for input in self.inputs:
