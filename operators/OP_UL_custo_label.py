@@ -149,12 +149,9 @@ class UI_EditLabel(bpy.types.Operator):
 
 	def refresh_asset_label_category(self, context):
 		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
-			for lc in asset_type.asset_label_category:
-				if lc.name != self.label_category_name:
-					continue
-				for l in lc.label_category.labels:
-					if l.name == self.old_name:
-						l.name = self.name
+			for l in asset_type.asset_label_category.label_category.labels:
+				if l.name == self.old_name:
+					l.name = self.name
 
 			for lc in asset_type.mesh_variation_label_categories:
 				if lc.name != self.label_category_name:
@@ -175,19 +172,20 @@ class UI_EditLabel(bpy.types.Operator):
 				if l.name == self.old_name:
 					l.name = self.name
 			
-			for l in asset_type.material_variation_label_categories.label_category.labels:
-				if asset_type.material_variation_label_categories.name != self.label_category_name:
+			for lc in asset_type.material_variation_label_categories:
+				if lc.name != self.label_category_name:
 					continue
-				if l.name == self.old_name:
-					l.name = self.name
+				for l in lc.label_category.labels:
+					if l.name == self.old_name:
+						l.name = self.name
 
 		for asset in context.scene.custo_handler_settings.custo_assets:
-			for asset_id in asset.asset_id:
-				if asset_id.label_category_name != self.label_category_name:
-					continue
-				if asset_id.name == self.old_name:
-					asset_id.name = self.name
-					asset_id.label_category_name = self.label_category_name
+			
+			if asset.asset_id.label_category_name != self.label_category_name:
+				continue
+			if asset.asset_id.name == self.old_name:
+				asset.asset_id.name = self.name
+				asset.asset_id.label_category_name = self.label_category_name
 
 			for slot in asset.slots:
 				if asset.asset_type.asset_type.mesh_slot_label_category.name != self.label_category_name:
@@ -196,6 +194,28 @@ class UI_EditLabel(bpy.types.Operator):
 					slot.name = self.name
 			
 			asset.name = get_asset_name(asset.asset_id)
+		
+		for o in bpy.data.objects:
+			if self.label_category_name not in o.custo_label_category_definition:
+				continue
+
+			lc = o.custo_label_category_definition[self.label_category_name]
+			for l in lc.labels:
+				if l.name == self.old_name:
+					l.name = self.name
+					break
+		
+		for m in bpy.data.materials:
+			if self.label_category_name not in m.custo_label_category_definition:
+				continue
+
+			lc = m.custo_label_category_definition[self.label_category_name]
+			for l in lc.labels:
+				if l.name == self.old_name:
+					l.name = self.name
+
+					break
+
 
 class UI_AddLabel(bpy.types.Operator):
 	bl_idname = "scene.add_customization_label"
