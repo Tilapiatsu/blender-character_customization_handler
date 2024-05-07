@@ -213,7 +213,6 @@ class UI_EditLabel(bpy.types.Operator):
 			for l in lc.labels:
 				if l.name == self.old_name:
 					l.name = self.name
-
 					break
 
 
