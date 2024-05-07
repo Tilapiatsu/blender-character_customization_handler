@@ -786,12 +786,13 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				self.collection = self.create_spawn_collection(index=self.i)
 				self.print_init_spawn_message(self.i)
 
+		bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
 		return {'PASS_THROUGH'}
 	
 	def end(self):
 		end = perf_counter()
 		elapsed = end - self.start_time
-		print(f'Generation toked {round(elapsed, 4)} s' )
+		print(f'Generation tooked {round(elapsed, 4)} s' )
 
 classes = ( SpawnCustomizationTree,
 			)
