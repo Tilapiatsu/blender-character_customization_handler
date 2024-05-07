@@ -140,22 +140,34 @@ class UI_EditLabelCategory(bpy.types.Operator):
 	
 	def refresh_asset_type_label_categories(self, context):
 		for asset_type in context.scene.custo_handler_settings.custo_asset_types:
-			for lc in asset_type.asset_label_category:
+			for lc in asset_type.asset_label_category.label_category.labels:
 				if lc.name == self.old_name:
 					lc.name = self.name
 
-			for lc in asset_type.mesh_variation_label_categories:
-				if lc.name == self.old_name:
-					lc.name = self.name
+			for lcp in asset_type.mesh_variation_label_categories:
+				for lc in lcp.label_category.labels:
+					if lc.name == self.old_name:
+						lc.name = self.name
 			
 			if asset_type.mesh_slot_label_category.name == self.old_name:
 				asset_type.mesh_slot_label_category.name = self.name
 
 			if asset_type.material_label_category.name == self.old_name:
 				asset_type.material_label_category.name = self.name
-
-			if asset_type.material_variation_label_categories.name == self.old_name:
-				asset_type.material_variation_label_categories.name = self.name
+			
+			for lc in asset_type.material_variation_label_categories:
+				if lc.name == self.old_name:
+					lc.name = self.name
+		
+		for o in bpy.data.objects:
+			for lc in o.custo_label_category_definition:
+				if lc.name == self.old_name:
+					lc.name = self.name
+		
+		for m in bpy.data.materials:
+			for lc in m.custo_label_category_definition:
+				if lc.name == self.old_name:
+					lc.name = self.name
 
 
 class UI_AddLabelCategory(bpy.types.Operator):
