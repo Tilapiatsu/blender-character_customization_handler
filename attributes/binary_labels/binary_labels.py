@@ -111,7 +111,7 @@ class LabelCategory:
 
 		return result
 
-	def resolve(self, labels:list[BinaryLabel]):
+	def resolve(self, labels:list[BinaryLabel]=None):
 		valid_labels = self.not_valid_any
 		if self.is_valid_any:
 			for l in valid_labels.values():
@@ -119,6 +119,9 @@ class LabelCategory:
 		else:
 			valid_labels = valid_labels.enabled
 
+		if labels is None:
+			return self.valid_labels
+			
 		return self.labels_intersection(valid_labels, labels)
 	
 	def keys(self):
@@ -180,7 +183,7 @@ class LabelCombinaison:
 			if not len(valid.values()):
 				continue
 			if valid.valid_any is not None:
-				valid = valid.resolve
+				valid = valid.resolve()
 
 			variation[lc] = random.choices(valid.values(), weights=valid.weights)[0]
 		
