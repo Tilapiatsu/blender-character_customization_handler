@@ -2,8 +2,7 @@ import bpy
 from ..sockets import node_socket_asset
 from .node_const import SPAWN_COLOR, INVALID_COLOR
 from ..node_const import TREE_NAME
-from ...operators.properties.custo_label_properties import CustoLabelCategoryProperties
-
+from .node_const import NODE_ATTRIBUTE_TARGET_ITEMS
 
 # Follow an input link through any reroutes
 def follow_input_link(link):
@@ -23,6 +22,8 @@ class CustomizationTreeNode:
 	spawn : bpy.props.BoolProperty(name="Spawn", description="The Assets output of this tree will used dirring the spawning phase", default=False, update=update_values)
 	asset_count : bpy.props.IntProperty(default=0, min=0)
 	priority: bpy.props.IntProperty(name='p', default=0)
+
+	target_items = NODE_ATTRIBUTE_TARGET_ITEMS
 	label_type = 'DEFAULT'
 	_assets = []
 

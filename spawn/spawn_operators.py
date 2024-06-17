@@ -459,13 +459,13 @@ class SpawnCustomizationTree(bpy.types.Operator):
 		if len(object_instance.material_slots):
 			# get all materials for Mesh Variations
 			material_variation = copy.deepcopy(self.mesh_variation)
-			material_variation.set_label_combinaison(asset.attributes.labels)
+			material_variation.set_label_combinaison(asset.attributes.get_labels('MATERIALS'))
 			materials = mesh.custo_attributes.materials(asset.asset_type, variation=material_variation)
 			# print('Material List :', materials)
 			if len(materials):
 				# filter by attributes
 				material_label_categories = asset.asset_type.asset_type.material_variation_categories
-				attributes = asset.attributes.get_labels(label_categories = material_label_categories)
+				attributes = asset.attributes.get_labels('MATERIALS', label_categories = material_label_categories)
 				materials_attribute_filtered = materials.filter_by_label_combinaison(attributes)
 				# print(f'Attribute Filtered Material List :', materials_attribute_filtered, '\n', attributes)
 				# Asstign the proper material to each slots
@@ -585,8 +585,8 @@ class SpawnCustomizationTree(bpy.types.Operator):
 				if self.mesh_variation is None:
 					labels = a.valid_labels
 					attributes = a.attributes
-					attribute_labels = attributes.labels
-					labels.set_label_combinaison(attribute_labels)
+					# attribute_labels = attributes.labels
+					# labels.set_label_combinaison(attribute_labels)
 					self.mesh_variation = labels.variation
 
 

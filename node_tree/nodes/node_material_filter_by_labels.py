@@ -69,7 +69,7 @@ class MaterialsFilterByLabelsNode(CustomizationTreeNode, Node):
 				for lc in label_categories:
 					if label.name not in ch_settings.custo_label_categories[lc].labels:
 						continue
-					a.attributes.add_label(category=lc, name=label.name, value= not label.invert, weight=label.weight)
+					a.attributes.add_label('MATERIALS', category=lc, name=label.name, value= not label.invert, weight=label.weight)
 
 		return assets
 

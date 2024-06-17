@@ -16,6 +16,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	bl_icon = 'NODETREE'
 	bl_width_default = 400
 	
+	target: bpy.props.EnumProperty(name='Target', items=CustomizationTreeNode.target_items)
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 
@@ -43,6 +44,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context)
+		layout.prop(self, 'target')
 		self.draw_labels(layout)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
@@ -93,7 +95,7 @@ class AssetsFilterByLabelsNode(CustomizationTreeNode, Node):
 			
 			variation = labels.variation
 			if a.has_mesh_with_labels(variations=variation):
-				a.attributes.add_labels(variation, unique=True)
+				a.attributes.add_labels(self.target, variation, unique=True)
 				filtered.append(a)
 
 		return filtered

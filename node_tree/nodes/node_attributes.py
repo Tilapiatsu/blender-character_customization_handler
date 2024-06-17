@@ -2,31 +2,50 @@ import bpy
 from ...operators.properties.custo_asset_properties import CustoAssetProperties
 from ...attributes.binary_labels.binary_labels import LabelCombinaison, LabelVariation, LabelCategory, BinaryLabel
 from ...attributes.property_override.property_override import PropertyOverride
+# from .node_const import NODE_ATTRIBUTE_TARGETS
 from dataclasses import dataclass, field
 
 @dataclass
 class NodeAttributes:
-	labels : LabelCombinaison = field(default_factory=LabelCombinaison)
+	labels : dict = field(default_factory=dict)
 
-	def add_label(self, category:str, name:str, value:bool, weight:bool=1.0, valid_any:bool=False, unique:bool=False):
-		self.labels.add_label(category=category, name=name, value=value, weight=weight, valid_any=valid_any, replace=unique)
+	# Decorator
+	def create_target(func):
+		def create(self, *args, **kwargs):
+			target = args[0]
+			if target not in self.labels.keys():
+				self.labels[target] = LabelCombinaison()
 
-	def add_labels(self, labels:dict, unique:bool=False):
+			res = func(self, *args, **kwargs)
+			return res
+
+		return create
+
+	@create_target
+	def add_label(self, target:str, category:str, name:str, value:bool, weight:bool=1.0, valid_any:bool=False, unique:bool=False):
+		self.labels[target].add_label(category=category, name=name, value=value, weight=weight, valid_any=valid_any, replace=unique)
+
+	@create_target
+	def add_labels(self, target:str, labels:dict, unique:bool=False):
 		for lc, l in labels.items():
-			self.add_label(lc, name=l.name, value=l.value, valid_any=l.valid_any, unique=unique)
+			self.add_label(target, lc, name=l.name, value=l.value, valid_any=l.valid_any, unique=unique)
 
-	def add_label_combinaison(self, label_combinaison:LabelCombinaison):
+	@create_target
+	def add_label_combinaison(self, target:str, label_combinaison:LabelCombinaison):
 		for lc, l in label_combinaison.items():
-			self.add_label(lc, l.name, l.value, valid_any=l.valid_any, unique=True)
+			self.add_label(target, lc, l.name, l.value, valid_any=l.valid_any, unique=True)
 	
-	def get_labels(self, label_categories:list=None):
+	def get_labels(self, target:str, label_categories:list=None):
 		labels = LabelCombinaison()
 		
-		for lc in self.labels.keys():
+		if target not in self.labels.keys():
+			return labels
+		
+		for lc in self.labels[target].keys():
 			if label_categories is not None:
 				if lc not in label_categories:
 					continue
-			labels.add_binary_labels(lc, self.labels[lc].values())
+			labels.add_binary_labels(lc, self.labels[target][lc].values())
 
 		return labels
 
@@ -118,7 +137,12 @@ class NodeAsset:
 	def inject_attributes(func):
 		def inject(self):
 			res = func(self)
-			res.add_label_combinaison(self.attributes)
+			if 'MESHES' in self.attributes.keys():
+				res.add_label_combinaison(self.attributes['MESHES'])
+
+			if 'MATERIALS' in self.attributes.keys():
+				res.add_label_combinaison(self.attributes['MATERIALS'])
+				
 			return res
 
 		return inject

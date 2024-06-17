@@ -15,6 +15,7 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 	bl_icon = 'NODETREE'
 	bl_width_default = 400
 	
+	target: bpy.props.EnumProperty(name='Target', items=CustomizationTreeNode.target_items)
 	labels: bpy.props.CollectionProperty(name="Labels", description="Labels", type=NodeAssetLabelProperties)
 	labels_idx: bpy.props.IntProperty(name='Index', default=0, min=0)
 	
@@ -42,6 +43,7 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 	# Additional buttons displayed on the node.
 	def draw_buttons(self, context, layout):
 		self.layout_header(layout, context)
+		layout.prop(self, 'target')
 		self.draw_labels(layout)
 
 	# Explicit user label overrides this, but here we can define a label dynamically
@@ -67,7 +69,7 @@ class AddOverrideLabelsNode(CustomizationTreeNode, Node):
 				if not len(label.name):
 					continue
 				
-				a.attributes.add_label(category=label.label_category, name=label.name, value= not label.invert, weight=label.weight, valid_any=ch_settings.custo_label_categories[label.label_category].labels[label.name].valid_any)
+				a.attributes.add_label(self.target, category=label.label_category, name=label.name, value= not label.invert, weight=label.weight, valid_any=ch_settings.custo_label_categories[label.label_category].labels[label.name].valid_any)
 
 		return assets
 
