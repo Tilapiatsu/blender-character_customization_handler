@@ -193,7 +193,7 @@ class UI_EditLabel(bpy.types.Operator):
 				if slot.name == self.old_name:
 					slot.name = self.name
 			
-			asset.name = get_asset_name(asset.asset_id)
+			asset.name = get_asset_name([asset.asset_id])
 		
 		for o in bpy.data.objects:
 			if self.label_category_name not in o.custo_label_category_definition:
