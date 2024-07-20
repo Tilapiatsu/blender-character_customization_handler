@@ -329,11 +329,9 @@ def register():
 
 def unregister():
 	del bpy.types.Material.custo_label_definition_idx
-	del bpy.types.Material.custo_label_definition_updated
 	del bpy.types.Material.custo_label_category_definition
 
 	del bpy.types.Object.custo_label_definition_idx
-	del bpy.types.Object.custo_label_definition_updated
 	del bpy.types.Object.custo_label_category_definition
 	
 	from bpy.utils import unregister_class
