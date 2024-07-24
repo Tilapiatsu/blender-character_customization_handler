@@ -42,7 +42,7 @@ class AssetsFilterByLayerNode(CustomizationTreeNode, Node):
 
 	# Explicit user label overrides this, but here we can define a label dynamically
 	def draw_label(self):
-		return "Filter Assets By Labels"
+		return "Filter Assets By Layer"
 	
 	# Makes sure there is always one empty input socket at the bottom by adding and removing sockets
 	def update_inputs(self):
