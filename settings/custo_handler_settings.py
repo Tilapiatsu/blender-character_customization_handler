@@ -43,8 +43,6 @@ class CustoHandlerSettings(bpy.types.PropertyGroup):
 	custo_label_categories : bpy.props.CollectionProperty(type=CustoLabelCategoryProperties)
 	custo_label_categories_idx : bpy.props.IntProperty(default=0, update=update_label_category)
 	custo_label_category_definition_idx : bpy.props.IntProperty(default=0, min=0)
-	custo_label_definition_object_updated : bpy.props.BoolProperty(default=True)
-	custo_label_definition_material_updated : bpy.props.BoolProperty(default=True)
 	
 	# Custo Tree
 	custo_spawn_tree : bpy.props.PointerProperty(name='Spawn Tree', type=bpy.types.NodeTree, poll=is_customization_tree)
@@ -68,11 +66,15 @@ def register():
 		register_class(cls)
 
 	bpy.types.Scene.custo_handler_settings = bpy.props.PointerProperty(type=CustoHandlerSettings)
+	bpy.types.WindowManager.custo_label_definition_object_updated = bpy.props.BoolProperty(default=True)
+	bpy.types.WindowManager.custo_label_definition_material_updated = bpy.props.BoolProperty(default=True)
 
 
 def unregister():
 
 	del bpy.types.Scene.custo_handler_settings
+	del bpy.types.WindowManager.custo_label_definition_object_updated
+	del bpy.types.WindowManager.custo_label_definition_material_updated
 	
 	from bpy.utils import unregister_class
 	for cls in reversed(classes):
