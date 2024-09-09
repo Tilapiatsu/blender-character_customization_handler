@@ -133,8 +133,10 @@ def update_other_label_categories(asset_type):
     asset_type = ch_settings.custo_asset_types[asset_type]
     exclude_label_category_name = [	asset_type.asset_label_category.name, 
                                     asset_type.mesh_slot_label_category.name, 
-                                    asset_type.material_slot_label_category.name, 
-                                    asset_type.material_label_category.name ] + [ lc for lc in asset_type.material_variation_label_categories.keys() ]
+                                    asset_type.material_slot_label_category.name 
+                                    # asset_type.material_label_category.name 
+                                    ] 
+                                    # + [ lc for lc in asset_type.material_variation_label_categories.keys() ]
     
     filtered = filter(lambda lc:lc not in exclude_label_category_name, names)
 

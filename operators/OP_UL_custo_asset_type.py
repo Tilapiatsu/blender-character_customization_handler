@@ -166,10 +166,10 @@ class UI_EditAssetType(bpy.types.Operator):
 		col.prop_search(self, "asset_label_category", ch_settings, "custo_label_categories", text='Asset ID')
 		col.prop_search(self, "mesh_slot_label_category", ch_settings, "custo_label_categories", text='Mesh Slot')
 		col.prop_search(self, "material_slot_label_category", ch_settings, "custo_label_categories", text='Material Slot')
-		col.prop_search(self, "material_label_category", ch_settings, "custo_label_categories", text='Material')
+		# col.prop_search(self, "material_label_category", ch_settings, "custo_label_categories", text='Material')
 
 		draw_label_categories(col,'Mesh Variations:', 'Mesh Variation Count:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories')
-		draw_label_categories(col, 'Material Variations:','Material Variation Count:', self, 'material_variation_label_category_count', 'material_variation_label_categories')
+		# draw_label_categories(col, 'Material Variations:','Material Variation Count:', self, 'material_variation_label_category_count', 'material_variation_label_categories')
 	
 	def invoke(self, context, event):
 		self.mesh_variation_label_categories.label_category_enums.clear()
@@ -260,9 +260,9 @@ class UI_AddAssetType(bpy.types.Operator):
 		col.prop_search(self, "asset_label_category", ch_settings, "custo_label_categories", text='Asset ID')
 		col.prop_search(self, "mesh_slot_label_category", ch_settings, "custo_label_categories", text='Mesh Slot')
 		col.prop_search(self, "material_slot_label_category", ch_settings, "custo_label_categories", text='Material Slot')
-		col.prop_search(self, "material_label_category", ch_settings, "custo_label_categories", text='Material')		
+		# col.prop_search(self, "material_label_category", ch_settings, "custo_label_categories", text='Material')		
 		draw_label_categories(col,'Mesh Variations:', 'Mesh Variation Count:', self, 'mesh_variation_label_category_count', 'mesh_variation_label_categories')
-		draw_label_categories(col, 'Material Variations:','Material Variation Count:', self, 'material_variation_label_category_count', 'material_variation_label_categories')
+		# draw_label_categories(col, 'Material Variations:','Material Variation Count:', self, 'material_variation_label_category_count', 'material_variation_label_categories')
 
 	def invoke(self, context, event):
 		wm = context.window_manager
