@@ -28,29 +28,29 @@ node_categories = [
         NodeItem("AssetsFilterByLabelsNodeType"),
         NodeItem("AssetsSelectorNodeType")
     ]),
-    CustomizationCategory('MATERIALS', "Materials", items=[
-        NodeItem("MaterialsFilterByLabelsNodeType"),
-    ]),
-    CustomizationCategory('LABELS', "Labels", items=[
-        NodeItem("AddOverrideLabelNodeType"),
-    ]),
+    # CustomizationCategory('MATERIALS', "Materials", items=[
+    #     NodeItem("MaterialsFilterByLabelsNodeType"),
+    # ]),
+    # CustomizationCategory('LABELS', "Labels", items=[
+    # ]),
     CustomizationCategory('OVERRIDE', "Override", items=[
+        NodeItem("AddOverrideLabelNodeType"),
         NodeItem("OverridePropertyNodeType"),
     ]),
-    CustomizationCategory('OTHERNODES', "Other Nodes", items=[
-        # the node item can have additional settings,
-        # which are applied to new nodes
-        # NOTE: settings values are stored as string expressions,
-        # for this reason they should be converted to strings using repr()
-        NodeItem("AssetsAppendNodeType", label="Node A", settings={
-            "my_string_prop": repr("Lorem ipsum dolor sit amet"),
-            "my_float_prop": repr(1.0),
-        }),
-        NodeItem("AssetsAppendNodeType", label="Node B", settings={
-            "my_string_prop": repr("consectetur adipisicing elit"),
-            "my_float_prop": repr(2.0),
-        }),
-    ]),
+    # CustomizationCategory('OTHERNODES', "Other Nodes", items=[
+    #     # the node item can have additional settings,
+    #     # which are applied to new nodes
+    #     # NOTE: settings values are stored as string expressions,
+    #     # for this reason they should be converted to strings using repr()
+    #     NodeItem("AssetsAppendNodeType", label="Node A", settings={
+    #         "my_string_prop": repr("Lorem ipsum dolor sit amet"),
+    #         "my_float_prop": repr(1.0),
+    #     }),
+    #     NodeItem("AssetsAppendNodeType", label="Node B", settings={
+    #         "my_string_prop": repr("consectetur adipisicing elit"),
+    #         "my_float_prop": repr(2.0),
+    #     }),
+    # ]),
 ]
 
 

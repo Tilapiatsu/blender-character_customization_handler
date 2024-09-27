@@ -17,7 +17,7 @@ class CustomizationTree(NodeTree):
 	
 	@property
 	def custo_nodes(self):
-		return [n for n in self.nodes if n.bl_static_type not in ['REROUTE']]
+		return [n for n in self.nodes if n.bl_static_type not in ['REROUTE', 'FRAME']]
 	
 	@property
 	def priority_range(self):
